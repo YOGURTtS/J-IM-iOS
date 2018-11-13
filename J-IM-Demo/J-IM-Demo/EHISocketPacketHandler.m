@@ -12,15 +12,14 @@
 
 @implementation EHISocketPacketHandler
 
-- (NSData *)encodeMessage:(id)message {
-    
-    return nil;
-}
 
+
+/** 解码 */
 - (id)decodeData:(NSData *)data {
     
     return nil;
 }
+
 
 
 

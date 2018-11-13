@@ -5,6 +5,8 @@
 //  Created by yogurts on 2018/11/13.
 //  Copyright © 2018 yogurts. All rights reserved.
 //
+//  命令码类型
+//
 
 #import <Foundation/Foundation.h>
 
@@ -31,9 +33,15 @@ typedef enum : NSUInteger {
     COMMAND_GET_MESSAGE_REQ,            /// 获取聊天消息
     COMMAND_GET_MESSAGE_RESP            /// 获取聊天消息响应
     
-} EHIMessageCommandType;                /// 消息头中命令码类型
+} EHISocketMessageCommand;                /// 消息头中命令码类型
 
 
-@interface EHIMessageCommand : NSObject
 
-@end
+
+/** 获取命令码 */
+NSData * getCommandWithCommandType(EHISocketMessageCommand command) {
+    SignedByte byte[1] = {};
+    byte[0] = (SignedByte) (command & 0xFF);
+    return [NSData dataWithBytes:byte length:1];
+}
+
