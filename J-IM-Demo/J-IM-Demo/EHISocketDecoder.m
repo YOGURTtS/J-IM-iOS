@@ -15,6 +15,7 @@
 /** 解码 */
 - (EHISocketPacket *)decode:(NSData *)data {
     
+    // 判断消息头
     if (![self isHeaderLengthValid:data]) {
         return nil;
     }
