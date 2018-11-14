@@ -7,5 +7,6 @@ target 'J-IM-Demo' do
 
   # Pods for J-IM-Demo
   pod 'CocoaAsyncSocket'
+  pod 'YYModel'
 
 end

@@ -5,6 +5,8 @@
 //  Created by 孙星 on 2018/11/13.
 //  Copyright © 2018 yogurts. All rights reserved.
 //
+//  一些需要用到的参数
+//
 
 #import <Foundation/Foundation.h>
 
@@ -26,6 +28,9 @@ static const int MAX_LENGTH_OF_BODY = (int) (1024 * 1024 * 2.1);
 
 /** 消息头最少为多少字节 */
 static const int LEAST_HEADER_LENGHT = 4; // 1（协议版本号） + 1(mask) + 2(消息体长度) + (2(4字节表示消息体长度)+4(同步发送消息))
+
+/** 消息头字节数 */
+static const int HEADER_LENGHT = 7; // 1（协议版本号） + 1(mask) + 1(命令码) + 4(消息体长度)
 
 /** 加密标识位mask，1为加密，否则不加密 */
 static const SignedByte FIRST_BYTE_MASK_ENCRYPT = -128;

@@ -13,8 +13,10 @@
 		7828C10C219A78110058A76D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7828C10B219A78110058A76D /* Assets.xcassets */; };
 		7828C10F219A78110058A76D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7828C10D219A78110058A76D /* LaunchScreen.storyboard */; };
 		7828C112219A78110058A76D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 7828C111219A78110058A76D /* main.m */; };
-		7828C11A219AAB6C0058A76D /* EHISocketPacketHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 7828C119219AAB6C0058A76D /* EHISocketPacketHandler.m */; };
-		7828C11D219ABB1B0058A76D /* EHISocketMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 7828C11C219ABB1B0058A76D /* EHISocketMessage.m */; };
+		7828C11A219AAB6C0058A76D /* EHISocketManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 7828C119219AAB6C0058A76D /* EHISocketManager.m */; };
+		7828C11D219ABB1B0058A76D /* EHISocketPacket.m in Sources */ = {isa = PBXBuildFile; fileRef = 7828C11C219ABB1B0058A76D /* EHISocketPacket.m */; };
+		787D09D5219BC65300F7B4B3 /* EHISocketDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 787D09D4219BC65300F7B4B3 /* EHISocketDecoder.m */; };
+		787D09D8219C011900F7B4B3 /* EHISocketMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 787D09D7219C011900F7B4B3 /* EHISocketMessage.m */; };
 		78A5FA0C219B06A700802C1E /* EHIMessageConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = 78A5FA0B219B06A700802C1E /* EHIMessageConfig.m */; };
 		78A5FA0F219B107E00802C1E /* EHISocketEncoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 78A5FA0E219B107E00802C1E /* EHISocketEncoder.m */; };
 		F21C10540DAF5B49CAE86C55 /* libPods-J-IM-Demo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F903C651F2055B24DEB4CD1 /* libPods-J-IM-Demo.a */; };
@@ -34,11 +36,15 @@
 		7828C10E219A78110058A76D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		7828C110219A78110058A76D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		7828C111219A78110058A76D /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		7828C118219AAB6C0058A76D /* EHISocketPacketHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EHISocketPacketHandler.h; sourceTree = "<group>"; };
-		7828C119219AAB6C0058A76D /* EHISocketPacketHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EHISocketPacketHandler.m; sourceTree = "<group>"; };
-		7828C11B219ABB1B0058A76D /* EHISocketMessage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EHISocketMessage.h; sourceTree = "<group>"; };
-		7828C11C219ABB1B0058A76D /* EHISocketMessage.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EHISocketMessage.m; sourceTree = "<group>"; };
+		7828C118219AAB6C0058A76D /* EHISocketManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EHISocketManager.h; sourceTree = "<group>"; };
+		7828C119219AAB6C0058A76D /* EHISocketManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EHISocketManager.m; sourceTree = "<group>"; };
+		7828C11B219ABB1B0058A76D /* EHISocketPacket.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EHISocketPacket.h; sourceTree = "<group>"; };
+		7828C11C219ABB1B0058A76D /* EHISocketPacket.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EHISocketPacket.m; sourceTree = "<group>"; };
 		7828C11E219ACEE80058A76D /* EHISocketMessageCommand.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EHISocketMessageCommand.h; sourceTree = "<group>"; };
+		787D09D3219BC65300F7B4B3 /* EHISocketDecoder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EHISocketDecoder.h; sourceTree = "<group>"; };
+		787D09D4219BC65300F7B4B3 /* EHISocketDecoder.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EHISocketDecoder.m; sourceTree = "<group>"; };
+		787D09D6219C011900F7B4B3 /* EHISocketMessage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EHISocketMessage.h; sourceTree = "<group>"; };
+		787D09D7219C011900F7B4B3 /* EHISocketMessage.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EHISocketMessage.m; sourceTree = "<group>"; };
 		78A5FA0A219B06A700802C1E /* EHIMessageConfig.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EHIMessageConfig.h; sourceTree = "<group>"; };
 		78A5FA0B219B06A700802C1E /* EHIMessageConfig.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EHIMessageConfig.m; sourceTree = "<group>"; };
 		78A5FA0D219B107E00802C1E /* EHISocketEncoder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EHISocketEncoder.h; sourceTree = "<group>"; };
@@ -84,12 +90,16 @@
 				7828C106219A78100058A76D /* ViewController.m */,
 				78A5FA0A219B06A700802C1E /* EHIMessageConfig.h */,
 				78A5FA0B219B06A700802C1E /* EHIMessageConfig.m */,
-				7828C118219AAB6C0058A76D /* EHISocketPacketHandler.h */,
-				7828C119219AAB6C0058A76D /* EHISocketPacketHandler.m */,
+				7828C118219AAB6C0058A76D /* EHISocketManager.h */,
+				7828C119219AAB6C0058A76D /* EHISocketManager.m */,
 				78A5FA0D219B107E00802C1E /* EHISocketEncoder.h */,
 				78A5FA0E219B107E00802C1E /* EHISocketEncoder.m */,
-				7828C11B219ABB1B0058A76D /* EHISocketMessage.h */,
-				7828C11C219ABB1B0058A76D /* EHISocketMessage.m */,
+				787D09D3219BC65300F7B4B3 /* EHISocketDecoder.h */,
+				787D09D4219BC65300F7B4B3 /* EHISocketDecoder.m */,
+				7828C11B219ABB1B0058A76D /* EHISocketPacket.h */,
+				7828C11C219ABB1B0058A76D /* EHISocketPacket.m */,
+				787D09D6219C011900F7B4B3 /* EHISocketMessage.h */,
+				787D09D7219C011900F7B4B3 /* EHISocketMessage.m */,
 				7828C11E219ACEE80058A76D /* EHISocketMessageCommand.h */,
 				7828C108219A78100058A76D /* Main.storyboard */,
 				7828C10B219A78110058A76D /* Assets.xcassets */,
@@ -210,12 +220,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				78A5FA0C219B06A700802C1E /* EHIMessageConfig.m in Sources */,
-				7828C11A219AAB6C0058A76D /* EHISocketPacketHandler.m in Sources */,
+				7828C11A219AAB6C0058A76D /* EHISocketManager.m in Sources */,
+				787D09D5219BC65300F7B4B3 /* EHISocketDecoder.m in Sources */,
+				787D09D8219C011900F7B4B3 /* EHISocketMessage.m in Sources */,
 				7828C107219A78100058A76D /* ViewController.m in Sources */,
 				78A5FA0F219B107E00802C1E /* EHISocketEncoder.m in Sources */,
 				7828C112219A78110058A76D /* main.m in Sources */,
 				7828C104219A78100058A76D /* AppDelegate.m in Sources */,
-				7828C11D219ABB1B0058A76D /* EHISocketMessage.m in Sources */,
+				7828C11D219ABB1B0058A76D /* EHISocketPacket.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
