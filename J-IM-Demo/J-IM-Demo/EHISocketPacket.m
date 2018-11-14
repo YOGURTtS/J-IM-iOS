@@ -8,30 +8,25 @@
 
 #import "EHISocketPacket.h"
 #import "EHIMessageConfig.h"
+#import <YYModel.h>
 
 @interface EHISocketPacket ()
 
-/** 当前协议版本号 */
-@property (nonatomic, assign) SignedByte version;
-
-/** 用于描述消息是否加密、压缩、同步发送、使用四字节表示消息体的长度 */
-@property (nonatomic, assign) SignedByte mask;
-
-/**
- *  同步发送序列号，占用4个字节，存放同步序号
- *  注意：如果消息 非同步发送也就是第二个字节 mask 中的第三位为 0，
- *  那这里这 4 个 byte 是不需要设置的,
- *  为 1 的话才需要设置
- */
-@property (nonatomic, assign) SignedByte *serial;
-
-/** 消息体长度，占用4个字节 */
-@property (nonatomic, assign) SignedByte *bodyLength;
 
 @end
 
 
 @implementation EHISocketPacket
+
+
+/** 构造函数 */
+- (instancetype)initWithMessage:(id)message command:(EHISocketMessageCommand)command {
+    if (self = [super init]) {
+        self.body = [message yy_modelToJSONData]; // 模型转data
+        self.cmd = command;
+    }
+    return self;
+}
 
 /** 是否加密 */
 - (SignedByte)encodeEncryptWithMask:(SignedByte)mask andIsEncrypt:(BOOL)isEncrypt {
@@ -72,12 +67,13 @@
 /** 计算消息头长度 */
 - (int)calculateHeaderLength:(BOOL)is4ByteLength {
     
-    int len = 4;
+    int len = LEAST_HEADER_LENGHT;
+    // 使用4字节表示消息体长度
     if (is4ByteLength) {
         len += 2;
     }
-    // TODO: 判断是否同步发送
-    if (0) {
+    // 采用同步发送
+    if (self.serial > 0) {
         len += 4;
     }
     
