@@ -1,20 +1,26 @@
 PODS:
   - CocoaAsyncSocket (7.6.3)
+  - FMDB (2.7.5):
+    - FMDB/standard (= 2.7.5)
+  - FMDB/standard (2.7.5)
   - YYModel (1.0.4)
 
 DEPENDENCIES:
   - CocoaAsyncSocket
+  - FMDB
   - YYModel
 
 SPEC REPOS:
   https://github.com/cocoapods/specs.git:
     - CocoaAsyncSocket
+    - FMDB
     - YYModel
 
 SPEC CHECKSUMS:
   CocoaAsyncSocket: eafaa68a7e0ec99ead0a7b35015e0bf25d2c8987
+  FMDB: 2ce00b547f966261cd18927a3ddb07cb6f3db82a
   YYModel: 2a7fdd96aaa4b86a824e26d0c517de8928c04b30
 
-PODFILE CHECKSUM: 3bed3591390ba4abfdc5d0480584a904d1a0f1a4
+PODFILE CHECKSUM: a3d0ea699be346ae8ce8e7f19c5417631228d17c
 
 COCOAPODS: 1.6.0.beta.2
