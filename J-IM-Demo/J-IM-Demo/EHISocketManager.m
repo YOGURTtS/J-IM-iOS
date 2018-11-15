@@ -13,6 +13,10 @@
 #import "EHISocketMessage.h"
 #import "EHISocketEncoder.h"
 #import "EHISocketDecoder.h"
+#import "EHIMessageConfig.h"
+#import <YYModel.h>
+#import <netinet/in.h>
+
 
 typedef enum : NSUInteger {
     EHISocketStatusUnLogin = 0,
@@ -25,6 +29,7 @@ typedef enum : NSUInteger {
     EHISocketTagHeartbeat,
     EHISocketTagLogin,
     EHISocketTagCloseChat,
+    EHISocketTagACK
 } EHISocketTag;
 
 static const NSTimeInterval kSocketTimeout = -1;
@@ -39,6 +44,7 @@ static const NSTimeInterval kSocketTimeout = -1;
 
 @end
 
+
 @implementation EHISocketManager
 
 /** singleton */
@@ -51,12 +57,43 @@ static const NSTimeInterval kSocketTimeout = -1;
     return instance;
 }
 
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        [self connect];
+    }
+    return self;
+}
+
+/** 连接 */
+- (void)connect {
+    NSError *error;
+    
+    BOOL connectSuccess = [self.socket connectToHost:@"demob.1hai.cn" onPort:56789 error:&error];
+    if (connectSuccess == NO) {
+        NSLog(@"error = %@", error);
+    }
+}
+
+/** 断开连接 */
+- (void)disconnect {
+    [self.socket disconnect];
+}
+
 
 #pragma mark - GCDAsyncSocketDelegate
 
-/** 当socket连接正准备读和写的时候调用，host属性是一个IP地址，而不是一个DNS 名称 */
-- (void)socket:(GCDAsyncSocket *)sock didConnectToHost:(NSString *)host port:(uint16_t)port {
+/** 当socket连接正准备读和写的时候调用 */
+- (void)socket:(GCDAsyncSocket *)sock didConnectToUrl:(NSURL *)url {
     
+    NSLog(@"Socket连接成功");
+    
+    // TODO:登录
+    [self sendLoginMessage];
+    
+}
+
+- (void)socket:(GCDAsyncSocket *)sock didConnectToHost:(NSString *)host port:(uint16_t)port {
     NSLog(@"Socket连接成功");
     // TODO:登录
     [self sendLoginMessage];
@@ -64,17 +101,26 @@ static const NSTimeInterval kSocketTimeout = -1;
 
 /** 当socket已完成所要求的数据读入内存时调用，如果有错误则不调用 */
 - (void)socket:(GCDAsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag {
-    
+    NSLog(@"接收到的data = %@", data);
+    // 获取消息头出错
+    if (![self.decoder isHeaderLengthValid:data]) {
+        [self.socket readDataToLength:HEADER_LENGHT withTimeout:kSocketTimeout tag:tag];
+        return;
+    }
+    // 解码
+    EHISocketPacket *packet = [self.decoder decode:data];
+    [self sendACKMessageWithPacket:packet];
 }
 
 /** 当一个socket已完成请求数据的写入时候调用 */
 - (void)socket:(GCDAsyncSocket *)sock didWriteDataWithTag:(long)tag {
-    
+    NSLog(@"写消息成功");
 }
 
 /** 发生错误，socket关闭，可以在call- back过程调用"unreadData"去取得socket的最后的数据字节 */
 - (void)socketDidDisconnect:(GCDAsyncSocket *)sock withError:(NSError *)err {
     
+    NSLog(@"SocketDidDisconnectWithError:%@", err);
 }
 
 
@@ -133,7 +179,48 @@ static const NSTimeInterval kSocketTimeout = -1;
     [self.socket writeData:data withTimeout:kSocketTimeout tag:EHISocketTagLogin];
 }
 
-/** 发送确认消息 */
+/**
+ *  发送确认消息
+ *  根据接收的包来判断发送
+ */
+- (void)sendACKMessageWithPacket:(EHISocketPacket *)packet {
+    EHISocketMessageCommand ACKCmd;
+    id socketMessage;
+    switch (packet.cmd) {
+        case COMMAND_CHAT_REQ:  // 普通聊天
+            ACKCmd = COMMAND_CHAT_RESP;
+            socketMessage = (EHISocketMessage *)[EHISocketMessage yy_modelWithJSON:packet.body];
+            [socketMessage setCmd:ACKCmd];
+            break;
+        case COMMAND_HEARTBEAT_REQ: // 心跳
+            ACKCmd = COMMAND_HEARTBEAT_REQ;
+            socketMessage = [EHISocketHeartbeatMessage yy_modelWithJSON:packet.body];
+            [socketMessage setCmd:ACKCmd];
+            break;
+        case COMMAND_LOGIN_REQ: // 登录（应该收不到登录请求）
+            NSLog(@"socket收到了登录请求！！！！这是不应该发生的");
+            ACKCmd = COMMAND_LOGIN_RESP;
+            socketMessage = [EHISocketLoginMessage yy_modelWithJSON:packet.body];
+            [socketMessage setCmd:ACKCmd];
+            break;
+//        case COMMAND_HEARTBEAT_REQ: // 客服接受、拒绝、设置状态、最大接入人数、连接方式
+//            ACKCmd = COMMAND_HEARTBEAT_REQ; // 心跳
+//            break;
+        
+        default:
+            
+            NSLog(@"packet.cmd = %d", packet.cmd);
+            [self.socket disconnect];
+            return;
+            break;
+    }
+    
+    packet.cmd = ACKCmd;
+    packet.body = [socketMessage yy_modelToJSONData];
+    NSData *data = [self.encoder encode:packet];
+    [self.socket writeData:data withTimeout:kSocketTimeout tag:EHISocketTagACK];
+    
+}
 
 
 
@@ -143,6 +230,7 @@ static const NSTimeInterval kSocketTimeout = -1;
 - (GCDAsyncSocket *)socket {
     if (!_socket) {
         _socket = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:dispatch_get_global_queue(0, 0)];
+        _socket.IPv4PreferredOverIPv6 = NO; // 优先使用IPv6
     }
     return _socket;
 }

@@ -52,8 +52,10 @@
     }
     packetLength += 1 + 4 + bodyLength;
     
-    NSMutableData *packetData = [NSMutableData dataWithLength:packetLength];
+    NSLog(@"packetLength = %d", packetLength);
+    NSMutableData *packetData = [NSMutableData data];
     [packetData appendBytes:&version length:1];
+    
     [packetData appendBytes:&mask length:1];
     if (isHasSynSeq) {
         int serial = packet.serial;
@@ -62,6 +64,7 @@
     [packetData appendBytes:&cmdByte length:1];
     [packetData appendBytes:&bodyLength length:4];
     [packetData appendData:bodyData];
+    NSLog(@"packetData = %@", packetData);
     
     return packetData;
 }

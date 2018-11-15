@@ -16,4 +16,12 @@
 /** socket */
 @property (nonatomic, strong) GCDAsyncSocket *socket;
 
+- (void)sendMessage;
+
+/** 连接 */
+- (void)connect;
+
+/** 断开连接 */
+- (void)disconnect;
+
 @end
