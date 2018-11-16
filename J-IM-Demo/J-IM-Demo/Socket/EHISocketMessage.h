@@ -39,8 +39,19 @@ typedef NS_ENUM(int, EHISocketChatType) {
 };
 
 /**
- 普通消息
+ 客服状态
  */
+typedef NS_ENUM(NSUInteger, EHISocketCustomServiceOptType) {
+    EHISocketCustomServiceOptTypeAccept             = 1,    /// 接受
+    EHISocketCustomServiceOptTypeRefuse             = 2,    /// 拒绝
+    EHISocketCustomServiceOptTypeIdle               = 3,    /// 设置状态为空闲
+    EHISocketCustomServiceOptTypeBusy               = 4,    /// 设置状态为忙
+    EHISocketCustomServiceOptTypeMaxConnectNumber   = 5,    /// 设置最大接入数
+    EHISocketCustomServiceOptTypeConnectManual      = 6,    /// 设置连接方式为手动
+    EHISocketCustomServiceOptTypeAuto               = 7     /// 设置为自动
+};
+
+
 @interface EHISocketMessage : NSObject
 
 /** 来源ID */
@@ -49,11 +60,7 @@ typedef NS_ENUM(int, EHISocketChatType) {
 /** 目标ID */
 @property (nonatomic, copy) NSString *to;
 
-/**
- 命令码
- 请求:COMMAND_CHAT_REQ(11)
- 响应:COMMAND_CHAT_RESP(12)
- */
+/** 命令码 */
 @property (nonatomic, assign) EHISocketMessageCommand cmd;
 
 /** 消息创建时间 */
@@ -68,22 +75,6 @@ typedef NS_ENUM(int, EHISocketChatType) {
 /** 内容 */
 @property (nonatomic, copy) NSString *content;
 
-@end
-
-
-
-/**
- 登录消息
- */
-@interface EHISocketLoginMessage : NSObject
-
-/**
- 命令码
- 请求:COMMAND_LOGIN_REQ(5)
- 响应:COMMAND_LOGIN_RESP(6)
- */
-@property (nonatomic, assign) EHISocketMessageCommand cmd;
-
 /** 用户名 */
 @property (nonatomic, copy) NSString *loginname;
 
@@ -93,102 +84,14 @@ typedef NS_ENUM(int, EHISocketChatType) {
 /** token */
 @property (nonatomic, copy) NSString *token;
 
-@end
-
-
-
-/**
- 心跳信息
- */
-@interface EHISocketHeartbeatMessage : NSObject
-
-/**
- 命令码
- 请求:COMMAND_HEARTBEAT_REQ(13)
- 响应:COMMAND_HEARTBEAT_REQ(13)
- */
-@property (nonatomic, assign) EHISocketMessageCommand cmd;
-
 /** 设置为1 */
 @property (nonatomic, assign) int hbyte;
 
-@end
-
-
-
-#pragma mark - 关闭聊天信息
-/**
- 关闭类型
- */
-typedef NS_ENUM(NSUInteger, EHISocketCloseChatType) {
-    EHISocketCloseChatTypeByClient          = 1,    /// 客户关闭
-    EHISocketCloseChatTypeByCustomService   = 2,    /// 客服关闭
-};
-
-/**
- 关闭聊天信息
- */
-@interface EHISocketCloseChatMessage : NSObject
-
-/** 来源ID */
-@property (nonatomic, copy) NSString *from;
-
-/** 目标ID */
-@property (nonatomic, copy) NSString *to;
-
-/**
- 命令码
- 请求:COMMAND_CLOSE_REQ(14)
- 响应:COMMAND_CLOSE_REQ(14)
- */
-@property (nonatomic, assign) EHISocketMessageCommand cmd;
-
 /** 操作时间 */
 @property (nonatomic, assign) long optTime;
 
-/** 类型 1 客户关闭 2 客服关闭 */
-@property (nonatomic, assign) EHISocketCloseChatType optType;
-
-@end
-
-
-
-#pragma mark - 客服接受、拒绝、设置状态、最大接入人数、连接方式
-/**
- 客服状态
- */
-typedef NS_ENUM(NSUInteger, EHISocketCustomServiceOptType) {
-    EHISocketCustomServiceOptTypeAccept             = 1,    /// 接受
-    EHISocketCustomServiceOptTypeRefuse             = 2,    /// 拒绝
-    EHISocketCustomServiceOptTypeIdle               = 3,    /// 设置状态为空闲
-    EHISocketCustomServiceOptTypeBusy               = 4,    /// 设置状态为忙
-    EHISocketCustomServiceOptTypeMaxConnectNumber   = 5,    /// 设置最大接入数
-    EHISocketCustomServiceOptTypeConnectManual      = 6,    /// 设置连接方式为手动
-    EHISocketCustomServiceOptTypeAuto               = 7     /// 设置为自动
-};
-
-/**
- 客服接受、拒绝、设置状态、最大接入人数、连接方式
- */
-@interface EHISocketCustomerServiceMessage : NSObject
-
-/** 来源ID */
-@property (nonatomic, copy) NSString *from;
-
-/** 目标ID */
-@property (nonatomic, copy) NSString *to;
-
-/**
- 命令码
- 一嗨自定义10+两位标示
- */
-@property (nonatomic, assign) int cmd;
-
-/** 操作时间 */
-@property (nonatomic, assign) long optTime;
-
-/** 类型 1 接受 2 拒绝 3设置状态为闲 4 设置状态为忙 5 设置最大接入数 6 设置连接方式为手动 7 设置为自动 */
-@property (nonatomic, assign) EHISocketCustomServiceOptType optType;
+/** 类型 */
+@property (nonatomic, assign) int optType;
 
 /** 最大连接人数 */
 @property (nonatomic, assign) int connectAmount;
