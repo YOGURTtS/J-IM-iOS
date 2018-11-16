@@ -52,7 +52,7 @@
     }
     packetLength += 1 + 4 + bodyLength;
     
-    NSLog(@"packetLength = %d", packetLength);
+    // 拼接data
     NSMutableData *packetData = [NSMutableData data];
     [packetData appendBytes:&version length:1];
     
@@ -64,7 +64,6 @@
     [packetData appendBytes:&cmdByte length:1];
     [packetData appendBytes:&bodyLength length:4];
     [packetData appendData:bodyData];
-    NSLog(@"packetData = %@", packetData);
     
     return packetData;
 }
