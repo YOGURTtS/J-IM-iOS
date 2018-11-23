@@ -60,7 +60,7 @@ static const NSTimeInterval kSocketTimeout = -1;
 - (instancetype)init {
     self = [super init];
     if (self) {
-        [self connect];
+//        [self connect];
     }
     return self;
 }
@@ -115,6 +115,8 @@ static const NSTimeInterval kSocketTimeout = -1;
 /** 当一个socket已完成请求数据的写入时候调用 */
 - (void)socket:(GCDAsyncSocket *)sock didWriteDataWithTag:(long)tag {
     NSLog(@"写消息成功");
+    // 读取头部长度的数据
+    [self.socket readDataToLength:HEADER_LENGHT withTimeout:kSocketTimeout tag:tag];
 }
 
 /** 发生错误，socket关闭，可以在call- back过程调用"unreadData"去取得socket的最后的数据字节 */
@@ -128,7 +130,7 @@ static const NSTimeInterval kSocketTimeout = -1;
 
 /** 发送消息 */
 - (void)sendMessage {
-    EHISocketMessage *message = [[EHISocketMessage alloc] init];
+    EHISocketNormalMessage *message = [[EHISocketNormalMessage alloc] init];
     message.cmd = 11;
     message.from = @"111";
     message.to = @"2";
@@ -189,7 +191,7 @@ static const NSTimeInterval kSocketTimeout = -1;
     switch (packet.cmd) {
         case COMMAND_CHAT_REQ:  // 普通聊天
             ACKCmd = COMMAND_CHAT_RESP;
-            socketMessage = (EHISocketMessage *)[EHISocketMessage yy_modelWithJSON:packet.body];
+            socketMessage = (EHISocketNormalMessage *)[EHISocketNormalMessage yy_modelWithJSON:packet.body];
             [socketMessage setCmd:ACKCmd];
             break;
         case COMMAND_HEARTBEAT_REQ: // 心跳

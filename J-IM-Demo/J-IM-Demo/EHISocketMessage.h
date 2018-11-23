@@ -12,11 +12,14 @@
 #import "EHISocketMessageCommand.h"
 
 
+@protocol EHISocketMessage <NSObject>
+
+@end
 
 /**
  普通消息
  */
-@interface EHISocketMessage : NSObject
+@interface EHISocketNormalMessage : NSObject <EHISocketMessage>
 
 /** 来源ID */
 @property (nonatomic, copy) NSString *from;
@@ -50,7 +53,7 @@
 /**
  登录消息
  */
-@interface EHISocketLoginMessage : NSObject
+@interface EHISocketLoginMessage : NSObject <EHISocketMessage>
 
 /**
  命令码
@@ -75,7 +78,7 @@
 /**
  心跳信息
  */
-@interface EHISocketHeartbeatMessage : NSObject
+@interface EHISocketHeartbeatMessage : NSObject <EHISocketMessage>
 
 /**
  命令码
@@ -94,7 +97,7 @@
 /**
  关闭聊天信息
  */
-@interface EHISocketCloseChatMessage : NSObject
+@interface EHISocketCloseChatMessage : NSObject <EHISocketMessage>
 
 /** 来源ID */
 @property (nonatomic, copy) NSString *from;
@@ -122,7 +125,7 @@
 /**
  客服接受、拒绝、设置状态、最大接入人数、连接方式
  */
-@interface EHISocketCustomerServiceMessage : NSObject
+@interface EHISocketCustomerServiceMessage : NSObject <EHISocketMessage>
 
 /** 来源ID */
 @property (nonatomic, copy) NSString *from;

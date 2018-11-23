@@ -8,7 +8,7 @@
 
 #import "EHISocketMessage.h"
 
-@implementation EHISocketMessage
+@implementation EHISocketNormalMessage
 
 @end
 

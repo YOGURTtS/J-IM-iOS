@@ -10,6 +10,7 @@
 #import "EHIMessageConfig.h"
 #import <YYModel.h>
 
+
 @interface EHISocketPacket ()
 
 
@@ -86,6 +87,8 @@
     byte[0] = (SignedByte) (command & 0xFF);
     return [NSData dataWithBytes:byte length:1];
 }
+
+
 
 
 
