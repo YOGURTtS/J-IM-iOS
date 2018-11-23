@@ -12,4 +12,20 @@
 
 @end
 
+@implementation EHISocketLoginMessage
+
+@end
+
+@implementation EHISocketHeartbeatMessage
+
+@end
+
+@implementation EHISocketCloseChatMessage
+
+@end
+
+@implementation EHISocketCustomerServiceMessage
+
+@end
+
 
