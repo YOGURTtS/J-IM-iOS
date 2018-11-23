@@ -87,7 +87,7 @@
  */
 @property (nonatomic, assign) EHISocketMessageCommand cmd;
 
-/** 设置为1 */
+/** 设置为1个字节的任意数 */
 @property (nonatomic, assign) int hbyte;
 
 @end
@@ -116,7 +116,7 @@
 @property (nonatomic, assign) long optTime;
 
 /** 类型 1 客户关闭 2 客服关闭 */
-@property (nonatomic, copy) NSString *optType;
+@property (nonatomic, assign) int optType;
 
 @end
 
@@ -143,7 +143,7 @@
 @property (nonatomic, assign) long optTime;
 
 /** 类型 1 接受 2 拒绝 3设置状态为闲 4 设置状态为忙 5 设置最大接入数 6 设置连接方式为手动 7 设置为自动 */
-@property (nonatomic, copy) NSString *optType;
+@property (nonatomic, assign) int optType;
 
 /** 最大连接人数 */
 @property (nonatomic, assign) int connectAmount;
