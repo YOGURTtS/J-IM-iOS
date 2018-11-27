@@ -21,7 +21,7 @@
     __block BOOL ok = YES;
     [self.dbQueue inDatabase:^(FMDatabase *db) {
         if (![db tableExists:tableName]) {
-            ok = [db executeUpdate:sqlString withArgumentsInArray:nil];
+            ok = [db executeUpdate:sqlString];
         }
     }];
     return ok;

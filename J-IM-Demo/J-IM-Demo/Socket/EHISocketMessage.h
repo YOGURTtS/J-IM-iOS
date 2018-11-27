@@ -11,6 +11,15 @@
 #import <Foundation/Foundation.h>
 #import "EHISocketMessageCommand.h"
 
+/** socket消息类型 */
+typedef NS_ENUM(NSInteger, EHIMessageType) {
+    EHIMessageTypeNormalMessage = 1,            /// 聊天消息
+    EHIMessageTypeLoginMessage = 2,             /// 登录消息
+    EHIMessageTypeHeartbeatMessage = 3,         /// 心跳信息
+    EHIMessageTypeCloseChatMessage = 4,         /// 关闭聊天信息
+    EHIMessageTypeCustomerServiceMessage = 5    /// 客服相关信息
+};
+
 
 @protocol EHISocketMessage <NSObject>
 

@@ -5,11 +5,17 @@
 //  Created by yogurts on 2018/11/13.
 //  Copyright © 2018 yogurts. All rights reserved.
 //
-//  socket单利管理类
+//  socket单例管理类
 //
 
-#import <Foundation/Foundation.h>
+#import "EHISocketMessage.h"
 #import "GCDAsyncSocket.h"
+
+@protocol EHISocketManagerProcotol <NSObject>
+
+
+
+@end
 
 @interface EHISocketManager : NSObject <GCDAsyncSocketDelegate>
 
@@ -17,6 +23,15 @@
 
 /** socket */
 @property (nonatomic, strong) GCDAsyncSocket *socket;
+
+/** 发送文字消息 */
+- (void)sendTextMessage:(EHISocketNormalMessage *)message;
+
+/** 发送语音消息 */
+- (void)sendVoiceMessage:(EHISocketNormalMessage *)message;
+
+/** 发送视频消息 */
+- (void)sendVideoMessage:(EHISocketNormalMessage *)message;
 
 - (void)sendMessage;
 

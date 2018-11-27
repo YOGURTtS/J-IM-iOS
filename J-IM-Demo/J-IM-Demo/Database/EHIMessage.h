@@ -10,7 +10,6 @@
 #import "EHIMessageFrame.h"
 
 #define     MAX_MESSAGE_WIDTH               SCREEN_WIDTH * 0.58
-
 #define     MAX_MESSAGE_IMAGE_WIDTH         WIDTH_SCREEN * 0.45
 #define     MIN_MESSAGE_IMAGE_WIDTH         WIDTH_SCREEN * 0.25
 
@@ -90,6 +89,8 @@ typedef NS_ENUM(NSInteger, EHIMessageReadState) {
 
 /** 消息frame */
 @property (nonatomic, strong, readonly) EHIMessageFrame *messageFrame;
+
+
 + (EHIMessage *)createMessageByType:(EHIMessageType)type;
 
 - (void)resetMessageFrame;

@@ -22,4 +22,5 @@
 /** 解码，获取完整的packet */
 - (EHISocketPacket *)decode:(NSData *)data;
 
+
 @end

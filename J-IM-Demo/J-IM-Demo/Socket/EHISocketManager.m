@@ -175,7 +175,7 @@ static const NSTimeInterval kSocketTimeout = -1;
     long timeStamp = 0;
     timeStamp = (long)[[NSDate dateWithTimeIntervalSinceNow:0] timeIntervalSince1970] * 1000;
     message.optTime = timeStamp;
-    message.optType = @"1";
+    message.optType = 1;
     EHISocketPacket *packet = [[EHISocketPacket alloc] initWithMessage:message command:COMMAND_CLOSE_REQ];
     NSData *data = [self.encoder encode:packet];
     [self.socket writeData:data withTimeout:kSocketTimeout tag:EHISocketTagLogin];

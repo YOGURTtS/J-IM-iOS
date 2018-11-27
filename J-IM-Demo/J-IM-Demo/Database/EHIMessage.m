@@ -10,8 +10,7 @@
 
 @implementation EHIMessage
 
-+ (EHIMessage *)createMessageByType:(EHIMessageType)type
-{
++ (EHIMessage *)createMessageByType:(EHIMessageType)type {
     NSString *className;
     if (type == EHIMessageTypeText) {
         className = @"EHITextMessage";
@@ -22,23 +21,20 @@
     return nil;
 }
 
-- (id)init
-{
+- (id)init {
     if (self = [super init]) {
 
     }
     return self;
 }
 
-- (void)resetMessageFrame
-{
+- (void)resetMessageFrame {
     kMessageFrame = nil;
 }
 
 
-#pragma mark - # Getter
-- (NSMutableDictionary *)content
-{
+#pragma mark - Getter
+- (NSMutableDictionary *)content {
     if (_content == nil) {
         _content = [[NSMutableDictionary alloc] init];
     }
