@@ -69,7 +69,6 @@ typedef NS_ENUM(NSInteger, EHIMessageReadState) {
 /** 发送时间 */
 @property (nonatomic, strong) NSDate *date;
 
-
 @property (nonatomic, assign) BOOL showTime;
 @property (nonatomic, assign) BOOL showName;
 

@@ -25,7 +25,8 @@
 		7847E8EF21AB9E03006B947C /* EHIMessageFrame.m in Sources */ = {isa = PBXBuildFile; fileRef = 7847E8ED21AB9E03006B947C /* EHIMessageFrame.m */; };
 		7847E8F221ABBFE1006B947C /* EHIChatListModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 7847E8F121ABBFE1006B947C /* EHIChatListModel.m */; };
 		7847E8F521ABBFF4006B947C /* EHIContactModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 7847E8F321ABBFF3006B947C /* EHIContactModel.m */; };
-		7847E8F821ACD609006B947C /* EHISocketMessageConverter.m in Sources */ = {isa = PBXBuildFile; fileRef = 7847E8F721ACD609006B947C /* EHISocketMessageConverter.m */; };
+		7847E8F821ACD609006B947C /* EHISocketMessageFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 7847E8F721ACD609006B947C /* EHISocketMessageFactory.m */; };
+		7847E8FE21AE2C0F006B947C /* EHINewCustomerServiceControllerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7847E8FD21AE2C0F006B947C /* EHINewCustomerServiceControllerViewController.m */; };
 		787D09D5219BC65300F7B4B3 /* EHISocketDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 787D09D4219BC65300F7B4B3 /* EHISocketDecoder.m */; };
 		787D09D8219C011900F7B4B3 /* EHISocketMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 787D09D7219C011900F7B4B3 /* EHISocketMessage.m */; };
 		78A5FA0C219B06A700802C1E /* EHIMessageConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = 78A5FA0B219B06A700802C1E /* EHIMessageConfig.m */; };
@@ -74,8 +75,10 @@
 		7847E8F121ABBFE1006B947C /* EHIChatListModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EHIChatListModel.m; sourceTree = "<group>"; };
 		7847E8F321ABBFF3006B947C /* EHIContactModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EHIContactModel.m; sourceTree = "<group>"; };
 		7847E8F421ABBFF4006B947C /* EHIContactModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EHIContactModel.h; sourceTree = "<group>"; };
-		7847E8F621ACD609006B947C /* EHISocketMessageConverter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EHISocketMessageConverter.h; sourceTree = "<group>"; };
-		7847E8F721ACD609006B947C /* EHISocketMessageConverter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EHISocketMessageConverter.m; sourceTree = "<group>"; };
+		7847E8F621ACD609006B947C /* EHISocketMessageFactory.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EHISocketMessageFactory.h; sourceTree = "<group>"; };
+		7847E8F721ACD609006B947C /* EHISocketMessageFactory.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EHISocketMessageFactory.m; sourceTree = "<group>"; };
+		7847E8FC21AE2C0F006B947C /* EHINewCustomerServiceControllerViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EHINewCustomerServiceControllerViewController.h; sourceTree = "<group>"; };
+		7847E8FD21AE2C0F006B947C /* EHINewCustomerServiceControllerViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EHINewCustomerServiceControllerViewController.m; sourceTree = "<group>"; };
 		787D09D3219BC65300F7B4B3 /* EHISocketDecoder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EHISocketDecoder.h; sourceTree = "<group>"; };
 		787D09D4219BC65300F7B4B3 /* EHISocketDecoder.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EHISocketDecoder.m; sourceTree = "<group>"; };
 		787D09D6219C011900F7B4B3 /* EHISocketMessage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EHISocketMessage.h; sourceTree = "<group>"; };
@@ -119,6 +122,9 @@
 		7828C101219A78100058A76D /* J-IM-Demo */ = {
 			isa = PBXGroup;
 			children = (
+				7847E8F921AE2985006B947C /* Controllers */,
+				7847E8FB21AE2996006B947C /* Models */,
+				7847E8FA21AE298F006B947C /* Views */,
 				7847E8D421AB92EB006B947C /* Database */,
 				7847E8D321AB92DE006B947C /* Socket */,
 				7828C102219A78100058A76D /* AppDelegate.h */,
@@ -150,8 +156,8 @@
 				787D09D6219C011900F7B4B3 /* EHISocketMessage.h */,
 				787D09D7219C011900F7B4B3 /* EHISocketMessage.m */,
 				7828C11E219ACEE80058A76D /* EHISocketMessageCommand.h */,
-				7847E8F621ACD609006B947C /* EHISocketMessageConverter.h */,
-				7847E8F721ACD609006B947C /* EHISocketMessageConverter.m */,
+				7847E8F621ACD609006B947C /* EHISocketMessageFactory.h */,
+				7847E8F721ACD609006B947C /* EHISocketMessageFactory.m */,
 			);
 			path = Socket;
 			sourceTree = "<group>";
@@ -159,9 +165,7 @@
 		7847E8D421AB92EB006B947C /* Database */ = {
 			isa = PBXGroup;
 			children = (
-				7847E8E321AB9883006B947C /* NSFilrManager */,
-				7847E8F021ABBFE1006B947C /* EHIChatListModel.h */,
-				7847E8F121ABBFE1006B947C /* EHIChatListModel.m */,
+				7847E8E321AB9883006B947C /* NSFileManager */,
 				7847E8E121AB986F006B947C /* EHIDBFrameDAO.h */,
 				7847E8DF21AB986E006B947C /* EHIDBFrameDAO.m */,
 				7847E8E021AB986E006B947C /* EHIFrameSQL.h */,
@@ -182,15 +186,40 @@
 			path = Database;
 			sourceTree = "<group>";
 		};
-		7847E8E321AB9883006B947C /* NSFilrManager */ = {
+		7847E8E321AB9883006B947C /* NSFileManager */ = {
 			isa = PBXGroup;
 			children = (
+				7847E8E721AB9883006B947C /* NSFileManager+Paths.m */,
 				7847E8E421AB9883006B947C /* NSFileManager+EHIChat.m */,
 				7847E8E521AB9883006B947C /* NSFileManager+Paths.h */,
 				7847E8E621AB9883006B947C /* NSFileManager+EHIChat.h */,
-				7847E8E721AB9883006B947C /* NSFileManager+Paths.m */,
 			);
-			path = NSFilrManager;
+			path = NSFileManager;
+			sourceTree = "<group>";
+		};
+		7847E8F921AE2985006B947C /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				7847E8FC21AE2C0F006B947C /* EHINewCustomerServiceControllerViewController.h */,
+				7847E8FD21AE2C0F006B947C /* EHINewCustomerServiceControllerViewController.m */,
+			);
+			path = Controllers;
+			sourceTree = "<group>";
+		};
+		7847E8FA21AE298F006B947C /* Views */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		7847E8FB21AE2996006B947C /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				7847E8F021ABBFE1006B947C /* EHIChatListModel.h */,
+				7847E8F121ABBFE1006B947C /* EHIChatListModel.m */,
+			);
+			path = Models;
 			sourceTree = "<group>";
 		};
 		9A21D12450071B36A9C2E3AC /* Pods */ = {
@@ -304,7 +333,7 @@
 			files = (
 				78A5FA0C219B06A700802C1E /* EHIMessageConfig.m in Sources */,
 				7847E8DE21AB9868006B947C /* EHIDBChatDAO.m in Sources */,
-				7847E8F821ACD609006B947C /* EHISocketMessageConverter.m in Sources */,
+				7847E8F821ACD609006B947C /* EHISocketMessageFactory.m in Sources */,
 				7847E8EE21AB9E03006B947C /* EHIMessage.m in Sources */,
 				7847E8E921AB9883006B947C /* NSFileManager+Paths.m in Sources */,
 				7828C11A219AAB6C0058A76D /* EHISocketManager.m in Sources */,
@@ -321,6 +350,7 @@
 				7847E8D721AB959D006B947C /* EHIDBBaseDAO.m in Sources */,
 				7828C112219A78110058A76D /* main.m in Sources */,
 				7828C104219A78100058A76D /* AppDelegate.m in Sources */,
+				7847E8FE21AE2C0F006B947C /* EHINewCustomerServiceControllerViewController.m in Sources */,
 				7828C11D219ABB1B0058A76D /* EHISocketPacket.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

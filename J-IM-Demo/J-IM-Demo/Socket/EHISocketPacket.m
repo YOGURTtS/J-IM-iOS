@@ -21,9 +21,9 @@
 
 
 /** 构造函数 */
-- (instancetype)initWithMessage:(id)message command:(EHISocketMessageCommand)command {
+- (instancetype)initWithMessage:(id<EHISocketMessage>)message command:(EHISocketMessageCommand)command {
     if (self = [super init]) {
-        self.body = [message yy_modelToJSONData]; // 模型转data
+        self.body = [(NSObject *)message yy_modelToJSONData]; // 模型转data
         self.cmd = command;
     }
     return self;

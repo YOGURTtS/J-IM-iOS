@@ -8,13 +8,13 @@
 //  TCP包
 //
 
-#import <Foundation/Foundation.h>
 #import "EHISocketMessageCommand.h"
+#import "EHISocketMessage.h"
 
 @interface EHISocketPacket : NSObject
 
 /** 构造函数 */
-- (instancetype)initWithMessage:(id)message command:(EHISocketMessageCommand)command;
+- (instancetype)initWithMessage:(id<EHISocketMessage>)message command:(EHISocketMessageCommand)command;
 
 /** 当前协议版本号 */
 @property (nonatomic, assign) SignedByte version;

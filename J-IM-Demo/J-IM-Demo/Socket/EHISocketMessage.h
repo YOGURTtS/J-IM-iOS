@@ -11,19 +11,37 @@
 #import <Foundation/Foundation.h>
 #import "EHISocketMessageCommand.h"
 
-/** socket消息类型 */
-typedef NS_ENUM(NSInteger, EHIMessageType) {
-    EHIMessageTypeNormalMessage = 1,            /// 聊天消息
-    EHIMessageTypeLoginMessage = 2,             /// 登录消息
-    EHIMessageTypeHeartbeatMessage = 3,         /// 心跳信息
-    EHIMessageTypeCloseChatMessage = 4,         /// 关闭聊天信息
-    EHIMessageTypeCustomerServiceMessage = 5    /// 客服相关信息
+/** socket的包类型 */
+typedef NS_ENUM(NSInteger, EHIPacketType) {
+    EHIPacketTypeNormalMessage = 1,            /// 聊天
+    EHIPacketTypeLoginMessage = 2,             /// 登录
+    EHIPacketTypeHeartbeatMessage = 3,         /// 心跳
+    EHIPacketTypeCloseChatMessage = 4,         /// 关闭聊天
+    EHIPacketTypeCustomerServiceMessage = 5    /// 客服相关
 };
 
 
 @protocol EHISocketMessage <NSObject>
 
+
 @end
+
+/** 消息类型 */
+typedef NS_ENUM(int, EHIMessageType) {
+    EHIMessageTypeText  = 0,    /// 文字
+    EHIMessageTypeImage = 1,    /// 图片
+    EHIMessageTypeVoice = 2,    /// 语音
+    EHIMessageTypeVideo = 3,    /// 视频
+    EHIMessageTypeMusic = 4,    /// 音乐
+    EHIMessageTypeNews  = 5,    /// 新闻
+};
+
+/** 聊天类型 */
+typedef NS_ENUM(int, EHIChatType) {
+    EHIChatTypeUnknown = 0,     /// 未知
+    EHIChatTypePublic  = 1,     /// 公聊
+    EHIChatTypePrivate = 2,     /// 私聊
+};
 
 /**
  普通消息
@@ -47,10 +65,10 @@ typedef NS_ENUM(NSInteger, EHIMessageType) {
 @property (nonatomic, assign) long createTime;
 
 /** 消息类型 */
-@property (nonatomic, assign) int msgType;
+@property (nonatomic, assign) EHIMessageType msgType;
 
 /** 聊天类型 */
-@property (nonatomic, assign) int chatType;
+@property (nonatomic, assign) EHIChatType chatType;
 
 /** 内容 */
 @property (nonatomic, copy) NSString *content;

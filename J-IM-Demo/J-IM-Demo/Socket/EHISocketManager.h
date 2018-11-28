@@ -11,7 +11,11 @@
 #import "EHISocketMessage.h"
 #import "GCDAsyncSocket.h"
 
+@class EHISocketManager;
 @protocol EHISocketManagerProcotol <NSObject>
+
+/** 接收到文字、语音、视频信息 */
+- (void)socketManeger:(EHISocketManager *)socketManager didReceiveMessage:(EHISocketNormalMessage *)message;
 
 
 
@@ -19,24 +23,37 @@
 
 @interface EHISocketManager : NSObject <GCDAsyncSocketDelegate>
 
+/** singleton */
 + (instancetype)sharedInstance;
 
 /** socket */
 @property (nonatomic, strong) GCDAsyncSocket *socket;
 
 /** 发送文字消息 */
-- (void)sendTextMessage:(EHISocketNormalMessage *)message;
+- (void)sendText:(NSString *)text
+                success:(void(^)(void))success
+                failure:(void(^)(NSError *))failure;
 
 /** 发送语音消息 */
-- (void)sendVoiceMessage:(EHISocketNormalMessage *)message;
+- (void)sendVoice:(NSString *)voice
+                 success:(void(^)(void))success
+                 failure:(void(^)(NSError *))failure;
 
 /** 发送视频消息 */
-- (void)sendVideoMessage:(EHISocketNormalMessage *)message;
+- (void)sendVideo:(NSString *)video
+                 success:(void(^)(void))success
+                 failure:(void(^)(NSError *))failure;
 
 - (void)sendMessage;
 
 /** 连接 */
 - (void)connect;
+
+/** 连接socket */
+- (void)connectSocketWithHost:(NSString *)host
+                         port:(uint16_t)port
+                      success:(void(^)(void))success
+                      failure:(void(^)(NSError *))failure;
 
 /** 断开连接 */
 - (void)disconnect;

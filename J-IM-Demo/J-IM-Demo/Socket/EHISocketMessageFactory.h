@@ -11,10 +11,10 @@
 #import "EHISocketMessage.h"
 #import "EHISocketPacket.h"
 
-@interface EHISocketMessageConverter : NSObject
+@interface EHISocketMessageFactory : NSObject
 
 /** 获取消息类型 */
-+ (EHIMessageType)getMessageTypeWithPacket:(EHISocketPacket *)packet;
++ (EHIPacketType)getPacketTypeWithPacket:(EHISocketPacket *)packet;
 
 /** 将包转换为消息对象 */
 + (id<EHISocketMessage>)getMessageWithPacket:(EHISocketPacket *)packet;

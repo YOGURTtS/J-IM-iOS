@@ -43,7 +43,7 @@
 @property (nonatomic, assign) BOOL isRead;
 
 /** 发送者名字 */
-@property (nonatomic , copy) NSString *senderName ;
+@property (nonatomic , copy) NSString *senderName;
 
 
 @end

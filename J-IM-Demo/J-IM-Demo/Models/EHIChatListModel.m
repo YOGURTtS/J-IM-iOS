@@ -10,12 +10,7 @@
 
 @implementation EHIChatListModel
 
-+ (NSDictionary *)objectClassInArray {
-    return @{
-             @"Children" : [EHIChatListModel class],
-             @"Contacts" : [EHIContactModel class]
-             };
-}
+
 
 @end
 
