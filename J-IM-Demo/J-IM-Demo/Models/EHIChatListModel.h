@@ -7,9 +7,10 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "EHIContactModel.h"
 
 @interface EHIChatListModel : NSObject
+
+
 
 /** 级别 */
 @property (nonatomic, copy) NSString *NodeLevel;

@@ -9,16 +9,17 @@
 #import "EHISocketDecoder.h"
 #import "EHIMessageConfig.h"
 #import "EHISocketPacket.h"
+#import <YYModel.h>
 
 @implementation EHISocketDecoder
 
 
 /** 获取消息头，此时packet的消息体为空 */
 - (EHISocketPacket *)getPacketHeader:(NSData *)data {
-    // 判断消息头
-    if (![self isHeaderLengthValid:data]) {
-        return nil;
-    }
+//    // 判断消息头
+//    if (![self isHeaderLengthValid:data]) {
+//        return nil;
+//    }
     
     EHISocketPacket *packet = [EHISocketPacket new];
     
@@ -40,8 +41,9 @@
     // 获取消息体长度
     int bodyLength;
     [data getBytes:&bodyLength range:NSMakeRange(3, 4)];
-    packet.bodyLength = bodyLength;
+    int length = ntohl(bodyLength);
     
+    packet.bodyLength = [[NSNumber numberWithInt:length] intValue];
     return packet;
 }
 
@@ -49,10 +51,10 @@
 /** 解码，获取完整的packet */
 - (EHISocketPacket *)decode:(NSData *)data {
     
-    // 判断消息头
-    if (![self isHeaderLengthValid:data]) {
-        return nil;
-    }
+//    // 判断消息头
+//    if (![self isHeaderLengthValid:data]) {
+//        return nil;
+//    }
     
     // 先获取消息头
     EHISocketPacket *packet = [self getPacketHeader:data];
@@ -60,7 +62,7 @@
     // 获取消息体
     NSData *bodyData = [data subdataWithRange:NSMakeRange(7, packet.bodyLength)];
     packet.body = bodyData;
-    
+    NSLog(@"bodyJson = %@", [[NSString alloc] initWithData:packet.body encoding:NSUTF8StringEncoding]);
     
     return packet;
 }
@@ -78,12 +80,12 @@
         return NO;
     }
     
-    // 判断mask是否正确
-    SignedByte mask;
-    [data getBytes:&mask range:NSMakeRange(1, 1)];
-    if (mask != 0B00010000) { // 0B000100001代表只有4字节表示消息体长度为true，其他为false
-        return NO;
-    }
+//    // 判断mask是否正确
+//    SignedByte mask;
+//    [data getBytes:&mask range:NSMakeRange(1, 1)];
+//    if (mask != 0B00010000) { // 0B000100001代表只有4字节表示消息体长度为true，其他为false
+//        return NO;
+//    }
     
     // 判断命令码是否正确
     SignedByte cmd;

@@ -9,7 +9,7 @@
 #import "ViewController.h"
 #import "EHISocketManager.h"
 
-@interface ViewController ()
+@interface ViewController () <EHISocketManagerProcotol>
 
 @property (nonatomic, strong) EHISocketManager *manager;
 @property (weak, nonatomic) IBOutlet UITextView *textView;
@@ -22,6 +22,11 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
     self.manager = [EHISocketManager sharedInstance];
+    self.manager.delegate = self;
+}
+
+- (void)socketManeger:(EHISocketManager *)socketManager didReceiveMessage:(EHISocketNormalMessage *)message {
+    
 }
 
 

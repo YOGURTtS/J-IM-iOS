@@ -10,8 +10,17 @@
 
 #import <Foundation/Foundation.h>
 
+/** socket解码状态 */
+typedef NS_ENUM(NSInteger, EHIDecodeStatus) {
+    EHIDecodeStatusUnGetHeader, /// 未获取到头
+    EHIDecodeStatusGetHeader    /// 已经获取到头
+};
+
 @class EHISocketPacket;
 @interface EHISocketDecoder : NSObject
+
+/** 解码状态 */
+@property (nonatomic, assign) EHIDecodeStatus decodeStatus;
 
 /** 判断消息头长度是否合法 */
 - (BOOL)isHeaderLengthValid:(NSData *)data;

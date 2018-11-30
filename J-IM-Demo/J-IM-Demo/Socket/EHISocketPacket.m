@@ -23,6 +23,7 @@
 /** 构造函数 */
 - (instancetype)initWithMessage:(id<EHISocketMessage>)message command:(EHISocketMessageCommand)command {
     if (self = [super init]) {
+        NSLog(@"packetJson = %@", [(NSObject *)message yy_modelToJSONString]);
         self.body = [(NSObject *)message yy_modelToJSONData]; // 模型转data
         self.cmd = command;
     }

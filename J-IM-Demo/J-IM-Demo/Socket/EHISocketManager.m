@@ -27,15 +27,10 @@ typedef enum : NSUInteger {
 } EHISocketStatus;
 
 typedef enum : NSUInteger {
-    EHISocketTagText = 10001,
-    EHISocketTagVoice,
-    EHISocketTagVideo,
-    EHISocketTagInit,
-    EHISocketTagHeartbeat,
-    EHISocketTagLogin,
-    EHISocketTagCloseChat,
-    EHISocketTagACK
+    EHISocketTagDefault
 } EHISocketTag;
+
+
 
 static const NSTimeInterval kSocketTimeout = -1;
 
@@ -68,7 +63,7 @@ static const NSTimeInterval kSocketTimeout = -1;
 - (instancetype)init {
     self = [super init];
     if (self) {
-//        [self connect];
+        //        [self connect];
     }
     return self;
 }
@@ -109,9 +104,9 @@ static const NSTimeInterval kSocketTimeout = -1;
 
 /** 当socket连接正准备读和写的时候调用 */
 - (void)socket:(GCDAsyncSocket *)sock didConnectToUrl:(NSURL *)url {
-    
+    // 重置解码状态
+    self.decoder.decodeStatus = EHIDecodeStatusUnGetHeader;
     NSLog(@"Socket连接成功");
-    
     // TODO:登录
     [self sendLoginMessage];
     
@@ -119,30 +114,45 @@ static const NSTimeInterval kSocketTimeout = -1;
 
 - (void)socket:(GCDAsyncSocket *)sock didConnectToHost:(NSString *)host port:(uint16_t)port {
     NSLog(@"Socket连接成功");
-    [self sendHeartbeatMessage];
+//    [self sendHeartbeatMessage];
     // TODO:登录
     [self sendLoginMessage];
 }
 
 /** 当socket已完成所要求的数据读入内存时调用，如果有错误则不调用 */
 - (void)socket:(GCDAsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag {
-    NSLog(@"接收到的data = %@", data);
-    // 获取消息头出错
-    if (![self.decoder isHeaderLengthValid:data]) {
-        [self.socket readDataToLength:HEADER_LENGHT withTimeout:kSocketTimeout tag:tag];
+    // 消息头
+    static NSData *headerData;
+    
+    if (self.decoder.decodeStatus == EHIDecodeStatusUnGetHeader) {
+        // 获取消息头出错
+        if (![self.decoder isHeaderLengthValid:data]) {
+            [self.socket readDataToLength:HEADER_LENGHT withTimeout:kSocketTimeout tag:tag];
+            return;
+        }
+        self.decoder.decodeStatus = EHIDecodeStatusGetHeader;
+        headerData = data;
+        // 获取消息头
+        EHISocketPacket *header = [self.decoder getPacketHeader:data];
+        [self.socket readDataToLength:header.bodyLength withTimeout:kSocketTimeout tag:tag];
         return;
     }
+    
+    // 拼接完整的data
+    NSMutableData *completeData = [[NSMutableData alloc] initWithData:headerData];
+    [completeData appendData:data];
+    
     // 解码
-    EHISocketPacket *packet = [self.decoder decode:data];
-    [self sendACKMessageWithPacket:packet];
+    EHISocketPacket *packet = [self.decoder decode:completeData];
+    self.decoder.decodeStatus = EHIDecodeStatusUnGetHeader;
+//    [self sendACKMessageWithPacket:packet];
 }
 
 /** 当一个socket已完成请求数据的写入时候调用 */
 - (void)socket:(GCDAsyncSocket *)sock didWriteDataWithTag:(long)tag {
-    if (tag == EHISocketTagHeartbeat) {
-        NSLog(@"心跳包写成功");
-    }
+   
     NSLog(@"写消息成功");
+    
     // 读取头部长度的数据
     [self.socket readDataToLength:HEADER_LENGHT withTimeout:kSocketTimeout tag:tag];
 }
@@ -155,12 +165,12 @@ static const NSTimeInterval kSocketTimeout = -1;
 
 
 #pragma mark - 发送各种包
- 
+
 - (void)sendText:(NSString *)text success:(void (^)(void))success failure:(void (^)(NSError *))failure {
     EHISocketNormalMessage *message = [[EHISocketNormalMessage alloc] init];
     message.cmd = COMMAND_CHAT_REQ;
     message.from = @"111";
-    message.to = @"2";
+    message.to = @"10100";
     long timeStamp = 0;
     timeStamp = (long)[[NSDate dateWithTimeIntervalSinceNow:0] timeIntervalSince1970] * 1000;
     message.createTime = timeStamp;
@@ -169,7 +179,7 @@ static const NSTimeInterval kSocketTimeout = -1;
     message.content = text;
     EHISocketPacket *packet = [[EHISocketPacket alloc] initWithMessage:message command:COMMAND_CHAT_REQ];
     NSData *data = [self.encoder encode:packet];
-    [self.socket writeData:data withTimeout:kSocketTimeout tag:EHISocketTagText];
+    [self.socket writeData:data withTimeout:kSocketTimeout tag:EHISocketTagDefault];
 }
 
 - (void)sendVoice:(NSString *)voice success:(void (^)(void))success failure:(void (^)(NSError *))failure {
@@ -185,7 +195,7 @@ static const NSTimeInterval kSocketTimeout = -1;
     message.content = voice;
     EHISocketPacket *packet = [[EHISocketPacket alloc] initWithMessage:message command:COMMAND_CHAT_REQ];
     NSData *data = [self.encoder encode:packet];
-    [self.socket writeData:data withTimeout:kSocketTimeout tag:EHISocketTagText];
+    [self.socket writeData:data withTimeout:kSocketTimeout tag:EHISocketTagDefault];
 }
 
 - (void)sendVideo:(NSString *)video success:(void (^)(void))success failure:(void (^)(NSError *))failure {
@@ -201,7 +211,7 @@ static const NSTimeInterval kSocketTimeout = -1;
     message.content = video;
     EHISocketPacket *packet = [[EHISocketPacket alloc] initWithMessage:message command:COMMAND_CHAT_REQ];
     NSData *data = [self.encoder encode:packet];
-    [self.socket writeData:data withTimeout:kSocketTimeout tag:EHISocketTagText];
+    [self.socket writeData:data withTimeout:kSocketTimeout tag:EHISocketTagDefault];
 }
 
 /** 发送消息 */
@@ -209,7 +219,7 @@ static const NSTimeInterval kSocketTimeout = -1;
     EHISocketNormalMessage *message = [[EHISocketNormalMessage alloc] init];
     message.cmd = 11;
     message.from = @"111";
-    message.to = @"2";
+    message.to = @"10100";
     long timeStamp = 0;
     timeStamp = (long)[[NSDate dateWithTimeIntervalSinceNow:0] timeIntervalSince1970] * 1000;
     message.createTime = timeStamp;
@@ -217,7 +227,8 @@ static const NSTimeInterval kSocketTimeout = -1;
     message.chatType = 2;
     EHISocketPacket *packet = [[EHISocketPacket alloc] initWithMessage:message command:COMMAND_CHAT_REQ];
     NSData *data = [self.encoder encode:packet];
-    [self.socket writeData:data withTimeout:kSocketTimeout tag:EHISocketTagLogin];
+    
+    [self.socket writeData:data withTimeout:kSocketTimeout tag:EHISocketTagDefault];
 }
 
 /** 发送登录信息 */
@@ -229,7 +240,8 @@ static const NSTimeInterval kSocketTimeout = -1;
     message.password = @"111";
     EHISocketPacket *packet = [[EHISocketPacket alloc] initWithMessage:message command:COMMAND_LOGIN_REQ];
     NSData *data = [self.encoder encode:packet];
-    [self.socket writeData:data withTimeout:kSocketTimeout tag:EHISocketTagLogin];
+    
+    [self.socket writeData:data withTimeout:kSocketTimeout tag:EHISocketTagDefault];
 }
 
 /** 发送心跳包 */
@@ -240,11 +252,10 @@ static const NSTimeInterval kSocketTimeout = -1;
     EHISocketPacket *packet = [[EHISocketPacket alloc] initWithMessage:message command:COMMAND_HEARTBEAT_REQ];
     NSData *data = [self.encoder encode:packet];
     
-    
     dispatch_source_set_timer(self.timer,dispatch_walltime(NULL, 0),kHeartbeatTimeInterval * NSEC_PER_SEC, 0); // 每5秒发送一次心跳包
     dispatch_source_set_event_handler(_timer, ^{
         NSLog(@"发送心跳包");
-        [self.socket writeData:data withTimeout:kSocketTimeout tag:EHISocketTagHeartbeat];
+        [self.socket writeData:data withTimeout:kSocketTimeout tag:EHISocketTagDefault];
     });
     
     dispatch_resume(self.timer);
@@ -262,7 +273,7 @@ static const NSTimeInterval kSocketTimeout = -1;
     message.optType = 1;
     EHISocketPacket *packet = [[EHISocketPacket alloc] initWithMessage:message command:COMMAND_CLOSE_REQ];
     NSData *data = [self.encoder encode:packet];
-    [self.socket writeData:data withTimeout:kSocketTimeout tag:EHISocketTagLogin];
+    [self.socket writeData:data withTimeout:kSocketTimeout tag:EHISocketTagDefault];
 }
 
 /**
@@ -289,10 +300,10 @@ static const NSTimeInterval kSocketTimeout = -1;
             socketMessage = [EHISocketLoginMessage yy_modelWithJSON:packet.body];
             [socketMessage setCmd:ACKCmd];
             break;
-//        case COMMAND_HEARTBEAT_REQ: // 客服接受、拒绝、设置状态、最大接入人数、连接方式
-//            ACKCmd = COMMAND_HEARTBEAT_REQ; // 心跳
-//            break;
-        
+            //        case COMMAND_HEARTBEAT_REQ: // 客服接受、拒绝、设置状态、最大接入人数、连接方式
+            //            ACKCmd = COMMAND_HEARTBEAT_REQ; // 心跳
+            //            break;
+            
         default:
             
             NSLog(@"packet.cmd = %d", packet.cmd);
@@ -304,7 +315,7 @@ static const NSTimeInterval kSocketTimeout = -1;
     packet.cmd = ACKCmd;
     packet.body = [socketMessage yy_modelToJSONData];
     NSData *data = [self.encoder encode:packet];
-    [self.socket writeData:data withTimeout:kSocketTimeout tag:EHISocketTagACK];
+    [self.socket writeData:data withTimeout:kSocketTimeout tag:EHISocketTagDefault];
     
 }
 
@@ -316,7 +327,8 @@ static const NSTimeInterval kSocketTimeout = -1;
 - (GCDAsyncSocket *)socket {
     if (!_socket) {
         _socket = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:dispatch_get_global_queue(0, 0)];
-        _socket.IPv4PreferredOverIPv6 = NO; // 优先使用IPv6
+        // 优先使用IPv6
+        _socket.IPv4PreferredOverIPv6 = NO;
     }
     return _socket;
 }
