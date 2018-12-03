@@ -7,7 +7,11 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "EHICustomerServiceModel.h"
 
 @interface EHICustomerServiceCell : UITableViewCell
+
+/** model */
+@property (nonatomic, strong) EHICustomerServiceModel *model;
 
 @end

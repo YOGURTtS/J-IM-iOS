@@ -9,5 +9,6 @@ target 'J-IM-Demo' do
   pod 'CocoaAsyncSocket'
   pod 'YYModel'
   pod 'FMDB'
+  pod 'AFNetworking'
 
 end

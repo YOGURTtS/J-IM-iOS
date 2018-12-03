@@ -17,7 +17,7 @@
 typedef NS_ENUM(NSInteger, EHIMessageType) {
     EHIMessageTypeUnknown,
     EHIMessageTypeText,          /// 文字
-    EHIMessageTypeImage,         /// 图片
+    EHIMessageTypePicture,         /// 图片
     EHIMessageTypeExpression,    /// 表情
     EHIMessageTypeVoice,         /// 语音
     EHIMessageTypeOther,

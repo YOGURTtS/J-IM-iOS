@@ -16,6 +16,7 @@
 #import "EHIMessageConfig.h"
 #import <YYModel.h>
 #import <netinet/in.h>
+#import <AFNetworking.h>
 
 /** 心跳包发送间隔 */
 #define kHeartbeatTimeInterval 5.0
@@ -108,7 +109,7 @@ static const NSTimeInterval kSocketTimeout = -1;
     self.decoder.decodeStatus = EHIDecodeStatusUnGetHeader;
     NSLog(@"Socket连接成功");
     // TODO:登录
-    [self sendLoginMessage];
+    [self login];
     
 }
 
@@ -116,7 +117,7 @@ static const NSTimeInterval kSocketTimeout = -1;
     NSLog(@"Socket连接成功");
 //    [self sendHeartbeatMessage];
     // TODO:登录
-    [self sendLoginMessage];
+    [self login];
 }
 
 /** 当socket已完成所要求的数据读入内存时调用，如果有错误则不调用 */
@@ -242,6 +243,27 @@ static const NSTimeInterval kSocketTimeout = -1;
     NSData *data = [self.encoder encode:packet];
     
     [self.socket writeData:data withTimeout:kSocketTimeout tag:EHISocketTagDefault];
+}
+
+- (void)login {
+    
+    NSDictionary *dict = @{
+                           @"carNo": @"111",
+                           @"customerEntrance": @"111",
+                           @"customerId": @"111",
+                           @"customerName": @"111",
+                           @"customerPhone": @"111",
+                           @"lastCustomerServiceId": @"111",
+                           @"orderNo": @"111"
+                           };
+    
+    [[[AFHTTPSessionManager manager] POST:@"http://demob.1hai.cn/online-service/customer/inline" parameters:dict progress:^(NSProgress * _Nonnull uploadProgress) {
+        
+    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        NSLog(@"success, responseObject = %@", responseObject);
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+         NSLog(@"failure, error = %@", error);
+    }] resume];
 }
 
 /** 发送心跳包 */

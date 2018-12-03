@@ -27,13 +27,14 @@
 		7847E8F521ABBFF4006B947C /* EHIContactModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 7847E8F321ABBFF3006B947C /* EHIContactModel.m */; };
 		7847E8F821ACD609006B947C /* EHISocketMessageFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 7847E8F721ACD609006B947C /* EHISocketMessageFactory.m */; };
 		7847E8FE21AE2C0F006B947C /* EHINewCustomerServiceControllerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7847E8FD21AE2C0F006B947C /* EHINewCustomerServiceControllerViewController.m */; };
+		784CCBBA21B50AC4009EF863 /* LabelTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 784CCBB821B50AC4009EF863 /* LabelTool.m */; };
 		787D09D5219BC65300F7B4B3 /* EHISocketDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 787D09D4219BC65300F7B4B3 /* EHISocketDecoder.m */; };
 		787D09D8219C011900F7B4B3 /* EHISocketMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 787D09D7219C011900F7B4B3 /* EHISocketMessage.m */; };
 		78A5FA0C219B06A700802C1E /* EHIMessageConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = 78A5FA0B219B06A700802C1E /* EHIMessageConfig.m */; };
 		78A5FA0F219B107E00802C1E /* EHISocketEncoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 78A5FA0E219B107E00802C1E /* EHISocketEncoder.m */; };
 		78CE0F1421B128DD00A23C43 /* EHICustomerServiceCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 78CE0F1321B128DD00A23C43 /* EHICustomerServiceCell.m */; };
 		78CE0F1721B1290100A23C43 /* EHICustomerServiceModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 78CE0F1621B1290100A23C43 /* EHICustomerServiceModel.m */; };
-		78CE0F1A21B13A7000A23C43 /* EHIBottomInputView.m in Sources */ = {isa = PBXBuildFile; fileRef = 78CE0F1921B13A7000A23C43 /* EHIBottomInputView.m */; };
+		78CE0F1A21B13A7000A23C43 /* EHICustomServiceBottomView.m in Sources */ = {isa = PBXBuildFile; fileRef = 78CE0F1921B13A7000A23C43 /* EHICustomServiceBottomView.m */; };
 		F21C10540DAF5B49CAE86C55 /* libPods-J-IM-Demo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F903C651F2055B24DEB4CD1 /* libPods-J-IM-Demo.a */; };
 /* End PBXBuildFile section */
 
@@ -82,6 +83,8 @@
 		7847E8F721ACD609006B947C /* EHISocketMessageFactory.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EHISocketMessageFactory.m; sourceTree = "<group>"; };
 		7847E8FC21AE2C0F006B947C /* EHINewCustomerServiceControllerViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EHINewCustomerServiceControllerViewController.h; sourceTree = "<group>"; };
 		7847E8FD21AE2C0F006B947C /* EHINewCustomerServiceControllerViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EHINewCustomerServiceControllerViewController.m; sourceTree = "<group>"; };
+		784CCBB821B50AC4009EF863 /* LabelTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LabelTool.m; sourceTree = "<group>"; };
+		784CCBB921B50AC4009EF863 /* LabelTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LabelTool.h; sourceTree = "<group>"; };
 		787D09D3219BC65300F7B4B3 /* EHISocketDecoder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EHISocketDecoder.h; sourceTree = "<group>"; };
 		787D09D4219BC65300F7B4B3 /* EHISocketDecoder.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EHISocketDecoder.m; sourceTree = "<group>"; };
 		787D09D6219C011900F7B4B3 /* EHISocketMessage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EHISocketMessage.h; sourceTree = "<group>"; };
@@ -94,8 +97,8 @@
 		78CE0F1321B128DD00A23C43 /* EHICustomerServiceCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EHICustomerServiceCell.m; sourceTree = "<group>"; };
 		78CE0F1521B1290100A23C43 /* EHICustomerServiceModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EHICustomerServiceModel.h; sourceTree = "<group>"; };
 		78CE0F1621B1290100A23C43 /* EHICustomerServiceModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EHICustomerServiceModel.m; sourceTree = "<group>"; };
-		78CE0F1821B13A7000A23C43 /* EHIBottomInputView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EHIBottomInputView.h; sourceTree = "<group>"; };
-		78CE0F1921B13A7000A23C43 /* EHIBottomInputView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EHIBottomInputView.m; sourceTree = "<group>"; };
+		78CE0F1821B13A7000A23C43 /* EHICustomServiceBottomView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EHICustomServiceBottomView.h; sourceTree = "<group>"; };
+		78CE0F1921B13A7000A23C43 /* EHICustomServiceBottomView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EHICustomServiceBottomView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -138,6 +141,8 @@
 				7847E8D321AB92DE006B947C /* Socket */,
 				7828C102219A78100058A76D /* AppDelegate.h */,
 				7828C103219A78100058A76D /* AppDelegate.m */,
+				784CCBB921B50AC4009EF863 /* LabelTool.h */,
+				784CCBB821B50AC4009EF863 /* LabelTool.m */,
 				7828C105219A78100058A76D /* ViewController.h */,
 				7828C106219A78100058A76D /* ViewController.m */,
 				7828C108219A78100058A76D /* Main.storyboard */,
@@ -220,8 +225,8 @@
 			children = (
 				78CE0F1221B128DD00A23C43 /* EHICustomerServiceCell.h */,
 				78CE0F1321B128DD00A23C43 /* EHICustomerServiceCell.m */,
-				78CE0F1821B13A7000A23C43 /* EHIBottomInputView.h */,
-				78CE0F1921B13A7000A23C43 /* EHIBottomInputView.m */,
+				78CE0F1821B13A7000A23C43 /* EHICustomServiceBottomView.h */,
+				78CE0F1921B13A7000A23C43 /* EHICustomServiceBottomView.m */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -363,11 +368,12 @@
 				7847E8EF21AB9E03006B947C /* EHIMessageFrame.m in Sources */,
 				7828C107219A78100058A76D /* ViewController.m in Sources */,
 				78A5FA0F219B107E00802C1E /* EHISocketEncoder.m in Sources */,
+				784CCBBA21B50AC4009EF863 /* LabelTool.m in Sources */,
 				7847E8E821AB9883006B947C /* NSFileManager+EHIChat.m in Sources */,
 				7847E8D721AB959D006B947C /* EHIDBBaseDAO.m in Sources */,
 				7828C112219A78110058A76D /* main.m in Sources */,
 				7828C104219A78100058A76D /* AppDelegate.m in Sources */,
-				78CE0F1A21B13A7000A23C43 /* EHIBottomInputView.m in Sources */,
+				78CE0F1A21B13A7000A23C43 /* EHICustomServiceBottomView.m in Sources */,
 				7847E8FE21AE2C0F006B947C /* EHINewCustomerServiceControllerViewController.m in Sources */,
 				7828C11D219ABB1B0058A76D /* EHISocketPacket.m in Sources */,
 			);

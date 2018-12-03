@@ -36,7 +36,24 @@ typedef NS_ENUM(NSInteger, EHIMessageStatus) {
 /** 内容 */
 @property (nonatomic, copy) NSString *content;
 
+/** 语音数据 */
+@property (nonatomic, strong) NSData *voiceData;
+
+/** 图片数据 */
+@property (nonatomic, strong) NSData *pictureData;
+
 /** 时间 */
 @property (nonatomic, copy) NSString *time;
+
+/** 尺寸 */
+@property (nonatomic, assign) CGSize size;
+
+
+/** 获取图片数据 */
+- (void)getPictureData;
+
+/** 获取语音数据 */
+- (void)getVoiceData;
+
 
 @end

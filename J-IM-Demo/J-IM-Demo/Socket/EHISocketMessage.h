@@ -8,7 +8,7 @@
 //  各种类型的消息
 //
 
-#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 #import "EHISocketMessageCommand.h"
 
 /** socket的包类型 */
@@ -29,7 +29,7 @@ typedef NS_ENUM(NSInteger, EHIPacketType) {
 /** 消息类型 */
 typedef NS_ENUM(int, EHIMessageType) {
     EHIMessageTypeText  = 0,    /// 文字
-    EHIMessageTypeImage = 1,    /// 图片
+    EHIMessageTypePicture = 1,    /// 图片
     EHIMessageTypeVoice = 2,    /// 语音
     EHIMessageTypeVideo = 3,    /// 视频
     EHIMessageTypeMusic = 4,    /// 音乐
