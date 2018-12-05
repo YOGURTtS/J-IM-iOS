@@ -47,7 +47,8 @@
     [self.textOrSendVoiceView addSubview:self.voiceButton];
     
     
-    self.switchToVoiceOrTextButton.frame = CGRectMake(0, 0, 0, 0);
+    self.switchToVoiceOrTextButton.frame = CGRectMake(CGRectGetHeight(self.frame) - 30, 0, 0, 0);
+    
 }
 
 #pragma mark - setter
@@ -117,6 +118,8 @@
 - (UIButton *)switchToVoiceOrTextButton {
     if (!_switchToVoiceOrTextButton) {
         _switchToVoiceOrTextButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        
+        [_switchToVoiceOrTextButton setTitle:@"录音" forState:UIControlStateNormal];
         [_switchToVoiceOrTextButton addTarget:self action:@selector(switchTovoiceOrText) forControlEvents:UIControlEventTouchUpInside];
     }
     return _switchToVoiceOrTextButton;

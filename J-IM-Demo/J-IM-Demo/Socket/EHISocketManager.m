@@ -14,28 +14,16 @@
 #import "EHISocketEncoder.h"
 #import "EHISocketDecoder.h"
 #import "EHIMessageConfig.h"
+#import "EHISocketStatusManager.h"
 #import <YYModel.h>
 #import <netinet/in.h>
 #import <AFNetworking.h>
 
-/** 心跳包发送间隔 */
-#define kHeartbeatTimeInterval 5.0
-
-
-typedef enum : NSUInteger {
-    EHISocketStatusUnLogin = 0,
-    EHISocketStatusDidLogin,
-} EHISocketStatus;
-
-typedef enum : NSUInteger {
-    EHISocketTagDefault
-} EHISocketTag;
-
-
-
-static const NSTimeInterval kSocketTimeout = -1;
 
 @interface EHISocketManager ()
+
+/** 状态管理器 */
+@property (nonatomic, strong) EHISocketStatusManager *statusManager;
 
 /** 编码器 */
 @property (nonatomic, strong) EHISocketEncoder *encoder;
@@ -105,8 +93,9 @@ static const NSTimeInterval kSocketTimeout = -1;
 
 /** 当socket连接正准备读和写的时候调用 */
 - (void)socket:(GCDAsyncSocket *)sock didConnectToUrl:(NSURL *)url {
-    // 重置解码状态
-    self.decoder.decodeStatus = EHIDecodeStatusUnGetHeader;
+    
+    // 重置读取数据状态
+    self.statusManager.readDataStatus = EHISocketReadDataStatusUnGetHeader;
     NSLog(@"Socket连接成功");
     // TODO:登录
     [self login];
@@ -115,37 +104,67 @@ static const NSTimeInterval kSocketTimeout = -1;
 
 - (void)socket:(GCDAsyncSocket *)sock didConnectToHost:(NSString *)host port:(uint16_t)port {
     NSLog(@"Socket连接成功");
-//    [self sendHeartbeatMessage];
+    
+    // 重置socket状态
+    [self resetSocketStatus];
+    [self sendHeartbeatMessage];
+    
     // TODO:登录
     [self login];
+    
+}
+
+/** 重置socket状态 */
+- (void)resetSocketStatus {
+    self.statusManager.isFirstSend = true;
+    self.statusManager.readDataStatus = EHISocketReadDataStatusUnGetHeader;
+    self.statusManager.bodyLength = 0;
 }
 
 /** 当socket已完成所要求的数据读入内存时调用，如果有错误则不调用 */
 - (void)socket:(GCDAsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag {
-    // 消息头
-    static NSData *headerData;
     
-    if (self.decoder.decodeStatus == EHIDecodeStatusUnGetHeader) {
+    NSLog(@"读取到消息:%@", data);
+    
+    if (self.statusManager.bodyLength) {
+        self.statusManager.readDataStatus = EHISocketReadDataStatusGetHeader;
+    } else {
+        self.statusManager.readDataStatus = EHISocketReadDataStatusUnGetHeader;
+    }
+    
+    if (self.statusManager.readDataStatus == EHISocketReadDataStatusUnGetHeader) {
+        
+//        // 没有消息体数据，读取消息头
+//        if (self.statusManager.bodyLength == 0) {
+//            [self.socket readDataToLength:HEADER_LENGHT withTimeout:kSocketTimeout tag:tag];
+//            return;
+//        }
+        
         // 获取消息头出错
         if (![self.decoder isHeaderLengthValid:data]) {
             [self.socket readDataToLength:HEADER_LENGHT withTimeout:kSocketTimeout tag:tag];
             return;
         }
-        self.decoder.decodeStatus = EHIDecodeStatusGetHeader;
-        headerData = data;
+        self.statusManager.readDataStatus = EHISocketReadDataStatusGetHeader;
+        self.statusManager.headerData = data;
         // 获取消息头
         EHISocketPacket *header = [self.decoder getPacketHeader:data];
+        self.statusManager.bodyLength = header.bodyLength;
         [self.socket readDataToLength:header.bodyLength withTimeout:kSocketTimeout tag:tag];
         return;
     }
     
     // 拼接完整的data
-    NSMutableData *completeData = [[NSMutableData alloc] initWithData:headerData];
+    NSMutableData *completeData = [[NSMutableData alloc] initWithData:self.statusManager.headerData];
     [completeData appendData:data];
     
     // 解码
     EHISocketPacket *packet = [self.decoder decode:completeData];
-    self.decoder.decodeStatus = EHIDecodeStatusUnGetHeader;
+    self.statusManager.readDataStatus = EHISocketReadDataStatusUnGetHeader;
+    self.statusManager.headerData = nil;
+    self.statusManager.bodyLength = 0;
+    
+//    [self.socket readDataToLength:HEADER_LENGHT withTimeout:kSocketTimeout tag:tag];
 //    [self sendACKMessageWithPacket:packet];
 }
 
@@ -155,7 +174,10 @@ static const NSTimeInterval kSocketTimeout = -1;
     NSLog(@"写消息成功");
     
     // 读取头部长度的数据
-    [self.socket readDataToLength:HEADER_LENGHT withTimeout:kSocketTimeout tag:tag];
+    if (self.statusManager.isFirstSend) {
+        [self.socket readDataToLength:HEADER_LENGHT withTimeout:kSocketTimeout tag:tag];
+        self.statusManager.isFirstSend = false;
+    }
 }
 
 /** 发生错误，socket关闭，可以在call- back过程调用"unreadData"去取得socket的最后的数据字节 */
@@ -219,17 +241,19 @@ static const NSTimeInterval kSocketTimeout = -1;
 - (void)sendMessage {
     EHISocketNormalMessage *message = [[EHISocketNormalMessage alloc] init];
     message.cmd = 11;
-    message.from = @"111";
+    message.from = @"114";
     message.to = @"10100";
     long timeStamp = 0;
     timeStamp = (long)[[NSDate dateWithTimeIntervalSinceNow:0] timeIntervalSince1970] * 1000;
     message.createTime = timeStamp;
     message.msgType = 1;
     message.chatType = 2;
+    message.content = @"测试";
     EHISocketPacket *packet = [[EHISocketPacket alloc] initWithMessage:message command:COMMAND_CHAT_REQ];
     NSData *data = [self.encoder encode:packet];
     
-    [self.socket writeData:data withTimeout:kSocketTimeout tag:EHISocketTagDefault];
+//    [self.socket writeData:data withTimeout:kSocketTimeout tag:EHISocketTagDefault];
+    [self.socket readDataToLength:self.statusManager.bodyLength withTimeout:kSocketTimeout tag:EHISocketTagDefault];
 }
 
 /** 发送登录信息 */
@@ -237,7 +261,7 @@ static const NSTimeInterval kSocketTimeout = -1;
     EHISocketLoginMessage *message = [[EHISocketLoginMessage alloc] init];
     message.cmd = 5;
     message.token = @"111";
-    message.loginname = @"111";
+    message.loginname = @"114";
     message.password = @"111";
     EHISocketPacket *packet = [[EHISocketPacket alloc] initWithMessage:message command:COMMAND_LOGIN_REQ];
     NSData *data = [self.encoder encode:packet];
@@ -250,19 +274,24 @@ static const NSTimeInterval kSocketTimeout = -1;
     NSDictionary *dict = @{
                            @"carNo": @"111",
                            @"customerEntrance": @"111",
-                           @"customerId": @"111",
+                           @"customerId": @"114",
                            @"customerName": @"111",
                            @"customerPhone": @"111",
-                           @"lastCustomerServiceId": @"111",
+                           @"lastCustomerServiceId": @"10100",
                            @"orderNo": @"111"
                            };
     
-    [[[AFHTTPSessionManager manager] POST:@"http://demob.1hai.cn/online-service/customer/inline" parameters:dict progress:^(NSProgress * _Nonnull uploadProgress) {
+    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+    manager.requestSerializer = [AFJSONRequestSerializer serializer];
+    [[manager POST:@"http://demob.1hai.cn/online-service/customer/inline" parameters:dict progress:^(NSProgress * _Nonnull uploadProgress) {
         
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        NSLog(@"success, responseObject = %@", responseObject);
+        NSLog(@"task = %@", task.currentRequest.allHTTPHeaderFields);
+        NSLog(@"success, message = %@", [responseObject objectForKey:@"message"]);
+        [self.socket readDataToLength:self.statusManager.bodyLength withTimeout:kSocketTimeout tag:EHISocketTagDefault];
+//        self.decoder.decodeStatus = EHIDecodeStatusGetHeader;
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-         NSLog(@"failure, error = %@", error);
+         NSLog(@"failure, error = %@", [error description]);
     }] resume];
 }
 
@@ -353,6 +382,13 @@ static const NSTimeInterval kSocketTimeout = -1;
         _socket.IPv4PreferredOverIPv6 = NO;
     }
     return _socket;
+}
+
+- (EHISocketStatusManager *)statusManager {
+    if (!_statusManager) {
+        _statusManager = [[EHISocketStatusManager alloc] init];
+    }
+    return _statusManager;
 }
 
 - (EHISocketEncoder *)encoder {
