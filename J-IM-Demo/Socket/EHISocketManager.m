@@ -86,6 +86,9 @@
 - (void)disconnect {
     dispatch_cancel(self.timer);
     [self.socket disconnect];
+    
+    // 重置socket状态
+    [self resetSocketStatus];
 }
 
 
@@ -126,11 +129,11 @@
     
     NSLog(@"读取到消息:%@", data);
     
-    if (self.statusManager.bodyLength) {
-        self.statusManager.readDataStatus = EHISocketReadDataStatusGetHeader;
-    } else {
-        self.statusManager.readDataStatus = EHISocketReadDataStatusUnGetHeader;
-    }
+//    if (self.statusManager.bodyLength) {
+//        self.statusManager.readDataStatus = EHISocketReadDataStatusGetHeader;
+//    } else {
+//        self.statusManager.readDataStatus = EHISocketReadDataStatusUnGetHeader;
+//    }
     
     if (self.statusManager.readDataStatus == EHISocketReadDataStatusUnGetHeader) {
         
@@ -164,7 +167,7 @@
     self.statusManager.headerData = nil;
     self.statusManager.bodyLength = 0;
     
-//    [self.socket readDataToLength:HEADER_LENGHT withTimeout:kSocketTimeout tag:tag];
+    [self.socket readDataToLength:HEADER_LENGHT withTimeout:kSocketTimeout tag:tag];
 //    [self sendACKMessageWithPacket:packet];
 }
 
@@ -184,6 +187,7 @@
 - (void)socketDidDisconnect:(GCDAsyncSocket *)sock withError:(NSError *)err {
     dispatch_cancel(self.timer);
     NSLog(@"SocketDidDisconnectWithError:%@", err);
+    [self resetSocketStatus];
 }
 
 
@@ -253,7 +257,7 @@
     NSData *data = [self.encoder encode:packet];
     
 //    [self.socket writeData:data withTimeout:kSocketTimeout tag:EHISocketTagDefault];
-    [self.socket readDataToLength:self.statusManager.bodyLength withTimeout:kSocketTimeout tag:EHISocketTagDefault];
+//    [self.socket readDataToLength:self.statusManager.bodyLength withTimeout:kSocketTimeout tag:EHISocketTagDefault];
 }
 
 /** 发送登录信息 */
@@ -288,7 +292,7 @@
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSLog(@"task = %@", task.currentRequest.allHTTPHeaderFields);
         NSLog(@"success, message = %@", [responseObject objectForKey:@"message"]);
-        [self.socket readDataToLength:self.statusManager.bodyLength withTimeout:kSocketTimeout tag:EHISocketTagDefault];
+//        [self.socket readDataToLength:self.statusManager.bodyLength withTimeout:kSocketTimeout tag:EHISocketTagDefault];
 //        self.decoder.decodeStatus = EHIDecodeStatusGetHeader;
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
          NSLog(@"failure, error = %@", [error description]);
@@ -307,6 +311,9 @@
     dispatch_source_set_event_handler(_timer, ^{
         NSLog(@"发送心跳包");
         [self.socket writeData:data withTimeout:kSocketTimeout tag:EHISocketTagDefault];
+//        if (self.statusManager.readDataStatus == EHISocketReadDataStatusUnGetHeader) {
+//            [self.socket readDataToLength:HEADER_LENGHT withTimeout:kSocketTimeout tag:EHISocketTagDefault];
+//        }
     });
     
     dispatch_resume(self.timer);
