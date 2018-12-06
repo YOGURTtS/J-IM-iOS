@@ -21,4 +21,10 @@ typedef NS_ENUM(NSInteger, EHICustomServiceInputType) {
 /** 输入类型 */
 @property (nonatomic, assign) EHICustomServiceInputType inputType;
 
+/** 快捷入口 */
+@property (nonatomic, strong) NSArray *quickEntrances;
+
+/** 快捷入口按钮点击回调 */
+@property (nonatomic, copy) void (^quickEntranceSelected)(UIButton *button, NSInteger index);
+
 @end

@@ -7,6 +7,7 @@
 //
 
 #import "AppDelegate.h"
+#import "EHINewCustomerServiceControllerViewController.h"
 
 @interface AppDelegate ()
 
@@ -17,6 +18,13 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
+    
+    EHINewCustomerServiceControllerViewController *vc = [EHINewCustomerServiceControllerViewController new];
+    UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:vc];
+    
+    self.window = [UIWindow new];
+    self.window.rootViewController = nav;
+    [self.window makeKeyAndVisible];
     return YES;
 }
 

@@ -110,27 +110,40 @@
     }
 }
 
-/** 获取聊天内容视图的高度 */
+/** 获取聊天内容视图的size */
 - (CGSize)getChatViewSizeWithModel:(EHICustomerServiceModel *)model {
     switch (model.messageType) {
         case EHIMessageTypeText:
-            
-            return CGSizeZero;
+        {
+            CGSize textSize = [self getSizeOfString:model.content fontSize:15];
+            return textSize;
+        }
         case EHIMessageTypePicture:
         {
             CGFloat pictureWidth = [UIScreen mainScreen].bounds.size.width / 3.0;
             return CGSizeMake(pictureWidth, pictureWidth * 1.5);
         }
         case EHIMessageTypeVoice:
-            
-            return CGSizeZero;
-            
+        {
+            CGSize voiceSize = [self getSizeOfVoice];
+            return voiceSize;
+        }
         default:
             
             return CGSizeZero;
     }
 }
 
+/** 获取文字的size */
+- (CGSize)getSizeOfString:(NSString *)string fontSize:(CGFloat)fontSize {
+    return [string boundingRectWithSize:CGSizeMake([UIScreen mainScreen].bounds.size.width / 2.0, [UIScreen mainScreen].bounds.size.height) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName : [UIFont systemFontOfSize:fontSize]} context:nil].size;
+}
+
+/** 获取语音消息的size */
+- (CGSize)getSizeOfVoice {
+    
+    return CGSizeZero;
+}
 
 #pragma mark - lazy load
 
