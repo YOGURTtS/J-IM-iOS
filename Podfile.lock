@@ -18,12 +18,14 @@ PODS:
   - FMDB (2.7.5):
     - FMDB/standard (= 2.7.5)
   - FMDB/standard (2.7.5)
+  - IQKeyboardManager (6.2.0)
   - YYModel (1.0.4)
 
 DEPENDENCIES:
   - AFNetworking
   - CocoaAsyncSocket
   - FMDB
+  - IQKeyboardManager
   - YYModel
 
 SPEC REPOS:
@@ -31,14 +33,16 @@ SPEC REPOS:
     - AFNetworking
     - CocoaAsyncSocket
     - FMDB
+    - IQKeyboardManager
     - YYModel
 
 SPEC CHECKSUMS:
   AFNetworking: b6f891fdfaed196b46c7a83cf209e09697b94057
   CocoaAsyncSocket: eafaa68a7e0ec99ead0a7b35015e0bf25d2c8987
   FMDB: 2ce00b547f966261cd18927a3ddb07cb6f3db82a
+  IQKeyboardManager: 6194101620b73af5e67900b8f89707a99de0b804
   YYModel: 2a7fdd96aaa4b86a824e26d0c517de8928c04b30
 
-PODFILE CHECKSUM: dee88d93d3b63e138d4f8278da9e808c8311a507
+PODFILE CHECKSUM: 52fb4026b97423a3a1adec962c738b626269dea5
 
 COCOAPODS: 1.6.0.beta.2

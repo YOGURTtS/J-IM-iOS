@@ -7,8 +7,11 @@
 //
 
 #import "EHICustomerServiceCell.h"
+#import <AVKit/AVKit.h>
 
-@interface EHICustomerServiceCell ()
+@interface EHICustomerServiceCell () {
+    UIView *_bgView;
+}
 
 /** 头像 */
 @property (nonatomic, strong) UIImageView *avatar;
@@ -16,20 +19,14 @@
 /** 时间 */
 @property (nonatomic, strong) UILabel *timeLabel;
 
-/** 聊天内容视图，contentLabel、picture、voiceButton的父视图 */
-@property (nonatomic, strong) UIView *chatView;
-
-/** 文字内容 */
-@property (nonatomic, strong) UILabel *contentLabel;
-
-/** 图片 */
-@property (nonatomic, strong) UIImageView *picture;
-
-/** 语音 */
-@property (nonatomic, strong) UIButton *voiceButton;
+/** 显示文字、语音、图片的按钮 */
+@property (nonatomic, strong) UIButton *contentButton;
 
 /** 消息状态 */
 @property (nonatomic, strong) UIButton *statusButton;
+
+/** 音频播放器 */
+@property (nonatomic, strong) AVAudioPlayer *audioPlayer;
 
 @end
 
@@ -46,10 +43,7 @@
 - (void)setupSubviews {
     [self.contentView addSubview:self.avatar];
     [self.contentView addSubview:self.timeLabel];
-    [self.contentView addSubview:self.chatView];
-    [self.chatView addSubview:self.contentLabel];
-    [self.chatView addSubview:self.picture];
-    [self.chatView addSubview:self.voiceButton];
+    [self.contentView addSubview:self.contentButton];
 }
 
 
@@ -57,99 +51,133 @@
 
 - (void)setModel:(EHICustomerServiceModel *)model {
     _model = model;
-    
     [self updateUIWithModel:model];
-   
 }
+
+#pragma mark - UI
 
 /** 更新UI布局 */
 - (void)updateUIWithModel:(EHICustomerServiceModel *)model {
     
-    [self switchMessageWidgetVisualWithModel:model];
-    
     // 头像宽高
-    CGFloat avatarWidth = 30;
+    CGFloat avatarWidth = 40;
     CGFloat screenWidth = [UIScreen mainScreen].bounds.size.width;
     
     // 获取聊天内容视图的size
-    CGSize chatViewSize = [self getChatViewSizeWithModel:model];
+    CGSize chatViewSize = model.chatContentSize;
     
     if (model.fromType == EHIMessageFromTypeSender) {
-        self.avatar.frame = CGRectMake(screenWidth - avatarWidth - 16, 0, avatarWidth, avatarWidth);
-        self.chatView.frame = CGRectMake(CGRectGetMinX(self.avatar.frame) - chatViewSize.width - 8, 0, chatViewSize.width, chatViewSize.height);
+        self.avatar.frame = CGRectMake(screenWidth - avatarWidth - 16, 2, avatarWidth, avatarWidth);
+        self.contentButton.frame = CGRectMake(CGRectGetMinX(self.avatar.frame) - chatViewSize.width - 8,
+                                              0,
+                                              chatViewSize.width,
+                                              chatViewSize.height);
     } else {
-        self.avatar.frame = CGRectMake(screenWidth - avatarWidth - 16, 0, avatarWidth, avatarWidth);
-        self.chatView.frame = CGRectMake(CGRectGetMaxX(self.avatar.frame) + 8, 0, chatViewSize.width, chatViewSize.height);
+        self.avatar.frame = CGRectMake(16, 2, avatarWidth, avatarWidth);
+        self.contentButton.frame = CGRectMake(CGRectGetMaxX(self.avatar.frame) + 8,
+                                              0,
+                                              chatViewSize.width,
+                                              chatViewSize.height);
     }
-}
-
-/** 切换聊天文字、语音、图片相关控件的显示隐藏 */
-- (void)switchMessageWidgetVisualWithModel:(EHICustomerServiceModel *)model {
-    switch (model.messageType) {
-        case EHIMessageTypeText:
-            self.contentLabel.hidden = NO;
-            self.picture.hidden = YES;
-            self.voiceButton.hidden = YES;
-            break;
-        case EHIMessageTypePicture:
-            self.contentLabel.hidden = YES;
-            self.picture.hidden = NO;
-            self.voiceButton.hidden = YES;
-            break;
-        case EHIMessageTypeVoice:
-            self.contentLabel.hidden = YES;
-            self.picture.hidden = YES;
-            self.voiceButton.hidden = NO;
-            break;
-            
-        default:
-            self.contentLabel.hidden = YES;
-            self.picture.hidden = YES;
-            self.voiceButton.hidden = YES;
-            break;
-    }
-}
-
-/** 获取聊天内容视图的size */
-- (CGSize)getChatViewSizeWithModel:(EHICustomerServiceModel *)model {
-    switch (model.messageType) {
-        case EHIMessageTypeText:
-        {
-            CGSize textSize = [self getSizeOfString:model.content fontSize:15];
-            return textSize;
-        }
-        case EHIMessageTypePicture:
-        {
-            CGFloat pictureWidth = [UIScreen mainScreen].bounds.size.width / 3.0;
-            return CGSizeMake(pictureWidth, pictureWidth * 1.5);
-        }
-        case EHIMessageTypeVoice:
-        {
-            CGSize voiceSize = [self getSizeOfVoice];
-            return voiceSize;
-        }
-        default:
-            
-            return CGSizeZero;
-    }
-}
-
-/** 获取文字的size */
-- (CGSize)getSizeOfString:(NSString *)string fontSize:(CGFloat)fontSize {
-    return [string boundingRectWithSize:CGSizeMake([UIScreen mainScreen].bounds.size.width / 2.0, [UIScreen mainScreen].bounds.size.height) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName : [UIFont systemFontOfSize:fontSize]} context:nil].size;
-}
-
-/** 获取语音消息的size */
-- (CGSize)getSizeOfVoice {
     
-    return CGSizeZero;
+    [self setupChatContentWithModel:model];
+}
+
+/** 设置聊天内容 */
+- (void)setupChatContentWithModel:(EHICustomerServiceModel *)model {
+    switch (model.messageType) {
+        case EHIMessageTypeText:
+        {
+            [self.contentButton setTitle:model.text forState:UIControlStateNormal];
+        }
+            break;
+        case EHIMessageTypeVoice:
+            [self.contentButton setTitle:@"录音" forState:UIControlStateNormal];
+            break;
+        case EHIMessageTypePicture:
+            
+            break;
+            
+        default:
+            break;
+    }
+}
+
+#pragma mark - button click action
+
+/** 聊天内容按钮点击 */
+- (void)contentButtonClicked:(UIButton *)button {
+    switch (self.model.messageType) {
+        case EHIMessageTypeText:    // 文字，什么也不做
+            
+            break;
+        case EHIMessageTypeVoice:   // 语音，播放语音
+            [self playVoice];
+            break;
+        case EHIMessageTypePicture: // 图片，缩放图片
+            [self seeFullScreenPicture];
+            break;
+            
+        default:
+            break;
+    }
+}
+
+/** 播放音频 */
+- (void)playVoice {
+    
+}
+
+/** 查看大图 */
+- (void)seeFullScreenPicture {
+    // 初始化一个用来当做背景的view
+    _bgView = [[UIView alloc] initWithFrame:[UIScreen mainScreen].bounds];
+    _bgView.backgroundColor = [UIColor blackColor];
+    UIWindow *keyWindow = [[[UIApplication sharedApplication] delegate] window];
+    [keyWindow addSubview:_bgView];
+    
+    UIImageView *imgView = [[UIImageView alloc] initWithFrame:(CGRectMake(0,
+                                                                          0,
+                                                                          [UIScreen mainScreen].bounds.size.width,
+                                                                          [UIScreen mainScreen].bounds.size.height))];
+    imgView.contentMode = UIViewContentModeScaleAspectFit;
+    imgView.center = CGPointMake([UIScreen mainScreen].bounds.size.width / 2.0, [UIScreen mainScreen].bounds.size.height / 2.0);
+    // TODO: 加载网络图片
+    
+    [_bgView addSubview:imgView];
+    imgView.userInteractionEnabled = YES;
+    
+    // 添加点击手势（点击图片后退出全屏)
+    UITapGestureRecognizer *tapGest = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(closeView)];
+    [_bgView addGestureRecognizer:tapGest];
+    // 放大过程中的动画
+    [self shakeToShow:_bgView];
+    [[UIApplication sharedApplication] setStatusBarHidden:YES];
+}
+
+/** 关闭大图 */
+- (void)closeView {
+    [[UIApplication sharedApplication] setStatusBarHidden:NO];
+    [_bgView removeFromSuperview];
+}
+
+/** 放大过程中出现的缓慢动画 */
+- (void)shakeToShow:(UIView *)aView {
+    CAKeyframeAnimation* animation = [CAKeyframeAnimation animationWithKeyPath:@"transform"];
+    animation.duration = 0.2;
+    NSMutableArray *values = [NSMutableArray array];
+    [values addObject:[NSValue valueWithCATransform3D:CATransform3DMakeScale(0.1, 0.1, 1.0)]];
+    [values addObject:[NSValue valueWithCATransform3D:CATransform3DMakeScale(1.0, 1.0, 1.0)]];
+    animation.values = values;
+    [aView.layer addAnimation:animation forKey:nil];
 }
 
 #pragma mark - lazy load
 
 - (UIImageView *)avatar {
     if (!_avatar) {
-        _avatar = [[UIImageView alloc] init];
+        UIImage *image = [UIImage imageNamed:@"头像"];
+        _avatar = [[UIImageView alloc] initWithImage:image];
     }
     return _avatar;
 }
@@ -161,32 +189,19 @@
     return _timeLabel;
 }
 
-- (UIView *)chatView {
-    if (!_chatView) {
-        _chatView = [[UIView alloc] init];
+- (UIButton *)contentButton {
+    if (!_contentButton) {
+        _contentButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        
+        _contentButton.titleLabel.numberOfLines = 0;
+        _contentButton.titleLabel.font = [UIFont systemFontOfSize:14];
+        [_contentButton setTitleColor:[UIColor blackColor]
+                             forState:UIControlStateNormal];
+        
+        [_contentButton addTarget:self action:@selector(contentButtonClicked:)
+                 forControlEvents:UIControlEventTouchUpInside];
     }
-    return _chatView;
-}
-
-- (UILabel *)contentLabel {
-    if (!_contentLabel) {
-        _contentLabel = [[UILabel alloc] init];
-    }
-    return _contentLabel;
-}
-
-- (UIImageView *)picture {
-    if (!_picture) {
-        _picture = [[UIImageView alloc] init];
-    }
-    return _picture;
-}
-
-- (UIButton *)voiceButton {
-    if (!_voiceButton) {
-        _voiceButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    }
-    return _voiceButton;
+    return _contentButton;
 }
 
 - (UIButton *)statusButton {
@@ -196,5 +211,11 @@
     return _statusButton;
 }
 
+- (AVAudioPlayer *)audioPlayer {
+    if (!_audioPlayer) {
+        _audioPlayer = [[AVAudioPlayer alloc] init];
+    }
+    return _audioPlayer;
+}
 
 @end

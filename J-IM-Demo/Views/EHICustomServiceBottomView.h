@@ -27,4 +27,13 @@ typedef NS_ENUM(NSInteger, EHICustomServiceInputType) {
 /** 快捷入口按钮点击回调 */
 @property (nonatomic, copy) void (^quickEntranceSelected)(UIButton *button, NSInteger index);
 
+/** 发送文字消息回调 */
+@property (nonatomic, copy) void (^sendTextCallBack)(NSString *text);
+
+/** 发送语音消息回调 */
+@property (nonatomic, copy) void (^sendVoiceCallBack)(NSData *data);
+
+/** 发送图片消息回调 */
+@property (nonatomic, copy) void (^sendPictureCallBack)(UIImage *image);
+
 @end

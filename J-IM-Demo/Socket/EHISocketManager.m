@@ -52,7 +52,7 @@
 - (instancetype)init {
     self = [super init];
     if (self) {
-        //        [self connect];
+        
     }
     return self;
 }
@@ -129,19 +129,7 @@
     
     NSLog(@"读取到消息:%@", data);
     
-//    if (self.statusManager.bodyLength) {
-//        self.statusManager.readDataStatus = EHISocketReadDataStatusGetHeader;
-//    } else {
-//        self.statusManager.readDataStatus = EHISocketReadDataStatusUnGetHeader;
-//    }
-    
     if (self.statusManager.readDataStatus == EHISocketReadDataStatusUnGetHeader) {
-        
-//        // 没有消息体数据，读取消息头
-//        if (self.statusManager.bodyLength == 0) {
-//            [self.socket readDataToLength:HEADER_LENGHT withTimeout:kSocketTimeout tag:tag];
-//            return;
-//        }
         
         // 获取消息头出错
         if (![self.decoder isHeaderLengthValid:data]) {
@@ -260,19 +248,6 @@
 //    [self.socket readDataToLength:self.statusManager.bodyLength withTimeout:kSocketTimeout tag:EHISocketTagDefault];
 }
 
-/** 发送登录信息 */
-- (void)sendLoginMessage {
-    EHISocketLoginMessage *message = [[EHISocketLoginMessage alloc] init];
-    message.cmd = 5;
-    message.token = @"111";
-    message.loginname = @"114";
-    message.password = @"111";
-    EHISocketPacket *packet = [[EHISocketPacket alloc] initWithMessage:message command:COMMAND_LOGIN_REQ];
-    NSData *data = [self.encoder encode:packet];
-    
-    [self.socket writeData:data withTimeout:kSocketTimeout tag:EHISocketTagDefault];
-}
-
 - (void)login {
     
     NSDictionary *dict = @{
@@ -307,31 +282,15 @@
     EHISocketPacket *packet = [[EHISocketPacket alloc] initWithMessage:message command:COMMAND_HEARTBEAT_REQ];
     NSData *data = [self.encoder encode:packet];
     
-    dispatch_source_set_timer(self.timer,dispatch_walltime(NULL, 0),kHeartbeatTimeInterval * NSEC_PER_SEC, 0); // 每5秒发送一次心跳包
+    // 每5秒发送一次心跳包
+    dispatch_source_set_timer(self.timer,dispatch_walltime(NULL, 0),kHeartbeatTimeInterval * NSEC_PER_SEC, 0);
     dispatch_source_set_event_handler(_timer, ^{
         NSLog(@"发送心跳包");
         [self.socket writeData:data withTimeout:kSocketTimeout tag:EHISocketTagDefault];
-//        if (self.statusManager.readDataStatus == EHISocketReadDataStatusUnGetHeader) {
-//            [self.socket readDataToLength:HEADER_LENGHT withTimeout:kSocketTimeout tag:EHISocketTagDefault];
-//        }
+
     });
     
     dispatch_resume(self.timer);
-}
-
-/** 关闭聊天 */
-- (void)closeChat {
-    EHISocketCloseChatMessage *message = [[EHISocketCloseChatMessage alloc] init];
-    message.cmd = 14;
-    message.from = @"111";
-    message.to = @"2";
-    long timeStamp = 0;
-    timeStamp = (long)[[NSDate dateWithTimeIntervalSinceNow:0] timeIntervalSince1970] * 1000;
-    message.optTime = timeStamp;
-    message.optType = 1;
-    EHISocketPacket *packet = [[EHISocketPacket alloc] initWithMessage:message command:COMMAND_CLOSE_REQ];
-    NSData *data = [self.encoder encode:packet];
-    [self.socket writeData:data withTimeout:kSocketTimeout tag:EHISocketTagDefault];
 }
 
 /**
@@ -376,9 +335,6 @@
     [self.socket writeData:data withTimeout:kSocketTimeout tag:EHISocketTagDefault];
     
 }
-
-
-
 
 #pragma mark - lazy load
 

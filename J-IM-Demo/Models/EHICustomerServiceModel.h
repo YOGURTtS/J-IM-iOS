@@ -5,7 +5,7 @@
 //  Created by yogurts on 2018/11/30.
 //  Copyright © 2018 yogurts. All rights reserved.
 //
-//
+//  关于消息cell的model
 //
 
 #import "EHISocketMessage.h"
@@ -19,7 +19,8 @@ typedef NS_ENUM(NSInteger, EHIMessageFromType) {
 /** 消息状态 */
 typedef NS_ENUM(NSInteger, EHIMessageStatus) {
     EHIMessageStatusSending, /// 发送中
-    EHIMessageStatusFailed   /// 发送失败
+    EHIMessageStatusFailed,  /// 发送失败
+    EHIMessageStatusSuccess  /// 发送成功
 };
 
 @interface EHICustomerServiceModel : NSObject
@@ -34,26 +35,34 @@ typedef NS_ENUM(NSInteger, EHIMessageStatus) {
 @property (nonatomic, assign) EHIMessageType messageType;
 
 /** 内容 */
-@property (nonatomic, copy) NSString *content;
+@property (nonatomic, copy) NSString *text;
 
-/** 语音数据 */
-@property (nonatomic, strong) NSData *voiceData;
+#pragma mark - 语音相关
+/** 语音链接 */
+@property (nonatomic, strong) NSURL *voiceUrl;
 
-/** 图片数据 */
-@property (nonatomic, strong) NSData *pictureData;
+/** 语音是否正在播放 */
+@property (nonatomic, assign) BOOL isVoicePlaying;
+
+/** 语音播放进度 */
+@property (nonatomic, assign) CGFloat voicePlayProgress;
+#pragma mark - 语音相关
+
+/** 图片链接 */
+@property (nonatomic, strong) NSURL *pictureUrl;
 
 /** 时间 */
 @property (nonatomic, copy) NSString *time;
 
-/** 尺寸 */
-@property (nonatomic, assign) CGSize size;
+/** 聊天内容视图占用的宽高 */
+@property (nonatomic, assign) CGSize chatContentSize;
 
 
-/** 获取图片数据 */
-- (void)getPictureData;
-
-/** 获取语音数据 */
-- (void)getVoiceData;
+///** 获取图片数据 */
+//- (void)getPictureData;
+//
+///** 获取语音数据 */
+//- (void)getVoiceData;
 
 
 @end

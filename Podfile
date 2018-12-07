@@ -10,5 +10,6 @@ target 'J-IM-Demo' do
   pod 'YYModel'
   pod 'FMDB'
   pod 'AFNetworking'
+  pod 'IQKeyboardManager'
 
 end

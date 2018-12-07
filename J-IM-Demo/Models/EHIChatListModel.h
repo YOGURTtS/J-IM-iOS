@@ -10,8 +10,6 @@
 
 @interface EHIChatListModel : NSObject
 
-
-
 /** 级别 */
 @property (nonatomic, copy) NSString *NodeLevel;
 

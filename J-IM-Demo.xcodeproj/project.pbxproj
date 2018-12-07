@@ -29,6 +29,9 @@
 		7847E8FE21AE2C0F006B947C /* EHINewCustomerServiceControllerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7847E8FD21AE2C0F006B947C /* EHINewCustomerServiceControllerViewController.m */; };
 		784CCBBA21B50AC4009EF863 /* LabelTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 784CCBB821B50AC4009EF863 /* LabelTool.m */; };
 		784CCBBD21B7CF41009EF863 /* EHISocketStatusManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 784CCBBC21B7CF41009EF863 /* EHISocketStatusManager.m */; };
+		784CCBC121BA0125009EF863 /* EHINewCustomerSeerviceTools.m in Sources */ = {isa = PBXBuildFile; fileRef = 784CCBC021BA0125009EF863 /* EHINewCustomerSeerviceTools.m */; };
+		78617A9B21BA66200079B0D4 /* libopencore-amrnb.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 78617A9921BA66200079B0D4 /* libopencore-amrnb.a */; };
+		78617A9C21BA66200079B0D4 /* amr_wav_converter.c in Sources */ = {isa = PBXBuildFile; fileRef = 78617A9A21BA66200079B0D4 /* amr_wav_converter.c */; };
 		787D09D5219BC65300F7B4B3 /* EHISocketDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 787D09D4219BC65300F7B4B3 /* EHISocketDecoder.m */; };
 		787D09D8219C011900F7B4B3 /* EHISocketMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 787D09D7219C011900F7B4B3 /* EHISocketMessage.m */; };
 		78A5FA0C219B06A700802C1E /* EHIMessageConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = 78A5FA0B219B06A700802C1E /* EHIMessageConfig.m */; };
@@ -88,6 +91,11 @@
 		784CCBB921B50AC4009EF863 /* LabelTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LabelTool.h; sourceTree = "<group>"; };
 		784CCBBB21B7CF41009EF863 /* EHISocketStatusManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EHISocketStatusManager.h; sourceTree = "<group>"; };
 		784CCBBC21B7CF41009EF863 /* EHISocketStatusManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EHISocketStatusManager.m; sourceTree = "<group>"; };
+		784CCBBF21BA0125009EF863 /* EHINewCustomerSeerviceTools.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = EHINewCustomerSeerviceTools.h; path = ../../../../Documents/EHINewCustomerSeerviceTools.h; sourceTree = "<group>"; };
+		784CCBC021BA0125009EF863 /* EHINewCustomerSeerviceTools.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = EHINewCustomerSeerviceTools.m; path = ../../../../Documents/EHINewCustomerSeerviceTools.m; sourceTree = "<group>"; };
+		78617A9821BA66200079B0D4 /* amr_wav_converter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = amr_wav_converter.h; sourceTree = "<group>"; };
+		78617A9921BA66200079B0D4 /* libopencore-amrnb.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = "libopencore-amrnb.a"; sourceTree = "<group>"; };
+		78617A9A21BA66200079B0D4 /* amr_wav_converter.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; fileEncoding = 4; path = amr_wav_converter.c; sourceTree = "<group>"; };
 		787D09D3219BC65300F7B4B3 /* EHISocketDecoder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EHISocketDecoder.h; sourceTree = "<group>"; };
 		787D09D4219BC65300F7B4B3 /* EHISocketDecoder.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EHISocketDecoder.m; sourceTree = "<group>"; };
 		787D09D6219C011900F7B4B3 /* EHISocketMessage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EHISocketMessage.h; sourceTree = "<group>"; };
@@ -110,6 +118,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F21C10540DAF5B49CAE86C55 /* libPods-J-IM-Demo.a in Frameworks */,
+				78617A9B21BA66200079B0D4 /* libopencore-amrnb.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -137,6 +146,7 @@
 		7828C101219A78100058A76D /* J-IM-Demo */ = {
 			isa = PBXGroup;
 			children = (
+				784CCBBE21B9FFA4009EF863 /* Tools */,
 				7847E8F921AE2985006B947C /* Controllers */,
 				7847E8FB21AE2996006B947C /* Models */,
 				7847E8FA21AE298F006B947C /* Views */,
@@ -247,6 +257,26 @@
 			path = Models;
 			sourceTree = "<group>";
 		};
+		784CCBBE21B9FFA4009EF863 /* Tools */ = {
+			isa = PBXGroup;
+			children = (
+				78617A9721BA66200079B0D4 /* WAV2AMR */,
+				784CCBBF21BA0125009EF863 /* EHINewCustomerSeerviceTools.h */,
+				784CCBC021BA0125009EF863 /* EHINewCustomerSeerviceTools.m */,
+			);
+			path = Tools;
+			sourceTree = "<group>";
+		};
+		78617A9721BA66200079B0D4 /* WAV2AMR */ = {
+			isa = PBXGroup;
+			children = (
+				78617A9821BA66200079B0D4 /* amr_wav_converter.h */,
+				78617A9921BA66200079B0D4 /* libopencore-amrnb.a */,
+				78617A9A21BA66200079B0D4 /* amr_wav_converter.c */,
+			);
+			path = WAV2AMR;
+			sourceTree = "<group>";
+		};
 		9A21D12450071B36A9C2E3AC /* Pods */ = {
 			isa = PBXGroup;
 			children = (
@@ -275,6 +305,7 @@
 				7828C0FB219A78100058A76D /* Sources */,
 				7828C0FC219A78100058A76D /* Frameworks */,
 				7828C0FD219A78100058A76D /* Resources */,
+				49BF64B96BF2E2EF8F1AAF4A /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -331,6 +362,28 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		49BF64B96BF2E2EF8F1AAF4A /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-J-IM-Demo/Pods-J-IM-Demo-resources.sh",
+				"${PODS_ROOT}/IQKeyboardManager/IQKeyboardManager/Resources/IQKeyboardManager.bundle",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/IQKeyboardManager.bundle",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-J-IM-Demo/Pods-J-IM-Demo-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		CCED02C90CE74CA399A31193 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -376,10 +429,12 @@
 				78A5FA0F219B107E00802C1E /* EHISocketEncoder.m in Sources */,
 				784CCBBA21B50AC4009EF863 /* LabelTool.m in Sources */,
 				7847E8E821AB9883006B947C /* NSFileManager+EHIChat.m in Sources */,
+				78617A9C21BA66200079B0D4 /* amr_wav_converter.c in Sources */,
 				7847E8D721AB959D006B947C /* EHIDBBaseDAO.m in Sources */,
 				7828C112219A78110058A76D /* main.m in Sources */,
 				7828C104219A78100058A76D /* AppDelegate.m in Sources */,
 				78CE0F1A21B13A7000A23C43 /* EHICustomServiceBottomView.m in Sources */,
+				784CCBC121BA0125009EF863 /* EHINewCustomerSeerviceTools.m in Sources */,
 				7847E8FE21AE2C0F006B947C /* EHINewCustomerServiceControllerViewController.m in Sources */,
 				7828C11D219ABB1B0058A76D /* EHISocketPacket.m in Sources */,
 			);
@@ -524,11 +579,16 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 9ULCB2J6QA;
+				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = "J-IM-Demo/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/J-IM-Demo/Tools/WAV2AMR",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "cn.1hai.J-IM-Demo";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -543,11 +603,16 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 9ULCB2J6QA;
+				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = "J-IM-Demo/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/J-IM-Demo/Tools/WAV2AMR",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "cn.1hai.J-IM-Demo";
 				PRODUCT_NAME = "$(TARGET_NAME)";
