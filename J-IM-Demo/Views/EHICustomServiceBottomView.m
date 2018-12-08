@@ -205,7 +205,7 @@
 #pragma mark - sudio recorder delegate
 
 - (void)audioRecorderDidFinishRecording:(AVAudioRecorder *)recorder successfully:(BOOL)flag {
-    //暂存录音文件路径
+    // 暂存录音文件路径
     NSString *wavRecordFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"myRecord.wav"];
     NSString *amrRecordFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"myRecord.amr"];
     
@@ -292,11 +292,12 @@
     if (!_audioRecorder) {
         // 对AVAudioRecorder进行一些设置
         NSDictionary *recordSettings = [[NSDictionary alloc] initWithObjectsAndKeys:
-                                        [NSNumber numberWithFloat: 44100.0],AVSampleRateKey,
-                                        [NSNumber numberWithInt: kAudioFormatLinearPCM],AVFormatIDKey,
-                                        [NSNumber numberWithInt:16],AVLinearPCMBitDepthKey,
-                                        [NSNumber numberWithInt: 2], AVNumberOfChannelsKey,
-                                        [NSNumber numberWithInt:AVAudioQualityHigh],AVEncoderAudioQualityKey, nil];
+                                        [NSNumber numberWithFloat:8000], AVSampleRateKey,
+                                        [NSNumber numberWithInt:kAudioFormatLinearPCM], AVFormatIDKey,
+                                        [NSNumber numberWithInt:16], AVLinearPCMBitDepthKey,
+                                        [NSNumber numberWithInt:1], AVNumberOfChannelsKey,
+                                        [NSNumber numberWithInt:AVAudioQualityHigh], AVEncoderAudioQualityKey,
+                                        nil];
         
         // 录音存放的地址文件
         NSURL *recordingUrl = [NSURL URLWithString:[NSTemporaryDirectory() stringByAppendingString:@"myRecord.wav"]];

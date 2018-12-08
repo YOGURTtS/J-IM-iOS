@@ -12,6 +12,7 @@
 #import "EHINewCustomerSeerviceTools.h"
 #import "EHISocketManager.h"
 #import "EHICustomerServiceModel.h"
+#import "EHIVoiceManager.h"
 
 @interface EHINewCustomerServiceControllerViewController () <UITableViewDelegate, UITableViewDataSource>
 
@@ -26,6 +27,9 @@
 
 /** 消息数组 */
 @property (nonatomic, strong) NSMutableArray<EHICustomerServiceModel *> *messageArrayM;
+
+/** 语音管理器 */
+@property (nonatomic, strong) EHIVoiceManager *voiceManager;
 
 @end
 
@@ -75,6 +79,7 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     [tableView deselectRowAtIndexPath:indexPath animated:true];
+    [self.voiceManager playVoiceWithUrl:[NSURL URLWithString:@"https://github.com/YOGURTtS/YGRecorder/blob/master/myRecord.amr"]];
 }
 
 #pragma mark - send message
@@ -174,6 +179,13 @@
         _messageArrayM = [NSMutableArray array];
     }
     return _messageArrayM;
+}
+
+- (EHIVoiceManager *)voiceManager {
+    if (!_voiceManager) {
+        _voiceManager = [[EHIVoiceManager alloc] init];
+    }
+    return _voiceManager;
 }
 
 @end

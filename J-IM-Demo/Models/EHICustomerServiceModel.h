@@ -23,6 +23,14 @@ typedef NS_ENUM(NSInteger, EHIMessageStatus) {
     EHIMessageStatusSuccess  /// 发送成功
 };
 
+/** 语音播放状态 */
+typedef NS_ENUM(NSInteger, EHIVoiceMessagePlayStatus) {
+    EHIVoiceMessagePlayStatusUnplay,    /// 未播放
+    EHIVoiceMessagePlayStatusIsplaying, /// 正在播放
+    EHIVoiceMessagePlayStatusPause,     /// 暂停播放
+    EHIVoiceMessagePlayStatusFinish     /// 播放完毕
+};
+
 @interface EHICustomerServiceModel : NSObject
 
 /** 消息来源 */
@@ -41,11 +49,11 @@ typedef NS_ENUM(NSInteger, EHIMessageStatus) {
 /** 语音链接 */
 @property (nonatomic, strong) NSURL *voiceUrl;
 
-/** 语音是否正在播放 */
-@property (nonatomic, assign) BOOL isVoicePlaying;
+/** 语音播放状态 */
+@property (nonatomic, assign) EHIVoiceMessagePlayStatus playStatus;
 
-/** 语音播放进度 */
-@property (nonatomic, assign) CGFloat voicePlayProgress;
+/** 语音播放到第几秒 */
+@property (nonatomic, assign) CGFloat secondsPlayed;
 #pragma mark - 语音相关
 
 /** 图片链接 */
