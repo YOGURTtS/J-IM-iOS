@@ -10,8 +10,8 @@
 
 @interface EHIVoiceManager : NSObject
 
-/** 播放音频 */
-- (void)playVoiceWithUrl:(NSURL *)url;
+/** 播放音频，播放完会返回finish回调*/
+- (void)playVoiceWithUrl:(NSURL *)url finish:(void (^)(void))finish;
 
 /** 暂停播放，回调返回暂停在第几秒 */
 - (void)pausePlayWithUrl:(NSURL *)url completion:(void (^)(CGFloat seconds))completion;

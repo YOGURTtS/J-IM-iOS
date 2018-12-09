@@ -79,7 +79,20 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     [tableView deselectRowAtIndexPath:indexPath animated:true];
-    [self.voiceManager playVoiceWithUrl:[NSURL URLWithString:@"https://github.com/YOGURTtS/YGRecorder/blob/master/myRecord.amr"]];
+    EHICustomerServiceModel *model = [self.messageArrayM objectAtIndex:indexPath.row];
+    if (model.playStatus == EHIVoiceMessagePlayStatusUnplay ||
+        model.playStatus == EHIVoiceMessagePlayStatusFinish) {
+        model.playStatus = EHIVoiceMessagePlayStatusIsplaying;
+        [self.voiceManager playVoiceWithUrl:model.voiceUrl];
+    } else if (model.playStatus == EHIVoiceMessagePlayStatusPause) {
+        model.playStatus = EHIVoiceMessagePlayStatusIsplaying;
+        [self.voiceManager resumePlayWithUrl:model.voiceUrl time:model.secondsPlayed];
+    } else {
+        model.playStatus = EHIVoiceMessagePlayStatusPause;
+        [self.voiceManager pausePlayWithUrl:model.voiceUrl completion:^(CGFloat seconds) {
+            model.secondsPlayed = seconds;
+        }];
+    }
 }
 
 #pragma mark - send message
@@ -107,7 +120,7 @@
     model.fromType = EHIMessageFromTypeSender;
     model.messageStatus = EHIMessageStatusSuccess;
     model.messageType = EHIMessageTypeVoice;
-    model.voiceUrl = nil;
+    model.voiceUrl = [NSURL URLWithString:@"https://raw.githubusercontent.com/YOGURTtS/YGRecorder/master/myRecord.amr"];
     model.time = [self currentDateStr];
     [self.messageArrayM addObject:model];
     [self.tableView reloadData];
