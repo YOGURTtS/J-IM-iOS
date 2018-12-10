@@ -96,13 +96,13 @@
     if (model.playStatus == EHIVoiceMessagePlayStatusUnplay ||
         model.playStatus == EHIVoiceMessagePlayStatusFinish) {
         model.playStatus = EHIVoiceMessagePlayStatusIsplaying;
-        [self.voiceManager playVoiceWithUrl:model.voiceUrl finish:nil];
+        [self.voiceManager playVoiceWithUrl:[NSURL URLWithString:model.voiceUrl] finish:nil];
     } else if (model.playStatus == EHIVoiceMessagePlayStatusPause) {
         model.playStatus = EHIVoiceMessagePlayStatusIsplaying;
-        [self.voiceManager resumePlayWithUrl:model.voiceUrl time:model.millisecondsPlayed];
+        [self.voiceManager resumePlayWithUrl:[NSURL URLWithString:model.voiceUrl] time:model.millisecondsPlayed];
     } else {
         model.playStatus = EHIVoiceMessagePlayStatusPause;
-        [self.voiceManager pausePlayWithUrl:model.voiceUrl completion:^(CGFloat seconds) {
+        [self.voiceManager pausePlayWithUrl:[NSURL URLWithString:model.voiceUrl] completion:^(CGFloat seconds) {
             model.millisecondsPlayed = seconds;
         }];
     }
@@ -139,6 +139,7 @@
     //    }];
     
     EHICustomerServiceModel *model = [[EHICustomerServiceModel alloc] init];
+    model.isAnonymousMessage = YES;
     model.fromType = EHIMessageFromTypeSender;
     model.messageStatus = EHIMessageStatusSuccess;
     model.messageType = EHIMessageTypeText;
@@ -151,10 +152,11 @@
 - (void)sendVoiceMessage:(NSData *)data {
     // TODO: 上传音频
     EHICustomerServiceModel *model = [[EHICustomerServiceModel alloc] init];
+    model.isAnonymousMessage = YES;
     model.fromType = EHIMessageFromTypeSender;
     model.messageStatus = EHIMessageStatusSuccess;
     model.messageType = EHIMessageTypeVoice;
-    model.voiceUrl = [NSURL URLWithString:@"https://raw.githubusercontent.com/YOGURTtS/YGRecorder/master/myRecord.amr"];
+    model.voiceUrl = @"https://raw.githubusercontent.com/YOGURTtS/YGRecorder/master/myRecord.amr";
     model.time = [self currentDateStr];
     [self.messageArrayM addObject:model];
     [self.tableView reloadData];
@@ -173,6 +175,31 @@
     [dateFormatter setDateFormat:@"YYYY/MM/dd hh:mm:ss SS "];
     NSString *dateString = [dateFormatter stringFromDate:currentDate];
     return dateString;
+}
+
+#pragma mark - cache voice and picture
+
+- (void)cacheVoiceMessages {
+    for (EHICustomerServiceModel *model in self.messageArrayM) {
+        if (model.messageType == EHIMessageTypeVoice) {
+            NSURL *voiceUrl = [NSURL URLWithString:model.voiceUrl];
+            // 如果是在线视频就缓存下来
+            if ([voiceUrl.scheme hasPrefix:@"http"]) {
+                
+                
+            }
+        }
+    }
+}
+
+- (void)cachePictureMessages {
+    for (EHICustomerServiceModel *model in self.messageArrayM) {
+        if (model.messageType == EHIMessageTypePicture) {
+            NSURL *picUrl = [NSURL URLWithString:model.pictureUrl];
+            
+            
+        }
+    }
 }
 
 #pragma mark - lazy laod
