@@ -35,6 +35,7 @@
 
 - (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
     if (self = [super initWithStyle:style reuseIdentifier:reuseIdentifier]) {
+        self.selectionStyle = UITableViewCellSelectionStyleNone;
         [self setupSubviews];
     }
     return self;
@@ -92,7 +93,22 @@
         }
             break;
         case EHIMessageTypeVoice:
-            [self.contentButton setTitle:@"录音" forState:UIControlStateNormal];
+            switch (model.playStatus) {
+                case EHIVoiceMessagePlayStatusIsplaying:
+                    [self.contentButton setTitle:@"播放中" forState:UIControlStateNormal];
+                    break;
+                case EHIVoiceMessagePlayStatusPause:
+                    [self.contentButton setTitle:@"播放暂停" forState:UIControlStateNormal];
+                    break;
+                case EHIVoiceMessagePlayStatusFinish:
+                    [self.contentButton setTitle:@"播放完成" forState:UIControlStateNormal];
+                    break;
+                    
+                default:
+                    [self.contentButton setTitle:@"录音" forState:UIControlStateNormal];
+                    break;
+            }
+            
             break;
         case EHIMessageTypePicture:
             
@@ -125,7 +141,9 @@
 
 /** 播放音频 */
 - (void)playVoice {
-    
+    if (self.voicePlay) {
+        self.voicePlay();
+    }
 }
 
 /** 查看大图 */

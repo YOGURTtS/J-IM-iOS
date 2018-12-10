@@ -8,20 +8,21 @@
 
 #import "EHIVoiceManager.h"
 #import <AVKit/AVKit.h>
-#include "amr_wav_converter.h"
+#import "amr_wav_converter.h"
 
 @interface EHIVoiceManager ()
 
 /** 播放器 */
 @property (nonatomic, strong) AVPlayer *audioPlayer;
 
-@property (nonatomic, strong) AVAudioPlayer *player;
-
 /** 进度计时器 */
 @property (nonatomic, strong) dispatch_source_t timer;
 
 /** 播放进度 单位：毫秒 */
 @property (nonatomic, assign) CGFloat milliseconds;
+
+/** 上一个url */
+@property (nonatomic, strong) NSURL *lastUrl;
 
 /** 正在播放语音的url */
 @property (nonatomic, strong) NSURL *currentUrl;
@@ -46,7 +47,9 @@
 }
 
 - (void)playbackFinished:(NSNotification *)noti {
-    
+    if (self.finish) {
+        self.finish(self.currentUrl);
+    }
 }
 
 #pragma mark - about audio
@@ -56,11 +59,26 @@
     NSError *error = nil;
     [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error:&error];
     
+    if (self.currentUrl) {
+        self.lastUrl = self.currentUrl;
+    }
+    self.currentUrl = url;
+    
+    if (self.lastUrl) {
+        AVPlayerItem *playerItem = [AVPlayerItem playerItemWithURL:self.lastUrl];
+        [self.audioPlayer replaceCurrentItemWithPlayerItem:playerItem];
+        if (self.pause) {
+            self.pause(self.lastUrl, self.milliseconds);
+        }
+    }
+    
     [self resetAudioPlayerStatus];
     
     if (!url.path.length) {
         return;
     }
+    
+    
     
 #pragma mark - 本地音频
     
@@ -68,7 +86,6 @@
         AVPlayerItem *playerItem = [AVPlayerItem playerItemWithURL:url];
         [self.audioPlayer replaceCurrentItemWithPlayerItem:playerItem];
         [self.audioPlayer play];
-        NSLog(@"url = %@", url);
 
         self.currentUrl = url;
         return;
@@ -103,10 +120,7 @@
                     [self.audioPlayer play];
                 }
             }
-            
-            
         }] resume];
-        
         
     } else {
         AVPlayerItem *playerItem = [AVPlayerItem playerItemWithURL:url];
@@ -114,44 +128,82 @@
         [self.audioPlayer play];
     }
     
-    self.currentUrl = url;
+    [self startTimer];
 }
 
 - (void)pausePlayWithUrl:(NSURL *)url completion:(void (^)(CGFloat seconds))completion {
     [self.audioPlayer pause];
-    completion(2);
+    [self stopTimer];
+    completion(self.milliseconds);
 }
 
-- (void)resumePlayWithUrl:(NSURL *)url time:(CGFloat)seconds {
-    CMTime time = CMTimeMakeWithSeconds(seconds, 600);
-    __weak typeof(self)weakSelf = self;
+- (void)resumePlayWithUrl:(NSURL *)url time:(CGFloat)milliseconds {
+    
+    if (self.currentUrl) {
+        self.lastUrl = self.currentUrl;
+    }
+    self.currentUrl = url;
+    
+    if (self.lastUrl) {
+        AVPlayerItem *playerItem = [AVPlayerItem playerItemWithURL:self.lastUrl];
+        [self.audioPlayer replaceCurrentItemWithPlayerItem:playerItem];
+        if (self.pause) {
+            self.pause(self.lastUrl, self.milliseconds);
+        }
+    }
+    
+    [self resetAudioPlayerStatus];
+    if (!url.path.length) {
+        return;
+    }
+    
+    self.milliseconds = milliseconds;
+    CMTime time = CMTimeMakeWithSeconds(milliseconds, 600);
+    __weak typeof(self) weakSelf = self;
     [self.audioPlayer seekToTime:time completionHandler:^(BOOL finished) {
-        __strong typeof(weakSelf)self = weakSelf;
+        __strong typeof(weakSelf) self = weakSelf;
         [self.audioPlayer play];
     }];
+    
+    [self startTimer];
 }
 
 - (void)stopPlayWithUrl:(NSURL *)url {
+    [self stopTimer];
     [self.audioPlayer pause];
 }
 
 /** 重置语音播放器状态 */
 - (void)resetAudioPlayerStatus {
     if (self.audioPlayer) {
+        [self stopTimer];
         [self.audioPlayer pause];
         self.audioPlayer = nil;
         self.milliseconds = .0f;
     }
 }
 
-#pragma mark - about timer
+#pragma mark - about timer 用来记录播放进度
 
+/** 开始计时器 */
 - (void)startTimer {
+    __weak typeof(self) weakSelf = self;
+    dispatch_source_set_timer(self.timer, dispatch_walltime(NULL, 0), 0.001 * NSEC_PER_SEC, 0); // 每毫秒执行
+        dispatch_source_set_event_handler(_timer, ^{
+            __strong typeof(weakSelf) self = weakSelf;
+            self.milliseconds += 0.001;
+        });
     
+        dispatch_resume(self.timer);
 }
 
-
-
+/** 停止计时器 */
+- (void)stopTimer {
+    if (_timer) {
+        dispatch_cancel(_timer);
+        _timer = nil;
+    }
+}
 
 #pragma mark - lazy load
 
@@ -169,6 +221,12 @@
         _timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue);
     }
     return _timer;
+}
+
+#pragma mark - deinit
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 

@@ -66,6 +66,12 @@
     EHICustomerServiceCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
     cell.model = [self.messageArrayM objectAtIndex:indexPath.row];
     
+    __weak typeof(self) weakSelf = self;
+    cell.voicePlay = ^{
+        __strong typeof(weakSelf) self = weakSelf;
+        [self voicePlayWithIndex:indexPath.row];
+    };
+    
     return cell;
 }
 
@@ -79,30 +85,58 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     [tableView deselectRowAtIndexPath:indexPath animated:true];
-    EHICustomerServiceModel *model = [self.messageArrayM objectAtIndex:indexPath.row];
+    
+}
+
+#pragma mark - about voice
+
+/** 播放、暂停音频 */
+- (void)voicePlayWithIndex:(NSInteger)index {
+    EHICustomerServiceModel *model = [self.messageArrayM objectAtIndex:index];
     if (model.playStatus == EHIVoiceMessagePlayStatusUnplay ||
         model.playStatus == EHIVoiceMessagePlayStatusFinish) {
         model.playStatus = EHIVoiceMessagePlayStatusIsplaying;
-        [self.voiceManager playVoiceWithUrl:model.voiceUrl];
+        [self.voiceManager playVoiceWithUrl:model.voiceUrl finish:nil];
     } else if (model.playStatus == EHIVoiceMessagePlayStatusPause) {
         model.playStatus = EHIVoiceMessagePlayStatusIsplaying;
-        [self.voiceManager resumePlayWithUrl:model.voiceUrl time:model.secondsPlayed];
+        [self.voiceManager resumePlayWithUrl:model.voiceUrl time:model.millisecondsPlayed];
     } else {
         model.playStatus = EHIVoiceMessagePlayStatusPause;
         [self.voiceManager pausePlayWithUrl:model.voiceUrl completion:^(CGFloat seconds) {
-            model.secondsPlayed = seconds;
+            model.millisecondsPlayed = seconds;
         }];
+    }
+    [self.tableView reloadData];
+}
+
+/** 修改播放状态为暂停 */
+- (void)voicePauseWithUrl:(NSURL *)url milliseconds:(CGFloat)milliseconds {
+    for (EHICustomerServiceModel *model in self.messageArrayM) {
+        if ([model.voiceUrl isEqual:url]) {
+            model.millisecondsPlayed = milliseconds;
+            model.playStatus = EHIVoiceMessagePlayStatusPause;
+        }
+    }
+}
+
+/** 修改播放状态为播放完 */
+- (void)voiceFinishWithUrl:(NSURL *)url {
+    for (EHICustomerServiceModel *model in self.messageArrayM) {
+        if ([model.voiceUrl isEqual:url]) {
+            model.millisecondsPlayed = 0.0f;
+            model.playStatus = EHIVoiceMessagePlayStatusFinish;
+        }
     }
 }
 
 #pragma mark - send message
 
 - (void)sendtextMessage:(NSString *)text {
-//    [self.socketManager sendText:text success:^{
-//        
-//    } failure:^(NSError *error) {
-//        
-//    }];
+    //    [self.socketManager sendText:text success:^{
+    //
+    //    } failure:^(NSError *error) {
+    //
+    //    }];
     
     EHICustomerServiceModel *model = [[EHICustomerServiceModel alloc] init];
     model.fromType = EHIMessageFromTypeSender;
@@ -125,11 +159,11 @@
     [self.messageArrayM addObject:model];
     [self.tableView reloadData];
     
-//    [self.socketManager sendVoice:nil success:^{
-//
-//    } failure:^(NSError * error) {
-//
-//    }];
+    //    [self.socketManager sendVoice:nil success:^{
+    //
+    //    } failure:^(NSError * error) {
+    //
+    //    }];
 }
 
 /** 获取当前时间 */
@@ -197,6 +231,19 @@
 - (EHIVoiceManager *)voiceManager {
     if (!_voiceManager) {
         _voiceManager = [[EHIVoiceManager alloc] init];
+        
+        __weak typeof(self) weakSelf = self;
+        // 播放完成回调
+        _voiceManager.finish = ^(NSURL *url) {
+            __strong typeof(weakSelf) self = weakSelf;
+            [self voiceFinishWithUrl:url];
+        };
+        
+        // 播放暂停回调
+        _voiceManager.pause = ^(NSURL *url, CGFloat milliseconds) {
+            __strong typeof(weakSelf) self = weakSelf;
+            [self voicePauseWithUrl:url milliseconds:milliseconds];
+        };
     }
     return _voiceManager;
 }

@@ -16,4 +16,7 @@
 /** model */
 @property (nonatomic, strong) EHICustomerServiceModel *model;
 
+/** 播放视频 */
+@property (nonatomic, copy) void (^voicePlay)(void);
+
 @end
