@@ -67,17 +67,17 @@
 - (void)layoutSubviews {
     [super layoutSubviews];
     
-    CGFloat buttonHeight = 40.f;
+    CGFloat buttonHeight = 37.f;
     
-    self.switchToVoiceOrTextButton.frame = CGRectMake(4, CGRectGetHeight(self.frame) - buttonHeight - 4 - [EHINewCustomerSeerviceTools getBottomDistance], buttonHeight, buttonHeight);
-    self.sendPictureButton.frame = CGRectMake(CGRectGetWidth(self.frame) - buttonHeight - 4,
-                                              CGRectGetHeight(self.frame) - buttonHeight - 4 - [EHINewCustomerSeerviceTools getBottomDistance],
+    self.switchToVoiceOrTextButton.frame = CGRectMake(6, CGRectGetHeight(self.frame) - buttonHeight - 7 - [EHINewCustomerSeerviceTools getBottomDistance], buttonHeight, buttonHeight);
+    self.sendPictureButton.frame = CGRectMake(CGRectGetWidth(self.frame) - buttonHeight - 16,
+                                              CGRectGetHeight(self.frame) - buttonHeight - 7 - [EHINewCustomerSeerviceTools getBottomDistance],
                                               buttonHeight,
                                               buttonHeight);
     self.textOrSendVoiceView.frame = CGRectMake(CGRectGetMaxX(self.switchToVoiceOrTextButton.frame) + 4,
                                                 CGRectGetMinY(self.switchToVoiceOrTextButton.frame),
                                                 CGRectGetMinX(self.sendPictureButton.frame) -
-                                                CGRectGetMaxX(self.switchToVoiceOrTextButton.frame) - 8,
+                                                CGRectGetMaxX(self.switchToVoiceOrTextButton.frame) - 18,
                                                 buttonHeight);
     
     self.textView.frame = self.textOrSendVoiceView.bounds;
@@ -89,9 +89,15 @@
     CGFloat x = 0;
     for (NSInteger i = 0; i < self.quickEntrances.count; ++i) {
         UIButton *quickEntrance = [UIButton buttonWithType:UIButtonTypeCustom];
+        quickEntrance.backgroundColor = [UIColor whiteColor];
         [quickEntrance setTitle:[self.quickEntrances objectAtIndex:i] forState:UIControlStateNormal];
-        quickEntrance.titleLabel.font = [UIFont systemFontOfSize:14];
-        quickEntrance.frame = CGRectMake(x + 4, 8, 70, 22);
+        [quickEntrance setTitleColor:[UIColor colorWithRed:41/255.0 green:183/255.0 blue:183/255.0 alpha:1.0] forState:UIControlStateNormal];
+        quickEntrance.titleLabel.font = [UIFont systemFontOfSize:12];
+        quickEntrance.frame = CGRectMake(x + 12, 10, 70, 24);
+        quickEntrance.layer.cornerRadius = 12.f;
+        quickEntrance.clipsToBounds = YES;
+        quickEntrance.layer.borderColor = [UIColor colorWithRed:41/255.0 green:183/255.0 blue:183/255.0 alpha:1.0].CGColor;
+        quickEntrance.layer.borderWidth = 1.f;
         quickEntrance.tag = i;
         [quickEntrance addTarget:self action:@selector(quickEntrancebuttonClicked:) forControlEvents:UIControlEventTouchUpInside];
         [self addSubview:quickEntrance];
@@ -124,29 +130,20 @@
     }
 }
 
-#pragma mark - setter
-
-- (void)setInputType:(EHICustomServiceInputType)inputType {
-    _inputType = inputType;
-    if (inputType == EHICustomServiceInputTypeText) {
-        self.textView.hidden = NO;
-        self.voiceButton.hidden = YES;
-        [self.switchToVoiceOrTextButton setImage:[UIImage imageNamed:@"语音"] forState:UIControlStateNormal];
-    } else {
-        self.textView.hidden = YES;
-        self.voiceButton.hidden = NO;
-        [self.switchToVoiceOrTextButton setImage:[UIImage imageNamed:@"键盘"] forState:UIControlStateNormal];
-    }
-}
-
-#pragma mark - button action
-
-- (void)switchTovoiceOrText {
+- (void)switchToVoiceOrText {
     if (self.inputType == EHICustomServiceInputTypeText) {
         self.inputType = EHICustomServiceInputTypeVoice;
     } else {
         self.inputType = EHICustomServiceInputTypeText;
     }
+}
+
+- (void)sendPicture {
+    if (self.sendPictureCallBack) {
+        self.sendPictureCallBack(nil);
+    }
+    
+    
 }
 
 #pragma mark - gesture
@@ -155,11 +152,11 @@
     CGPoint point = [gestureRecognizer locationInView:self];
     
     if (gestureRecognizer.state == UIGestureRecognizerStateBegan) {
-        [self.voiceButton setTitle:@"松开 结束" forState:UIControlStateNormal];
+        [self.voiceButton setTitle:@"松开结束" forState:UIControlStateNormal];
         // TODO: 开始录音
         [self audioStart];
     } else if (gestureRecognizer.state == UIGestureRecognizerStateEnded) {
-        [self.voiceButton setTitle:@"按住 说话" forState:UIControlStateNormal];
+        [self.voiceButton setTitle:@"按住说话" forState:UIControlStateNormal];
         // TODO: 结束录音
         if (!self.isCancelSendAudioMessage) {
             [self audioStop];
@@ -167,17 +164,32 @@
     } else if (gestureRecognizer.state == UIGestureRecognizerStateChanged) {
         CGPoint aPoint = [self convertPoint:point toView:self.voiceButton];
         if ([self.voiceButton.layer containsPoint:aPoint]) {
-            [self.voiceButton setTitle:@"松开 结束" forState:UIControlStateNormal];
+            [self.voiceButton setTitle:@"松开结束" forState:UIControlStateNormal];
             // TODO:
             self.isCancelSendAudioMessage = NO;
         } else {
-            [self.voiceButton setTitle:@"松开 取消" forState:UIControlStateNormal];
+            [self.voiceButton setTitle:@"松开取消" forState:UIControlStateNormal];
             self.isCancelSendAudioMessage = YES;
         }
     } else if (gestureRecognizer.state == UIGestureRecognizerStateFailed) {
         NSLog(@"失败");
     } else if (gestureRecognizer.state == UIGestureRecognizerStateCancelled) {
         NSLog(@"取消");
+    }
+}
+
+#pragma mark - setter
+
+- (void)setInputType:(EHICustomServiceInputType)inputType {
+    _inputType = inputType;
+    if (inputType == EHICustomServiceInputTypeText) {
+        self.textView.hidden = NO;
+        self.voiceButton.hidden = YES;
+        [self.switchToVoiceOrTextButton setImage:[UIImage imageNamed:@"new_customer_service_send_voice"] forState:UIControlStateNormal];
+    } else {
+        self.textView.hidden = YES;
+        self.voiceButton.hidden = NO;
+        [self.switchToVoiceOrTextButton setImage:[UIImage imageNamed:@"new_customer_service_send_text"] forState:UIControlStateNormal];
     }
 }
 
@@ -206,8 +218,8 @@
 
 - (void)audioRecorderDidFinishRecording:(AVAudioRecorder *)recorder successfully:(BOOL)flag {
     // 暂存录音文件路径
-    NSString *wavRecordFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"myRecord.wav"];
-    NSString *amrRecordFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"myRecord.amr"];
+    NSString *wavRecordFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"wav/%@.wav", [NSUUID UUID].UUIDString]];
+    NSString *amrRecordFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"amr/%@.amr", [NSUUID UUID].UUIDString]];
     
     // 重点:把wav录音文件转换成amr文件,用于网络传输.amr文件大小是wav文件的十分之一左右
     wave_file_to_amr_file([wavRecordFilePath cStringUsingEncoding:NSUTF8StringEncoding],[amrRecordFilePath cStringUsingEncoding:NSUTF8StringEncoding], 1, 16);
@@ -216,7 +228,7 @@
     NSData *cacheAudioData = [NSData dataWithContentsOfFile:amrRecordFilePath];
     
     if (self.sendVoiceCallBack) {
-        self.sendVoiceCallBack(cacheAudioData);
+        self.sendVoiceCallBack(cacheAudioData, wavRecordFilePath);
     }
 }
 
@@ -225,6 +237,8 @@
 - (UIView *)textOrSendVoiceView {
     if (!_textOrSendVoiceView) {
         _textOrSendVoiceView = [[UIView alloc] init];
+        _textOrSendVoiceView.layer.cornerRadius = 4.0;
+        _textOrSendVoiceView.clipsToBounds = YES;
     }
     return _textOrSendVoiceView;
 }
@@ -232,7 +246,8 @@
 - (UIButton *)sendPictureButton {
     if (!_sendPictureButton) {
         _sendPictureButton = [UIButton buttonWithType:UIButtonTypeCustom];
-        [_sendPictureButton setImage:[UIImage imageNamed:@"图片"] forState:UIControlStateNormal];
+        [_sendPictureButton setImage:[UIImage imageNamed:@"new_customer_service_picture"] forState:UIControlStateNormal];
+        [_sendPictureButton addTarget:self action:@selector(sendPicture) forControlEvents:UIControlEventTouchUpInside];
     }
     return _sendPictureButton;
 }
@@ -241,7 +256,7 @@
     if (!_switchToVoiceOrTextButton) {
         _switchToVoiceOrTextButton = [UIButton buttonWithType:UIButtonTypeCustom];
         
-        [_switchToVoiceOrTextButton addTarget:self action:@selector(switchTovoiceOrText) forControlEvents:UIControlEventTouchUpInside];
+        [_switchToVoiceOrTextButton addTarget:self action:@selector(switchToVoiceOrText) forControlEvents:UIControlEventTouchUpInside];
     }
     return _switchToVoiceOrTextButton;
 }
@@ -261,9 +276,11 @@
     if (!_voiceButton) {
         _voiceButton = [UIButton buttonWithType:UIButtonTypeCustom];
         
-        [_voiceButton setTitle:@"按住 说话" forState:UIControlStateNormal];
-        [_voiceButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
         _voiceButton.backgroundColor = [UIColor whiteColor];
+        _voiceButton.titleLabel.font = [UIFont systemFontOfSize:16.f weight:UIFontWeightSemibold];
+        [_voiceButton setTitle:@"按住说话" forState:UIControlStateNormal];
+        [_voiceButton setTitleColor:[UIColor colorWithRed:123/255.0 green:123/255.0 blue:123/255.0 alpha:1.0] forState:UIControlStateNormal];
+        
         // 增加长按手势
         UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longPress:)];
         longPress.minimumPressDuration = 0.1;

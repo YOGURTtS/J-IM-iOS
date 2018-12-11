@@ -19,6 +19,7 @@ PODS:
     - FMDB/standard (= 2.7.5)
   - FMDB/standard (2.7.5)
   - IQKeyboardManager (6.2.0)
+  - TZImagePickerController (3.1.1)
   - YYModel (1.0.4)
 
 DEPENDENCIES:
@@ -26,6 +27,7 @@ DEPENDENCIES:
   - CocoaAsyncSocket
   - FMDB
   - IQKeyboardManager
+  - TZImagePickerController
   - YYModel
 
 SPEC REPOS:
@@ -34,6 +36,7 @@ SPEC REPOS:
     - CocoaAsyncSocket
     - FMDB
     - IQKeyboardManager
+    - TZImagePickerController
     - YYModel
 
 SPEC CHECKSUMS:
@@ -41,8 +44,9 @@ SPEC CHECKSUMS:
   CocoaAsyncSocket: eafaa68a7e0ec99ead0a7b35015e0bf25d2c8987
   FMDB: 2ce00b547f966261cd18927a3ddb07cb6f3db82a
   IQKeyboardManager: 6194101620b73af5e67900b8f89707a99de0b804
+  TZImagePickerController: b33cb21ea66c1ed4c56443a0e8c84494c44be560
   YYModel: 2a7fdd96aaa4b86a824e26d0c517de8928c04b30
 
-PODFILE CHECKSUM: 52fb4026b97423a3a1adec962c738b626269dea5
+PODFILE CHECKSUM: e327fcc25ec0aaf6a54d0724bb5bbf45d02c0438
 
 COCOAPODS: 1.6.0.beta.2

@@ -31,7 +31,7 @@ typedef NS_ENUM(NSInteger, EHICustomServiceInputType) {
 @property (nonatomic, copy) void (^sendTextCallBack)(NSString *text);
 
 /** 发送语音消息回调 */
-@property (nonatomic, copy) void (^sendVoiceCallBack)(NSData *data);
+@property (nonatomic, copy) void (^sendVoiceCallBack)(NSData *amrdData, NSString *wavFilePath);
 
 /** 发送图片消息回调 */
 @property (nonatomic, copy) void (^sendPictureCallBack)(UIImage *image);

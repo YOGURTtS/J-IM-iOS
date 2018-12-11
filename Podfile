@@ -11,5 +11,6 @@ target 'J-IM-Demo' do
   pod 'FMDB'
   pod 'AFNetworking'
   pod 'IQKeyboardManager'
+  pod 'TZImagePickerController'
 
 end

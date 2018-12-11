@@ -36,6 +36,9 @@ typedef NS_ENUM(NSInteger, EHIVoiceMessagePlayStatus) {
 /** 是否是匿名信息，未登录为YES，登录为NO */
 @property (nonatomic, assign) BOOL isAnonymousMessage;
 
+/** 用户ID */
+@property (nonatomic, copy) NSString *userId;
+
 /** 消息来源 */
 @property (nonatomic, assign) EHIMessageFromType fromType;
 
@@ -51,6 +54,9 @@ typedef NS_ENUM(NSInteger, EHIVoiceMessagePlayStatus) {
 #pragma mark - 语音相关
 /** 语音链接 */
 @property (nonatomic, copy) NSString *voiceUrl;
+
+/** 语音本地缓存路径 */
+@property (nonatomic, copy) NSString *voiceFileUrl;
 
 /** 语音播放状态 */
 @property (nonatomic, assign) EHIVoiceMessagePlayStatus playStatus;

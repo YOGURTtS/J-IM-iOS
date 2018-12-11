@@ -13,6 +13,9 @@
 #import "EHISocketManager.h"
 #import "EHICustomerServiceModel.h"
 #import "EHIVoiceManager.h"
+#import <TZImagePickerController.h>
+#import "EHIVoiceCacheManager.h"
+
 
 @interface EHINewCustomerServiceControllerViewController () <UITableViewDelegate, UITableViewDataSource>
 
@@ -31,6 +34,9 @@
 /** 语音管理器 */
 @property (nonatomic, strong) EHIVoiceManager *voiceManager;
 
+/** 语音缓存管理器 */
+@property (nonatomic, strong) EHIVoiceCacheManager *voiceCacheManager;
+
 @end
 
 @implementation EHINewCustomerServiceControllerViewController
@@ -47,7 +53,8 @@
     [self.view addSubview:self.bottomView];
     [self.view addSubview:self.tableView];
     
-    self.bottomView.frame = CGRectMake(0, [UIScreen mainScreen].bounds.size.height - 100 - [EHINewCustomerSeerviceTools getBottomDistance], [UIScreen mainScreen].bounds.size.width, 100 + [EHINewCustomerSeerviceTools getBottomDistance]);
+    CGFloat bottomViewHeight = 87.f;
+    self.bottomView.frame = CGRectMake(0, [UIScreen mainScreen].bounds.size.height - bottomViewHeight - [EHINewCustomerSeerviceTools getBottomDistance], [UIScreen mainScreen].bounds.size.width, bottomViewHeight + [EHINewCustomerSeerviceTools getBottomDistance]);
     self.tableView.frame = CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height - CGRectGetHeight(self.bottomView.frame));
 }
 
@@ -93,16 +100,17 @@
 /** 播放、暂停音频 */
 - (void)voicePlayWithIndex:(NSInteger)index {
     EHICustomerServiceModel *model = [self.messageArrayM objectAtIndex:index];
+    // 未播放过或播放完成
     if (model.playStatus == EHIVoiceMessagePlayStatusUnplay ||
         model.playStatus == EHIVoiceMessagePlayStatusFinish) {
         model.playStatus = EHIVoiceMessagePlayStatusIsplaying;
-        [self.voiceManager playVoiceWithUrl:[NSURL URLWithString:model.voiceUrl] finish:nil];
-    } else if (model.playStatus == EHIVoiceMessagePlayStatusPause) {
+        [self.voiceManager playVoiceWithUrl:[NSURL fileURLWithPath:model.voiceFileUrl] finish:nil];
+    } else if (model.playStatus == EHIVoiceMessagePlayStatusPause) { // 暂停播放
         model.playStatus = EHIVoiceMessagePlayStatusIsplaying;
-        [self.voiceManager resumePlayWithUrl:[NSURL URLWithString:model.voiceUrl] time:model.millisecondsPlayed];
-    } else {
+        [self.voiceManager resumePlayWithUrl:[NSURL fileURLWithPath:model.voiceFileUrl] time:model.millisecondsPlayed];
+    } else { // 正在播放
         model.playStatus = EHIVoiceMessagePlayStatusPause;
-        [self.voiceManager pausePlayWithUrl:[NSURL URLWithString:model.voiceUrl] completion:^(CGFloat seconds) {
+        [self.voiceManager pausePlayWithUrl:[NSURL fileURLWithPath:model.voiceFileUrl] completion:^(CGFloat seconds) {
             model.millisecondsPlayed = seconds;
         }];
     }
@@ -149,7 +157,7 @@
     [self.tableView reloadData];
 }
 
-- (void)sendVoiceMessage:(NSData *)data {
+- (void)sendVoiceMessage:(NSData *)data wavFilePath:(NSString *)filePath {
     // TODO: 上传音频
     EHICustomerServiceModel *model = [[EHICustomerServiceModel alloc] init];
     model.isAnonymousMessage = YES;
@@ -157,6 +165,7 @@
     model.messageStatus = EHIMessageStatusSuccess;
     model.messageType = EHIMessageTypeVoice;
     model.voiceUrl = @"https://raw.githubusercontent.com/YOGURTtS/YGRecorder/master/myRecord.amr";
+    model.voiceFileUrl = filePath;
     model.time = [self currentDateStr];
     [self.messageArrayM addObject:model];
     [self.tableView reloadData];
@@ -168,6 +177,19 @@
     //    }];
 }
 
+/** 发送图片 */
+- (void)getPictures {
+    TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:9 delegate:nil];
+    imagePickerVc.allowPickingGif = NO;
+    imagePickerVc.allowPickingVideo = NO;
+    [imagePickerVc setDidFinishPickingPhotosHandle:^(NSArray<UIImage *> *photos, NSArray *assets, BOOL isSelectOriginalPhoto) {
+        NSLog(@"photos = %@", photos);
+    }];
+    [self presentViewController:imagePickerVc animated:YES completion:nil];
+}
+
+
+
 /** 获取当前时间 */
 - (NSString *)currentDateStr {
     NSDate *currentDate = [NSDate date];
@@ -177,21 +199,56 @@
     return dateString;
 }
 
+#pragma mark - http request
+
+/** 获取未读消息 */
+- (void)getHistoryMessages {
+    
+    // TODO: 获取最后一条消息的时间
+    
+    // 当前时间
+    NSString *currentTime = [self currentDateStr];
+    
+    // TODO: 调接口获取消息列表
+    
+    // TODO: 数据添加到数据库中
+}
+
+/** 消息插入数据表 */
+- (void)addMessagesToDatabase {
+    for (EHICustomerServiceModel *model in self.messageArrayM) {
+        // TODO: 将消息逐条插入数据表
+        
+    }
+}
+
 #pragma mark - cache voice and picture
 
+/** 缓存语音 */
 - (void)cacheVoiceMessages {
+    
     for (EHICustomerServiceModel *model in self.messageArrayM) {
-        if (model.messageType == EHIMessageTypeVoice) {
-            NSURL *voiceUrl = [NSURL URLWithString:model.voiceUrl];
-            // 如果是在线视频就缓存下来
-            if ([voiceUrl.scheme hasPrefix:@"http"]) {
+        // 如果是在线语音就缓存下来
+        if (model.messageType == EHIMessageTypeVoice && model.voiceFileUrl.length == 0 &&
+            [model.voiceUrl hasPrefix:@"http"]) {
+            __weak typeof(self) weakSelf = self;
+            [self.voiceCacheManager cacheOnlineVoiceWithUrl:model.voiceUrl completion:^(NSString *filePath) {
+                __strong typeof(weakSelf) self = weakSelf;
+                model.voiceFileUrl = filePath;
+                // TODO: 更新数据库
                 
-                
-            }
+                // 更新tableView当前行
+                NSInteger index = [self.messageArrayM indexOfObject:model];
+                NSIndexPath *indexPath = [NSIndexPath indexPathForRow:index inSection:0];
+                if ([self.tableView.indexPathsForVisibleRows containsObject:indexPath]) {
+                    [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:(UITableViewRowAnimationAutomatic)];
+                }
+            }];
         }
     }
 }
 
+/** 缓存图片 */
 - (void)cachePictureMessages {
     for (EHICustomerServiceModel *model in self.messageArrayM) {
         if (model.messageType == EHIMessageTypePicture) {
@@ -207,7 +264,7 @@
 - (EHICustomServiceBottomView *)bottomView {
     if (!_bottomView) {
         _bottomView = [[EHICustomServiceBottomView alloc] initWithFrame:CGRectZero];
-        _bottomView.backgroundColor = [UIColor redColor];
+        _bottomView.backgroundColor = [UIColor colorWithRed:234.0 / 255.0 green:234.0 / 255.0 blue:234.0 / 255.0 alpha:1];
         __weak typeof(self)weakSelf = self;
         _bottomView.quickEntranceSelected = ^(UIButton *button, NSInteger index) {
             __strong typeof(weakSelf)self = weakSelf;
@@ -222,14 +279,18 @@
         };
         
         // 发送语音消息
-        _bottomView.sendVoiceCallBack = ^(NSData *data) {
+        _bottomView.sendVoiceCallBack = ^(NSData *amrdData, NSString *wavFilePath) {
             __strong typeof(weakSelf)self = weakSelf;
-            NSLog(@"voice data = %@", data);
-            [self sendVoiceMessage:data];
+            NSLog(@"voice wavFilePath = %@", wavFilePath);
+            [self sendVoiceMessage:amrdData wavFilePath:wavFilePath];
         };
         
-        // 发送图片消息
         
+        // 发送图片消息
+        _bottomView.sendPictureCallBack = ^(UIImage *image) {
+            __strong typeof(weakSelf)self = weakSelf;
+            [self getPictures];
+        };
         
     }
     return _bottomView;
@@ -239,6 +300,7 @@
     if (!_tableView) {
         _tableView = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
         
+        _tableView.backgroundColor = [UIColor colorWithRed:242.0 / 255.0 green:242.0 / 255.0 blue:242.0 / 255.0 alpha:1];
         _tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
         _tableView.tableFooterView = [UIView new];
         _tableView.dataSource = self;
@@ -273,6 +335,13 @@
         };
     }
     return _voiceManager;
+}
+
+- (EHIVoiceCacheManager *)voiceCacheManager {
+    if (!_voiceCacheManager) {
+        _voiceCacheManager = [[EHIVoiceCacheManager alloc] init];
+    }
+    return _voiceCacheManager;
 }
 
 @end

@@ -61,22 +61,24 @@
 - (void)updateUIWithModel:(EHICustomerServiceModel *)model {
     
     // 头像宽高
-    CGFloat avatarWidth = 40;
+    CGFloat avatarWidth = 30;
     CGFloat screenWidth = [UIScreen mainScreen].bounds.size.width;
     
     // 获取聊天内容视图的size
     CGSize chatViewSize = model.chatContentSize;
     
     if (model.fromType == EHIMessageFromTypeSender) {
-        self.avatar.frame = CGRectMake(screenWidth - avatarWidth - 16, 2, avatarWidth, avatarWidth);
+        self.avatar.image = [UIImage imageNamed:@"new_customer_service_default_avatar"];
+        self.avatar.frame = CGRectMake(screenWidth - avatarWidth - 16, 12, avatarWidth, avatarWidth);
         self.contentButton.frame = CGRectMake(CGRectGetMinX(self.avatar.frame) - chatViewSize.width - 8,
-                                              0,
+                                              12,
                                               chatViewSize.width,
                                               chatViewSize.height);
     } else {
-        self.avatar.frame = CGRectMake(16, 2, avatarWidth, avatarWidth);
+        self.avatar.image = [UIImage imageNamed:@"new_customer_service_staff_avatar"];
+        self.avatar.frame = CGRectMake(16, 12, avatarWidth, avatarWidth);
         self.contentButton.frame = CGRectMake(CGRectGetMaxX(self.avatar.frame) + 8,
-                                              0,
+                                              12,
                                               chatViewSize.width,
                                               chatViewSize.height);
     }
@@ -194,7 +196,7 @@
 
 - (UIImageView *)avatar {
     if (!_avatar) {
-        UIImage *image = [UIImage imageNamed:@"头像"];
+        UIImage *image = [UIImage imageNamed:@"new_customer_service_default_avatar"];
         _avatar = [[UIImageView alloc] initWithImage:image];
     }
     return _avatar;

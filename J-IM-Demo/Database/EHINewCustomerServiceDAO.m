@@ -31,11 +31,14 @@
 - (BOOL)addMessage:(EHICustomerServiceModel *)message {
     NSString *sqlString = [NSString stringWithFormat:NEWCUSTOMERSERVICE_ADD_MESSAGE, NEWCUSTOMERSERVICE_TABLE_NAME];
     NSArray *arrPara = [NSArray arrayWithObjects:
+                        @(message.isAnonymousMessage),
+                        message.userId,
                         @(message.fromType),
                         @(message.messageStatus),
                         @(message.messageType),
                         message.text,
                         message.voiceUrl,
+                        message.voiceFileUrl,
                         @(message.playStatus),
                         @(message.millisecondsPlayed),
                         message.pictureUrl,
@@ -55,9 +58,38 @@
     completion([self findMessageWetherIsAnonymous:YES]);
 }
 
-/** 查找所有的实名信息 返回 */
-- (void)getLoginMessageWithCompletion:(void (^)(NSArray *array))completion {
-    completion([self findMessageWetherIsAnonymous:NO]);
+/** 查找某一ID下的所有信息 返回 */
+- (void)getMessagesWithUserId:(NSString *)userId completion:(void (^)(NSArray *array))completion {
+    __block NSMutableArray *array = [[NSMutableArray alloc] init];
+    NSString *sqlString = [NSString stringWithFormat:
+                           SQL_SELECT_USERID_MESSAGE,
+                           NEWCUSTOMERSERVICE_TABLE_NAME,
+                           userId];
+    [self excuteQuerySQL:sqlString resultBlock:^(FMResultSet *retSet) {
+        while ([retSet next]) {
+            EHICustomerServiceModel *message = [self createDBMessageByFMResultSet:retSet];
+            [array addObject:message];
+        }
+        [retSet close];
+    }];
+    completion(array);
+}
+
+/** 查找指定用户ID最后一条记录 */
+- (void)getLastMessageWithUserId:(NSString *)userId completion:(void (^)(EHICustomerServiceModel *message))completion {
+    __block NSMutableArray<EHICustomerServiceModel *> *array = [[NSMutableArray alloc] init];
+    NSString *sqlString = [NSString stringWithFormat:
+                           SQL_SELECT_USERID_LAST_MESSAGE,
+                           NEWCUSTOMERSERVICE_TABLE_NAME,
+                           userId];
+    [self excuteQuerySQL:sqlString resultBlock:^(FMResultSet *retSet) {
+        while ([retSet next]) {
+            EHICustomerServiceModel *message = [self createDBMessageByFMResultSet:retSet];
+            [array addObject:message];
+        }
+        [retSet close];
+    }];
+    completion(array.lastObject);
 }
 
 /** 删除所有的匿名信息 */
@@ -79,8 +111,8 @@
     return ok;
 }
 
-/** 将所有的匿名信息更新为实名信息 */
-- (BOOL)turnAnonymousMessagesToLoginMessages {
+/** 将所有的匿名信息更新为某一用户ID下的信息 */
+- (BOOL)turnAnonymousMessagesToLoginMessagesWithUserId:(NSString *)userId {
     __block BOOL ok;
     NSString *sqlString = [NSString stringWithFormat:
                            SQL_SELECT_ANONYMOUS_MESSAGE,
@@ -93,11 +125,25 @@
                                 SQL_UPDATE_ANONYMOUS_MESSAGE,
                                 NEWCUSTOMERSERVICE_TABLE_NAME,
                                 NO,
+                                userId,
                                 time];
-           ok = [self excuteSQL:sqlStr];
+            ok = [self excuteSQL:sqlStr];
         }
         [retSet close];
     }];
+    return ok;
+}
+
+/** 更新语音的本地缓存路径 */
+- (BOOL)updateVoiceFileUrlWithMessage:(EHICustomerServiceModel *)message {
+    BOOL ok;
+    NSString *sqlStr = [NSString stringWithFormat:
+                        SQL_UPDATE_VOICE_FILE_URL,
+                        NEWCUSTOMERSERVICE_TABLE_NAME,
+                        message.voiceFileUrl,
+                        message.time,
+                        message.userId];
+    ok = [self excuteSQL:sqlStr];
     return ok;
 }
 
@@ -127,6 +173,7 @@
     message.messageType = [retSet intForColumn:@"message_type"];
     message.text = [retSet stringForColumn:@"text_content"];
     message.voiceUrl = [retSet stringForColumn:@"voice_url"];
+    message.voiceFileUrl = [retSet stringForColumn:@"voice_file_url"];
     message.playStatus = [retSet intForColumn:@"play_status"];
     message.millisecondsPlayed = [retSet doubleForColumn:@"milliseconds_played"];
     message.pictureUrl = [retSet stringForColumn:@"picture_url"];

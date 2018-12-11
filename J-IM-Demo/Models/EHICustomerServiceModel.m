@@ -8,6 +8,9 @@
 
 #import "EHICustomerServiceModel.h"
 
+/** 最小行高 */
+static NSInteger minimumHeight = 52;
+
 @implementation EHICustomerServiceModel
 
 //- (void)handleMediaDataWithMessageType:(EHIMessageType)type {
@@ -50,19 +53,18 @@
 
 /** 获取聊天内容按钮的size */
 - (CGSize)getChatContentSize {
-    CGFloat avatarWidth = 40;
     switch (self.messageType) {
         case EHIMessageTypeText:
         {
             CGSize textSize = [self getSizeOfString:self.text fontSize:15];
-            CGFloat height = textSize.height >= avatarWidth ? textSize.height : avatarWidth;
+            CGFloat height = textSize.height >= minimumHeight ? textSize.height : minimumHeight;
             return CGSizeMake(textSize.width + 6, height + 6);
         }
         case EHIMessageTypePicture:
         {
             CGFloat pictureWidth = [UIScreen mainScreen].bounds.size.width / 3.0;
-            CGFloat width = pictureWidth >= avatarWidth / 1.5 ? pictureWidth : avatarWidth / 1.5;
-            return CGSizeMake(width + 6, width * 1.5 + 6);
+            CGFloat height = pictureWidth >= minimumHeight ? pictureWidth : minimumHeight;
+            return CGSizeMake(pictureWidth + 6, height + 6);
         }
         case EHIMessageTypeVoice:
         {
@@ -83,7 +85,7 @@
 /** 获取语音消息的size */
 - (CGSize)getSizeOfVoice {
     
-    return CGSizeMake(50, 46);
+    return CGSizeMake(123, 40);
 }
 
 @end

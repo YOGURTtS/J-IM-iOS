@@ -19,8 +19,11 @@ NS_ASSUME_NONNULL_BEGIN
 /** 查找所有的匿名信息 返回 */
 - (void)getAnonymousMessageWithCompletion:(void (^)(NSArray *array))completion;
 
-/** 查找所有的实名信息 返回 */
-- (void)getLoginMessageWithCompletion:(void (^)(NSArray *array))completion;
+/** 查找某一ID下的所有信息 返回 */
+- (void)getMessagesWithUserId:(NSString *)userId completion:(void (^)(NSArray *array))completion;
+
+/** 查找某一用户ID下的最后一条信息 返回 */
+- (void)getLastMessageWithUserId:(NSString *)userId completion:(void (^)(EHICustomerServiceModel *message))completion;
 
 /** 删除所有的匿名信息 */
 - (BOOL)deleteAnonymousMessages;
@@ -29,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)deleteAllMessages;
 
 /** 将所有的匿名信息更新为实名信息 */
-- (BOOL)turnAnonymousMessagesToLoginMessages;
+- (BOOL)turnAnonymousMessagesToLoginMessagesWithUserId:(NSString *)userId;
 
 @end
 
