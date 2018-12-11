@@ -153,10 +153,12 @@
     
     if (gestureRecognizer.state == UIGestureRecognizerStateBegan) {
         [self.voiceButton setTitle:@"松开结束" forState:UIControlStateNormal];
+        self.voiceButton.backgroundColor = [UIColor colorWithRed:204.0 / 255.0 green:204.0 / 255.0 blue:204.0 / 255.0 alpha:1.0];
         // TODO: 开始录音
         [self audioStart];
     } else if (gestureRecognizer.state == UIGestureRecognizerStateEnded) {
         [self.voiceButton setTitle:@"按住说话" forState:UIControlStateNormal];
+        self.voiceButton.backgroundColor = [UIColor whiteColor];
         // TODO: 结束录音
         if (!self.isCancelSendAudioMessage) {
             [self audioStop];
@@ -165,10 +167,12 @@
         CGPoint aPoint = [self convertPoint:point toView:self.voiceButton];
         if ([self.voiceButton.layer containsPoint:aPoint]) {
             [self.voiceButton setTitle:@"松开结束" forState:UIControlStateNormal];
+            self.voiceButton.backgroundColor = [UIColor colorWithRed:204.0 / 255.0 green:204.0 / 255.0 blue:204.0 / 255.0 alpha:1.0];
             // TODO:
             self.isCancelSendAudioMessage = NO;
         } else {
             [self.voiceButton setTitle:@"松开取消" forState:UIControlStateNormal];
+            self.voiceButton.backgroundColor = [UIColor colorWithRed:204.0 / 255.0 green:204.0 / 255.0 blue:204.0 / 255.0 alpha:1.0];
             self.isCancelSendAudioMessage = YES;
         }
     } else if (gestureRecognizer.state == UIGestureRecognizerStateFailed) {

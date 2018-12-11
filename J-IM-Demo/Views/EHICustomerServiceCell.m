@@ -36,6 +36,7 @@
 - (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
     if (self = [super initWithStyle:style reuseIdentifier:reuseIdentifier]) {
         self.selectionStyle = UITableViewCellSelectionStyleNone;
+        self.backgroundColor = [UIColor clearColor];
         [self setupSubviews];
     }
     return self;
@@ -70,17 +71,21 @@
     if (model.fromType == EHIMessageFromTypeSender) {
         self.avatar.image = [UIImage imageNamed:@"new_customer_service_default_avatar"];
         self.avatar.frame = CGRectMake(screenWidth - avatarWidth - 16, 12, avatarWidth, avatarWidth);
-        self.contentButton.frame = CGRectMake(CGRectGetMinX(self.avatar.frame) - chatViewSize.width - 8,
-                                              12,
+        self.contentButton.frame = CGRectMake(CGRectGetMinX(self.avatar.frame) - chatViewSize.width - 5,
+                                              6,
                                               chatViewSize.width,
-                                              chatViewSize.height);
+                                              chatViewSize.height - 6);
+        [self.contentButton setBackgroundImage:[UIImage imageNamed:@"chat_send_nor"] forState:UIControlStateNormal];
+        [self.contentButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     } else {
         self.avatar.image = [UIImage imageNamed:@"new_customer_service_staff_avatar"];
         self.avatar.frame = CGRectMake(16, 12, avatarWidth, avatarWidth);
-        self.contentButton.frame = CGRectMake(CGRectGetMaxX(self.avatar.frame) + 8,
-                                              12,
+        self.contentButton.frame = CGRectMake(CGRectGetMaxX(self.avatar.frame) + 5,
+                                              6,
                                               chatViewSize.width,
-                                              chatViewSize.height);
+                                              chatViewSize.height - 6);
+        [self.contentButton setBackgroundImage:[UIImage imageNamed:@"chat_recive_nor"] forState:UIControlStateNormal];
+        [self.contentButton setTitleColor:[UIColor colorWithRed:51/255.0 green:51/255.0 blue:51/255.0 alpha:1.0] forState:UIControlStateNormal];
     }
     
     [self setupChatContentWithModel:model];
@@ -215,6 +220,7 @@
         
         _contentButton.titleLabel.numberOfLines = 0;
         _contentButton.titleLabel.font = [UIFont systemFontOfSize:14];
+        _contentButton.titleEdgeInsets = UIEdgeInsetsMake(16, 16, 16, 16);
         [_contentButton setTitleColor:[UIColor blackColor]
                              forState:UIControlStateNormal];
         

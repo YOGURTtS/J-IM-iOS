@@ -56,9 +56,9 @@ static NSInteger minimumHeight = 52;
     switch (self.messageType) {
         case EHIMessageTypeText:
         {
-            CGSize textSize = [self getSizeOfString:self.text fontSize:15];
-            CGFloat height = textSize.height >= minimumHeight ? textSize.height : minimumHeight;
-            return CGSizeMake(textSize.width + 6, height + 6);
+            CGSize textSize = [self getSizeOfString:self.text fontSize:14];
+            CGFloat height = textSize.height;// >= minimumHeight ? textSize.height : minimumHeight;
+            return CGSizeMake(textSize.width + 43, height + 31 + 6);
         }
         case EHIMessageTypePicture:
         {
