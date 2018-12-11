@@ -72,19 +72,19 @@
         self.avatar.image = [UIImage imageNamed:@"new_customer_service_default_avatar"];
         self.avatar.frame = CGRectMake(screenWidth - avatarWidth - 16, 12, avatarWidth, avatarWidth);
         self.contentButton.frame = CGRectMake(CGRectGetMinX(self.avatar.frame) - chatViewSize.width - 5,
-                                              6,
+                                              12,
                                               chatViewSize.width,
-                                              chatViewSize.height - 6);
-        [self.contentButton setBackgroundImage:[UIImage imageNamed:@"chat_send_nor"] forState:UIControlStateNormal];
+                                              chatViewSize.height - 12);
+        [self.contentButton setBackgroundImage:[UIImage imageNamed:@"new_customer_service_send_bubble"] forState:UIControlStateNormal];
         [self.contentButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     } else {
         self.avatar.image = [UIImage imageNamed:@"new_customer_service_staff_avatar"];
         self.avatar.frame = CGRectMake(16, 12, avatarWidth, avatarWidth);
         self.contentButton.frame = CGRectMake(CGRectGetMaxX(self.avatar.frame) + 5,
-                                              6,
+                                              12,
                                               chatViewSize.width,
-                                              chatViewSize.height - 6);
-        [self.contentButton setBackgroundImage:[UIImage imageNamed:@"chat_recive_nor"] forState:UIControlStateNormal];
+                                              chatViewSize.height - 12);
+        [self.contentButton setBackgroundImage:[UIImage imageNamed:@"new_customer_service_receive_bubble"] forState:UIControlStateNormal];
         [self.contentButton setTitleColor:[UIColor colorWithRed:51/255.0 green:51/255.0 blue:51/255.0 alpha:1.0] forState:UIControlStateNormal];
     }
     
@@ -220,7 +220,7 @@
         
         _contentButton.titleLabel.numberOfLines = 0;
         _contentButton.titleLabel.font = [UIFont systemFontOfSize:14];
-        _contentButton.titleEdgeInsets = UIEdgeInsetsMake(16, 16, 16, 16);
+        _contentButton.titleEdgeInsets = UIEdgeInsetsMake(6, 6, 6, 12);
         [_contentButton setTitleColor:[UIColor blackColor]
                              forState:UIControlStateNormal];
         

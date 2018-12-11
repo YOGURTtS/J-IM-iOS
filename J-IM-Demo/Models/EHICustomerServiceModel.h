@@ -74,6 +74,9 @@ typedef NS_ENUM(NSInteger, EHIVoiceMessagePlayStatus) {
 /** 聊天内容视图占用的宽高 */
 @property (nonatomic, assign) CGSize chatContentSize;
 
+/** cell的行高 */
+@property (nonatomic, assign) CGFloat cellHeight;
+
 
 ///** 获取图片数据 */
 //- (void)getPictureData;
