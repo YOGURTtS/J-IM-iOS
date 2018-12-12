@@ -14,7 +14,7 @@
 #import "EHICustomerServiceModel.h"
 #import "EHIVoiceManager.h"
 #import <TZImagePickerController.h>
-#import "EHIVoiceCacheManager.h"
+#import "EHINewCustomerServiceCacheManager.h"
 
 
 @interface EHINewCustomerServiceControllerViewController () <UITableViewDelegate, UITableViewDataSource>
@@ -35,7 +35,7 @@
 @property (nonatomic, strong) EHIVoiceManager *voiceManager;
 
 /** 语音缓存管理器 */
-@property (nonatomic, strong) EHIVoiceCacheManager *voiceCacheManager;
+@property (nonatomic, strong) EHINewCustomerServiceCacheManager *voiceCacheManager;
 
 @end
 
@@ -84,8 +84,8 @@
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     EHICustomerServiceModel *model = [self.messageArrayM objectAtIndex:indexPath.row];
-    CGSize chatContentSize = model.chatContentSize;
-    return chatContentSize.height;
+    CGFloat cellHeight = model.cellHeight;
+    return cellHeight;
 }
 
 #pragma mark - UITableViewDelegate
@@ -140,12 +140,6 @@
 #pragma mark - send message
 
 - (void)sendtextMessage:(NSString *)text {
-    //    [self.socketManager sendText:text success:^{
-    //
-    //    } failure:^(NSError *error) {
-    //
-    //    }];
-    
     EHICustomerServiceModel *model = [[EHICustomerServiceModel alloc] init];
     model.isAnonymousMessage = YES;
     model.fromType = EHIMessageFromTypeSender;
@@ -155,10 +149,17 @@
     model.time = [self currentDateStr];
     [self.messageArrayM addObject:model];
     [self.tableView reloadData];
+    
+    //    [self.socketManager sendText:text success:^{
+    //
+    //    } failure:^(NSError *error) {
+    //
+    //    }];
 }
 
 - (void)sendVoiceMessage:(NSData *)data wavFilePath:(NSString *)filePath {
     // TODO: 上传音频
+    
     EHICustomerServiceModel *model = [[EHICustomerServiceModel alloc] init];
     model.isAnonymousMessage = YES;
     model.fromType = EHIMessageFromTypeSender;
@@ -177,18 +178,33 @@
     //    }];
 }
 
-/** 发送图片 */
+/** 获取图片并发送 */
 - (void)getPictures {
     TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:9 delegate:nil];
     imagePickerVc.allowPickingGif = NO;
     imagePickerVc.allowPickingVideo = NO;
+    __weak typeof(self) weakSelf = self;
     [imagePickerVc setDidFinishPickingPhotosHandle:^(NSArray<UIImage *> *photos, NSArray *assets, BOOL isSelectOriginalPhoto) {
-        NSLog(@"photos = %@", photos);
+        __strong typeof(weakSelf) self = weakSelf;
+        [self sendPictureWithPhotos:photos];
     }];
     [self presentViewController:imagePickerVc animated:YES completion:nil];
 }
 
-
+/** 发送图片 */
+- (void)sendPictureWithPhotos:(NSArray<UIImage *> *)photos {
+    for (UIImage *image in photos) {
+        EHICustomerServiceModel *model = [[EHICustomerServiceModel alloc] init];
+        model.isAnonymousMessage = YES;
+        model.fromType = EHIMessageFromTypeSender;
+        model.messageStatus = EHIMessageStatusSuccess;
+        model.messageType = EHIMessageTypePicture;
+        model.pictureUrl = 
+        model.time = [self currentDateStr];
+        [self.messageArrayM addObject:model];
+        [self.tableView reloadData];
+    }
+}
 
 /** 获取当前时间 */
 - (NSString *)currentDateStr {
@@ -337,9 +353,9 @@
     return _voiceManager;
 }
 
-- (EHIVoiceCacheManager *)voiceCacheManager {
+- (EHINewCustomerServiceCacheManager *)voiceCacheManager {
     if (!_voiceCacheManager) {
-        _voiceCacheManager = [[EHIVoiceCacheManager alloc] init];
+        _voiceCacheManager = [[EHINewCustomerServiceCacheManager alloc] init];
     }
     return _voiceCacheManager;
 }

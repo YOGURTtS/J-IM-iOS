@@ -34,7 +34,7 @@
 		78617A9C21BA66200079B0D4 /* amr_wav_converter.c in Sources */ = {isa = PBXBuildFile; fileRef = 78617A9A21BA66200079B0D4 /* amr_wav_converter.c */; };
 		78617A9F21BDF41A0079B0D4 /* EHINewCustomerSeerviceTools.m in Sources */ = {isa = PBXBuildFile; fileRef = 78617A9E21BDF41A0079B0D4 /* EHINewCustomerSeerviceTools.m */; };
 		78617AA221BE14E10079B0D4 /* EHINewCustomerServiceDAO.m in Sources */ = {isa = PBXBuildFile; fileRef = 78617AA121BE14E10079B0D4 /* EHINewCustomerServiceDAO.m */; };
-		78617AC821BF9D0E0079B0D4 /* EHIVoiceCacheManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 78617AC721BF9D0E0079B0D4 /* EHIVoiceCacheManager.m */; };
+		78617AC821BF9D0E0079B0D4 /* EHINewCustomerServiceCacheManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 78617AC721BF9D0E0079B0D4 /* EHINewCustomerServiceCacheManager.m */; };
 		787D09D5219BC65300F7B4B3 /* EHISocketDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 787D09D4219BC65300F7B4B3 /* EHISocketDecoder.m */; };
 		787D09D8219C011900F7B4B3 /* EHISocketMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 787D09D7219C011900F7B4B3 /* EHISocketMessage.m */; };
 		78A5FA0C219B06A700802C1E /* EHIMessageConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = 78A5FA0B219B06A700802C1E /* EHIMessageConfig.m */; };
@@ -104,8 +104,8 @@
 		78617AA021BE14E10079B0D4 /* EHINewCustomerServiceDAO.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EHINewCustomerServiceDAO.h; sourceTree = "<group>"; };
 		78617AA121BE14E10079B0D4 /* EHINewCustomerServiceDAO.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EHINewCustomerServiceDAO.m; sourceTree = "<group>"; };
 		78617AA321BE3A3A0079B0D4 /* EHINewCustomerServiceSQL.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EHINewCustomerServiceSQL.h; sourceTree = "<group>"; };
-		78617AC621BF9D0E0079B0D4 /* EHIVoiceCacheManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EHIVoiceCacheManager.h; sourceTree = "<group>"; };
-		78617AC721BF9D0E0079B0D4 /* EHIVoiceCacheManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EHIVoiceCacheManager.m; sourceTree = "<group>"; };
+		78617AC621BF9D0E0079B0D4 /* EHINewCustomerServiceCacheManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EHINewCustomerServiceCacheManager.h; sourceTree = "<group>"; };
+		78617AC721BF9D0E0079B0D4 /* EHINewCustomerServiceCacheManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EHINewCustomerServiceCacheManager.m; sourceTree = "<group>"; };
 		787D09D3219BC65300F7B4B3 /* EHISocketDecoder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EHISocketDecoder.h; sourceTree = "<group>"; };
 		787D09D4219BC65300F7B4B3 /* EHISocketDecoder.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EHISocketDecoder.m; sourceTree = "<group>"; };
 		787D09D6219C011900F7B4B3 /* EHISocketMessage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EHISocketMessage.h; sourceTree = "<group>"; };
@@ -163,6 +163,7 @@
 				7847E8D421AB92EB006B947C /* Database */,
 				7847E8D321AB92DE006B947C /* Socket */,
 				783B3C5721BBE3780071BE0B /* VoiceManager */,
+				78617AC921C0AB8C0079B0D4 /* Cache */,
 				7828C102219A78100058A76D /* AppDelegate.h */,
 				7828C103219A78100058A76D /* AppDelegate.m */,
 				784CCBB921B50AC4009EF863 /* LabelTool.h */,
@@ -183,8 +184,6 @@
 			children = (
 				783B3C5821BBE3A10071BE0B /* EHIVoiceManager.h */,
 				783B3C5921BBE3A10071BE0B /* EHIVoiceManager.m */,
-				78617AC621BF9D0E0079B0D4 /* EHIVoiceCacheManager.h */,
-				78617AC721BF9D0E0079B0D4 /* EHIVoiceCacheManager.m */,
 			);
 			path = VoiceManager;
 			sourceTree = "<group>";
@@ -300,6 +299,15 @@
 				78617A9A21BA66200079B0D4 /* amr_wav_converter.c */,
 			);
 			path = WAV2AMR;
+			sourceTree = "<group>";
+		};
+		78617AC921C0AB8C0079B0D4 /* Cache */ = {
+			isa = PBXGroup;
+			children = (
+				78617AC621BF9D0E0079B0D4 /* EHINewCustomerServiceCacheManager.h */,
+				78617AC721BF9D0E0079B0D4 /* EHINewCustomerServiceCacheManager.m */,
+			);
+			path = Cache;
 			sourceTree = "<group>";
 		};
 		9A21D12450071B36A9C2E3AC /* Pods */ = {
@@ -465,7 +473,7 @@
 				7828C104219A78100058A76D /* AppDelegate.m in Sources */,
 				78CE0F1A21B13A7000A23C43 /* EHICustomServiceBottomView.m in Sources */,
 				7847E8FE21AE2C0F006B947C /* EHINewCustomerServiceControllerViewController.m in Sources */,
-				78617AC821BF9D0E0079B0D4 /* EHIVoiceCacheManager.m in Sources */,
+				78617AC821BF9D0E0079B0D4 /* EHINewCustomerServiceCacheManager.m in Sources */,
 				7828C11D219ABB1B0058A76D /* EHISocketPacket.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -22,7 +22,7 @@
 /** 显示文字、语音、图片的按钮 */
 @property (nonatomic, strong) UIButton *contentButton;
 
-/** 消息状态 */
+/** 消息状态，目前socket不支持显示状态，仅用于语音消息显示秒数 */
 @property (nonatomic, strong) UIButton *statusButton;
 
 /** 音频播放器 */
@@ -46,6 +46,7 @@
     [self.contentView addSubview:self.avatar];
     [self.contentView addSubview:self.timeLabel];
     [self.contentView addSubview:self.contentButton];
+    [self.contentView addSubview:self.statusButton];
 }
 
 
@@ -69,26 +70,38 @@
     CGSize chatViewSize = model.chatContentSize;
     
     if (model.fromType == EHIMessageFromTypeSender) {
+        // 头像
         self.avatar.image = [UIImage imageNamed:@"new_customer_service_default_avatar"];
         self.avatar.frame = CGRectMake(screenWidth - avatarWidth - 16, 12, avatarWidth, avatarWidth);
+        // 内容
         self.contentButton.frame = CGRectMake(CGRectGetMinX(self.avatar.frame) - chatViewSize.width - 5,
                                               12,
                                               chatViewSize.width,
-                                              chatViewSize.height - 12);
+                                              chatViewSize.height);
         [self.contentButton setBackgroundImage:[UIImage imageNamed:@"new_customer_service_send_bubble"] forState:UIControlStateNormal];
         [self.contentButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        self.contentButton.titleEdgeInsets = model.messageType == EHIMessageTypeText ? UIEdgeInsetsMake(6, 6, 6, 12) : UIEdgeInsetsZero;
+        // 状态按钮
+        self.statusButton.frame = CGRectMake(CGRectGetMinX(self.contentButton.frame) - 37, 22, 30, 18);
+        
     } else {
+        // 头像
         self.avatar.image = [UIImage imageNamed:@"new_customer_service_staff_avatar"];
         self.avatar.frame = CGRectMake(16, 12, avatarWidth, avatarWidth);
+        // 内容
         self.contentButton.frame = CGRectMake(CGRectGetMaxX(self.avatar.frame) + 5,
                                               12,
                                               chatViewSize.width,
-                                              chatViewSize.height - 12);
+                                              chatViewSize.height);
         [self.contentButton setBackgroundImage:[UIImage imageNamed:@"new_customer_service_receive_bubble"] forState:UIControlStateNormal];
         [self.contentButton setTitleColor:[UIColor colorWithRed:51/255.0 green:51/255.0 blue:51/255.0 alpha:1.0] forState:UIControlStateNormal];
+        self.contentButton.titleEdgeInsets = model.messageType == EHIMessageTypeText ? UIEdgeInsetsMake(6, 12, 6, 6) : UIEdgeInsetsZero;
+        // 状态按钮
+        self.statusButton.frame = CGRectMake(CGRectGetMaxX(self.contentButton.frame) + 7, 22, 30, 18);
     }
     
     [self setupChatContentWithModel:model];
+    [self setupStatusButtonWithModel:model];
 }
 
 /** 设置聊天内容 */
@@ -100,29 +113,50 @@
         }
             break;
         case EHIMessageTypeVoice:
+            [self.contentButton setImage:[UIImage imageNamed:@"new_customer_service_voice"] forState:UIControlStateNormal];
+            if (model.fromType == EHIMessageFromTypeSender) {
+                self.contentButton.imageEdgeInsets = UIEdgeInsetsMake(0, 30, 0, -30);
+            } else {
+                self.contentButton.imageEdgeInsets = UIEdgeInsetsMake(0, -30, 0, 30);
+            }
             switch (model.playStatus) {
                 case EHIVoiceMessagePlayStatusIsplaying:
-                    [self.contentButton setTitle:@"播放中" forState:UIControlStateNormal];
+//                    [self.contentButton setTitle:@"播放中" forState:UIControlStateNormal];
                     break;
                 case EHIVoiceMessagePlayStatusPause:
-                    [self.contentButton setTitle:@"播放暂停" forState:UIControlStateNormal];
+//                    [self.contentButton setTitle:@"播放暂停" forState:UIControlStateNormal];
                     break;
                 case EHIVoiceMessagePlayStatusFinish:
-                    [self.contentButton setTitle:@"播放完成" forState:UIControlStateNormal];
+//                    [self.contentButton setTitle:@"播放完成" forState:UIControlStateNormal];
                     break;
                     
                 default:
-                    [self.contentButton setTitle:@"录音" forState:UIControlStateNormal];
+//                    [self.contentButton setTitle:@"录音" forState:UIControlStateNormal];
+                    [self.contentButton setImage:[UIImage imageNamed:@"new_customer_service_voice"] forState:UIControlStateNormal];
                     break;
             }
             
             break;
         case EHIMessageTypePicture:
+        {
+            [self.contentButton setImage:nil forState:UIControlStateNormal];
             
+        }
             break;
             
         default:
             break;
+    }
+}
+
+/** 设置状态按钮 */
+- (void)setupStatusButtonWithModel:(EHICustomerServiceModel *)model {
+    if (model.messageType == EHIMessageTypeVoice) {
+        self.statusButton.hidden = NO;
+        [self.statusButton setTitle:[NSString stringWithFormat:@"%@″", [NSNumber numberWithInteger:model.voiceDuration]] forState:UIControlStateNormal];
+    } else {
+        self.statusButton.hidden = YES;
+        [self.statusButton setTitle:@"" forState:UIControlStateNormal];
     }
 }
 
@@ -220,7 +254,6 @@
         
         _contentButton.titleLabel.numberOfLines = 0;
         _contentButton.titleLabel.font = [UIFont systemFontOfSize:14];
-        _contentButton.titleEdgeInsets = UIEdgeInsetsMake(6, 6, 6, 12);
         [_contentButton setTitleColor:[UIColor blackColor]
                              forState:UIControlStateNormal];
         
@@ -233,6 +266,10 @@
 - (UIButton *)statusButton {
     if (!_statusButton) {
         _statusButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        
+        _statusButton.titleLabel.font = [UIFont systemFontOfSize:18.f weight:UIFontWeightRegular];
+        [_statusButton setTitleColor:[UIColor colorWithRed:123/255.0 green:123/255.0 blue:123/255.0 alpha:1.0] forState:UIControlStateNormal];
+        _statusButton.hidden = YES;
     }
     return _statusButton;
 }

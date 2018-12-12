@@ -61,12 +61,20 @@ typedef NS_ENUM(NSInteger, EHIVoiceMessagePlayStatus) {
 /** 语音播放状态 */
 @property (nonatomic, assign) EHIVoiceMessagePlayStatus playStatus;
 
+/** 语音长度 */
+@property (nonatomic, assign) NSInteger voiceDuration;
+
 /** 语音播放到第几毫秒，单位是毫秒 */
 @property (nonatomic, assign) CGFloat millisecondsPlayed;
 #pragma mark - 语音相关
 
+#pragma mark - 图片相关
 /** 图片链接 */
 @property (nonatomic, copy) NSString *pictureUrl;
+
+/** 图片宽高比，宽 / 高 */
+@property (nonatomic, assign) CGFloat ratio;
+#pragma mark - 图片相关
 
 /** 时间 */
 @property (nonatomic, copy) NSString *time;

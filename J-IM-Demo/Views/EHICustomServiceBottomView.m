@@ -142,8 +142,6 @@
     if (self.sendPictureCallBack) {
         self.sendPictureCallBack(nil);
     }
-    
-    
 }
 
 #pragma mark - gesture
@@ -194,6 +192,7 @@
         self.textView.hidden = YES;
         self.voiceButton.hidden = NO;
         [self.switchToVoiceOrTextButton setImage:[UIImage imageNamed:@"new_customer_service_send_text"] forState:UIControlStateNormal];
+        [self endEditing:YES];
     }
 }
 
@@ -222,8 +221,8 @@
 
 - (void)audioRecorderDidFinishRecording:(AVAudioRecorder *)recorder successfully:(BOOL)flag {
     // 暂存录音文件路径
-    NSString *wavRecordFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"wav/%@.wav", [NSUUID UUID].UUIDString]];
-    NSString *amrRecordFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"amr/%@.amr", [NSUUID UUID].UUIDString]];
+    NSString *wavRecordFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"send_voice/%@.wav", [NSUUID UUID].UUIDString]];
+    NSString *amrRecordFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"send_voice/%@.amr", [NSUUID UUID].UUIDString]];
     
     // 重点:把wav录音文件转换成amr文件,用于网络传输.amr文件大小是wav文件的十分之一左右
     wave_file_to_amr_file([wavRecordFilePath cStringUsingEncoding:NSUTF8StringEncoding],[amrRecordFilePath cStringUsingEncoding:NSUTF8StringEncoding], 1, 16);

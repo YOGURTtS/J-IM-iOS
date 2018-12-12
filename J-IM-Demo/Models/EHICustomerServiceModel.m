@@ -46,6 +46,13 @@ static NSInteger minimumHeight = 52;
 
 #pragma mark - get
 
+/** 获取cell高度 */
+- (CGFloat)cellHeight {
+    CGFloat chatContentHeight = self.chatContentSize.height;
+    chatContentHeight = chatContentHeight + 12 >= minimumHeight ? chatContentHeight + 12 : minimumHeight;
+    return chatContentHeight;
+}
+
 /** 获取聊天内容的宽高 */
 - (CGSize)chatContentSize {
     return [self getChatContentSize];
@@ -57,14 +64,13 @@ static NSInteger minimumHeight = 52;
         case EHIMessageTypeText:
         {
             CGSize textSize = [self getSizeOfString:self.text fontSize:14];
-            CGFloat height = textSize.height + 12 >= minimumHeight ? textSize.height + 12 : minimumHeight;
-            return CGSizeMake(textSize.width + 18, height + 12);
+            CGFloat height = textSize.height + 12;
+            return CGSizeMake(textSize.width + 18, height);
         }
         case EHIMessageTypePicture:
         {
-            CGFloat pictureWidth = [UIScreen mainScreen].bounds.size.width / 3.0;
-            CGFloat height = pictureWidth >= minimumHeight ? pictureWidth : minimumHeight;
-            return CGSizeMake(pictureWidth + 6, height + 6);
+            CGSize picSize = [self getSizeOfPicture];
+            return picSize;
         }
         case EHIMessageTypeVoice:
         {
@@ -84,8 +90,17 @@ static NSInteger minimumHeight = 52;
 
 /** 获取语音消息的size */
 - (CGSize)getSizeOfVoice {
-    
-    return CGSizeMake(123, 40);
+    return CGSizeMake([UIScreen mainScreen].bounds.size.width / 3.5, 39);
+}
+
+/** 获取图片消息的size */
+- (CGSize)getSizeOfPicture {
+    if (self.ratio) {
+        CGFloat picWidth = [UIScreen mainScreen].bounds.size.width / 2.0;
+        CGFloat picHeight = picWidth / self.ratio;
+        return CGSizeMake(picWidth, picHeight);
+    }
+    return CGSizeMake(50, 50);
 }
 
 @end
