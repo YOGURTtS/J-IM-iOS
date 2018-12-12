@@ -7,7 +7,6 @@
 //
 
 #import "EHINewCustomerServiceCacheManager.h"
-#import "amr_wav_converter.h"
 
 @interface EHINewCustomerServiceCacheManager ()
 
@@ -16,57 +15,70 @@
 
 @implementation EHINewCustomerServiceCacheManager
 
+/** 单例 */
+static dispatch_once_t onceToken;
++ (instancetype)sharedInstance {
+    static EHINewCustomerServiceCacheManager *instance;
+    dispatch_once(&onceToken, ^{
+        instance = [[EHINewCustomerServiceCacheManager alloc] init];
+    });
+    return instance;
+}
+
 #pragma mark - about voice cache
 
-/** 缓存在线语音，返回本地缓存路径 */
-- (void)cacheOnlineVoiceWithUrl:(NSString *)url completion:(void (^)(NSString *filePath))completion {
-    
-    if ([url hasPrefix:@"http"]) {
-        __block NSString *filePath;
-        [[[NSURLSession sharedSession] dataTaskWithURL:[NSURL URLWithString:url] completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-            // amr文件需要转码成wav文件才能正常播放
-            if ([url hasSuffix:@"amr"]) {
-                NSString *wavRecordFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"wav/%@.wav", [NSUUID UUID].UUIDString]];
-                NSString *amrRecordFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"amr/%@.amr", [NSUUID UUID].UUIDString]];
-                if ([data writeToFile:amrRecordFilePath atomically:YES]) {
-                    // amr文件转成wav文件
-                    amr_file_to_wave_file([amrRecordFilePath cStringUsingEncoding:NSUTF8StringEncoding],
-                                          [wavRecordFilePath cStringUsingEncoding:NSUTF8StringEncoding]);
-                }
-                filePath = wavRecordFilePath;
-                
-            } else { // 不需要转码，直接缓存
-                NSURL *voiceUrl = [NSURL URLWithString:url];
-                NSString *recordFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"%@/%@.%@", voiceUrl.pathExtension, [NSUUID UUID].UUIDString, voiceUrl.pathExtension]];
-                [data writeToFile:recordFilePath atomically:YES];
-                filePath = recordFilePath;
-            }
-            
-            // TODO: 更新数据库
-            
-        }] resume];
-        completion(filePath);
-    } else {
-        completion(url);
-    }
-}
+///** 缓存在线语音，返回本地缓存路径 */
+//- (void)cacheOnlineVoiceWithUrl:(NSString *)url completion:(void (^)(NSString *filePath))completion {
+//
+//    if ([url hasPrefix:@"http"]) {
+//        __block NSString *filePath;
+//        [[[NSURLSession sharedSession] dataTaskWithURL:[NSURL URLWithString:url] completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+//            // amr文件需要转码成wav文件才能正常播放
+//            if ([url hasSuffix:@"amr"]) {
+//                NSString *wavRecordFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.wav", [NSUUID UUID].UUIDString]];
+//                NSString *amrRecordFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.amr", [NSUUID UUID].UUIDString]];
+//                if ([data writeToFile:amrRecordFilePath atomically:YES]) {
+//                    // amr文件转成wav文件
+//                    amr_file_to_wave_file([amrRecordFilePath cStringUsingEncoding:NSUTF8StringEncoding],
+//                                          [wavRecordFilePath cStringUsingEncoding:NSUTF8StringEncoding]);
+//                }
+//                filePath = wavRecordFilePath;
+//
+//            } else { // 不需要转码，直接缓存
+//                NSURL *voiceUrl = [NSURL URLWithString:url];
+//                NSString *recordFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"%@/%@.%@", voiceUrl.pathExtension, [NSUUID UUID].UUIDString, voiceUrl.pathExtension]];
+//                [data writeToFile:recordFilePath atomically:YES];
+//                filePath = recordFilePath;
+//            }
+//
+//            // TODO: 更新数据库
+//
+//        }] resume];
+//        completion(filePath);
+//    } else {
+//        completion(url);
+//    }
+//}
 
 /** 缓存语音，返回语音路径 */
 - (void)cacheVoiceWithUrl:(NSString *)url completion:(void (^)(NSString *filePath))completion {
     // 先判断本地沙盒是否已经存在图像，存在直接获取，不存在再下载，下载后保存
     // 存在沙盒的Caches的子文件夹DownloadImages中
     NSString *voiceFilePath = [self loadLocalVoiceFilePath:url];
+    NSData *voiceData = [NSData dataWithContentsOfFile:voiceFilePath];
     
     // 沙盒中没有，下载
-    if (voiceFilePath.length == 0) {
+    if (voiceData == nil) {
         __block NSString *filePath;
+        __weak typeof(self) weakSelf = self;
         [[[NSURLSession sharedSession] dataTaskWithURL:[NSURL URLWithString:url] completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+            __strong typeof(weakSelf) self = weakSelf;
             // amr文件需要转码成wav文件才能正常播放
             if ([url hasSuffix:@"amr"]) {
 //                NSString *wavRecordFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"wav/%@.wav", [NSUUID UUID].UUIDString]];
                 NSString *wavUrl = [url stringByReplacingOccurrencesOfString:@".amr" withString:@".wav"];
                 NSString *wavRecordFilePath = [self voiceFilePath:wavUrl];
-                NSString *amrRecordFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"amr/%@.amr", [NSUUID UUID].UUIDString]];
+                NSString *amrRecordFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.amr", [NSUUID UUID].UUIDString]];
                 if ([data writeToFile:amrRecordFilePath atomically:YES]) {
                     // amr文件转成wav文件
                     amr_file_to_wave_file([amrRecordFilePath cStringUsingEncoding:NSUTF8StringEncoding],
@@ -83,9 +95,11 @@
             }
             
             // TODO: 更新数据库
-            
+            completion(filePath);
             
         }] resume];
+    } else {
+        completion(voiceFilePath);
     }
 }
 
@@ -171,7 +185,6 @@
     NSString *downloadImagesPath = [cachesPath stringByAppendingPathComponent:@"DownloadImages"];
     NSFileManager *fileManager = [NSFileManager defaultManager];
     if (![fileManager fileExistsAtPath:downloadImagesPath]) {
-        
         [fileManager createDirectoryAtPath:downloadImagesPath withIntermediateDirectories:YES attributes:nil error:nil];
     }
     

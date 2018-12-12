@@ -72,6 +72,9 @@ typedef NS_ENUM(NSInteger, EHIVoiceMessagePlayStatus) {
 /** 图片链接 */
 @property (nonatomic, copy) NSString *pictureUrl;
 
+/** 图片 */
+@property (nonatomic, strong) UIImage *picture;
+
 /** 图片宽高比，宽 / 高 */
 @property (nonatomic, assign) CGFloat ratio;
 #pragma mark - 图片相关

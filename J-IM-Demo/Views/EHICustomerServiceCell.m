@@ -49,7 +49,6 @@
     [self.contentView addSubview:self.statusButton];
 }
 
-
 #pragma mark - setter
 
 - (void)setModel:(EHICustomerServiceModel *)model {
@@ -106,6 +105,11 @@
 
 /** 设置聊天内容 */
 - (void)setupChatContentWithModel:(EHICustomerServiceModel *)model {
+    // 重置聊天内容按钮样式
+    self.contentButton.layer.cornerRadius = 0;
+    self.contentButton.clipsToBounds = NO;
+    self.contentButton.layer.borderColor = nil;
+    self.contentButton.layer.borderWidth = 0;
     switch (model.messageType) {
         case EHIMessageTypeText:
         {
@@ -139,8 +143,14 @@
             break;
         case EHIMessageTypePicture:
         {
-            [self.contentButton setImage:nil forState:UIControlStateNormal];
+            // 设置聊天内容按钮样式
+            self.contentButton.layer.cornerRadius = 4;
+            self.contentButton.clipsToBounds = YES;
+            self.contentButton.layer.borderColor = model.fromType == EHIMessageFromTypeSender ? [UIColor colorWithRed:41 / 255.0 green:183 / 255.0 blue:183 / 255.0 alpha:1.0].CGColor : [UIColor whiteColor].CGColor;
+            self.contentButton.layer.borderWidth = 1;
             
+            [self.contentButton setImage:model.picture forState:UIControlStateNormal];
+            self.contentButton.imageView.contentMode = UIViewContentModeScaleAspectFill;
         }
             break;
             
@@ -202,7 +212,7 @@
     imgView.contentMode = UIViewContentModeScaleAspectFit;
     imgView.center = CGPointMake([UIScreen mainScreen].bounds.size.width / 2.0, [UIScreen mainScreen].bounds.size.height / 2.0);
     // TODO: 加载网络图片
-    
+    imgView.image = self.model.picture;
     [_bgView addSubview:imgView];
     imgView.userInteractionEnabled = YES;
     

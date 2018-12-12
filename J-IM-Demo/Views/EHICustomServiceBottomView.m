@@ -10,6 +10,7 @@
 #import "EHINewCustomerSeerviceTools.h"
 #import <AVKit/AVKit.h>
 #include "amr_wav_converter.h"
+#import "EHINewCustomerServiceVoiceManager.h"
 
 @interface EHICustomServiceBottomView () <UITextViewDelegate, AVAudioRecorderDelegate>
 
@@ -28,14 +29,8 @@
 /** 录音按钮 */
 @property (nonatomic, strong) UIButton *voiceButton;
 
-/** 音频会话 */
-@property (nonatomic, strong) AVAudioSession *audioSession;
-
-/** 音频录音对象 */
-@property (nonatomic, strong) AVAudioRecorder *audioRecorder;
-
-/** 取消语音录制 */
-@property (nonatomic, assign) BOOL isCancelSendAudioMessage;
+/** 语音管理类 */
+@property (nonatomic, strong) EHINewCustomerServiceVoiceManager *voiceManager;
 
 @end
 
@@ -45,7 +40,7 @@
 - (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
-        self.isCancelSendAudioMessage = NO;
+        self.voiceManager.isCancelSendAudioMessage = NO;
         [self setupSubviews];
     }
     return self;
@@ -153,13 +148,13 @@
         [self.voiceButton setTitle:@"松开结束" forState:UIControlStateNormal];
         self.voiceButton.backgroundColor = [UIColor colorWithRed:204.0 / 255.0 green:204.0 / 255.0 blue:204.0 / 255.0 alpha:1.0];
         // TODO: 开始录音
-        [self audioStart];
+        [self.voiceManager audioStart];
     } else if (gestureRecognizer.state == UIGestureRecognizerStateEnded) {
         [self.voiceButton setTitle:@"按住说话" forState:UIControlStateNormal];
         self.voiceButton.backgroundColor = [UIColor whiteColor];
         // TODO: 结束录音
-        if (!self.isCancelSendAudioMessage) {
-            [self audioStop];
+        if (!self.voiceManager.isCancelSendAudioMessage) {
+            [self.voiceManager audioStop];
         }
     } else if (gestureRecognizer.state == UIGestureRecognizerStateChanged) {
         CGPoint aPoint = [self convertPoint:point toView:self.voiceButton];
@@ -167,11 +162,11 @@
             [self.voiceButton setTitle:@"松开结束" forState:UIControlStateNormal];
             self.voiceButton.backgroundColor = [UIColor colorWithRed:204.0 / 255.0 green:204.0 / 255.0 blue:204.0 / 255.0 alpha:1.0];
             // TODO:
-            self.isCancelSendAudioMessage = NO;
+            self.voiceManager.isCancelSendAudioMessage = NO;
         } else {
             [self.voiceButton setTitle:@"松开取消" forState:UIControlStateNormal];
             self.voiceButton.backgroundColor = [UIColor colorWithRed:204.0 / 255.0 green:204.0 / 255.0 blue:204.0 / 255.0 alpha:1.0];
-            self.isCancelSendAudioMessage = YES;
+            self.voiceManager.isCancelSendAudioMessage = YES;
         }
     } else if (gestureRecognizer.state == UIGestureRecognizerStateFailed) {
         NSLog(@"失败");
@@ -193,45 +188,6 @@
         self.voiceButton.hidden = NO;
         [self.switchToVoiceOrTextButton setImage:[UIImage imageNamed:@"new_customer_service_send_text"] forState:UIControlStateNormal];
         [self endEditing:YES];
-    }
-}
-
-#pragma mark - record audio
-
-/** 开始录音 */
-- (void)audioStart {
-    if (!self.audioRecorder.isRecording) {
-        [self.audioSession setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];
-        [self.audioSession setActive:YES error:nil];
-        [self.audioRecorder prepareToRecord];
-        [self.audioRecorder peakPowerForChannel:0.0];
-        [self.audioRecorder record];
-    }
-}
-
-/** 结束录音 */
-- (void)audioStop {
-    if (self.audioRecorder.isRecording) {
-        [self.audioRecorder stop];
-        [self.audioSession setActive:NO error:nil];
-    }
-}
-
-#pragma mark - sudio recorder delegate
-
-- (void)audioRecorderDidFinishRecording:(AVAudioRecorder *)recorder successfully:(BOOL)flag {
-    // 暂存录音文件路径
-    NSString *wavRecordFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"send_voice/%@.wav", [NSUUID UUID].UUIDString]];
-    NSString *amrRecordFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"send_voice/%@.amr", [NSUUID UUID].UUIDString]];
-    
-    // 重点:把wav录音文件转换成amr文件,用于网络传输.amr文件大小是wav文件的十分之一左右
-    wave_file_to_amr_file([wavRecordFilePath cStringUsingEncoding:NSUTF8StringEncoding],[amrRecordFilePath cStringUsingEncoding:NSUTF8StringEncoding], 1, 16);
-    
-    // 返回amr音频文件Data,用于传输或存储
-    NSData *cacheAudioData = [NSData dataWithContentsOfFile:amrRecordFilePath];
-    
-    if (self.sendVoiceCallBack) {
-        self.sendVoiceCallBack(cacheAudioData, wavRecordFilePath);
     }
 }
 
@@ -300,34 +256,20 @@
     return _quickEntrances;
 }
 
-- (AVAudioSession *)audioSession {
-    if (!_audioSession) {
-        _audioSession = [AVAudioSession sharedInstance];
-        [_audioSession setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];
+- (EHINewCustomerServiceVoiceManager *)voiceManager {
+    if (!_voiceManager) {
+        _voiceManager = [EHINewCustomerServiceVoiceManager sharedInstance];
+        
+        __weak typeof(self) weakSelf = self;
+        _voiceManager.finishRecord = ^(NSData *amrdData, NSString *wavFilePath) {
+            __strong typeof(weakSelf) self = weakSelf;
+            if (self.sendVoiceCallBack) {
+                self.sendVoiceCallBack(amrdData, wavFilePath);
+            }
+        };
     }
-    return _audioSession;
+    return _voiceManager;
 }
 
-- (AVAudioRecorder *)audioRecorder {
-    if (!_audioRecorder) {
-        // 对AVAudioRecorder进行一些设置
-        NSDictionary *recordSettings = [[NSDictionary alloc] initWithObjectsAndKeys:
-                                        [NSNumber numberWithFloat:8000], AVSampleRateKey,
-                                        [NSNumber numberWithInt:kAudioFormatLinearPCM], AVFormatIDKey,
-                                        [NSNumber numberWithInt:16], AVLinearPCMBitDepthKey,
-                                        [NSNumber numberWithInt:1], AVNumberOfChannelsKey,
-                                        [NSNumber numberWithInt:AVAudioQualityHigh], AVEncoderAudioQualityKey,
-                                        nil];
-        
-        // 录音存放的地址文件
-        NSURL *recordingUrl = [NSURL URLWithString:[NSTemporaryDirectory() stringByAppendingString:@"myRecord.wav"]];
-        _audioRecorder = [[AVAudioRecorder alloc] initWithURL:recordingUrl settings:recordSettings error:nil];
-        // 对录音开启音量检测
-        _audioRecorder.meteringEnabled = YES;
-        // 设置代理
-        _audioRecorder.delegate = self;
-    }
-    return _audioRecorder;
-}
 
 @end

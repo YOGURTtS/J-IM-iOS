@@ -48,8 +48,10 @@ static NSInteger minimumHeight = 52;
 
 /** 获取cell高度 */
 - (CGFloat)cellHeight {
+    // cell间距
+    CGFloat marginBetweenCells = 24.f;
     CGFloat chatContentHeight = self.chatContentSize.height;
-    chatContentHeight = chatContentHeight + 12 >= minimumHeight ? chatContentHeight + 12 : minimumHeight;
+    chatContentHeight = chatContentHeight + marginBetweenCells >= minimumHeight ? chatContentHeight + marginBetweenCells : minimumHeight;
     return chatContentHeight;
 }
 

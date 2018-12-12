@@ -5,6 +5,8 @@
 //  Created by 孙星 on 2018/12/8.
 //  Copyright © 2018 yogurts. All rights reserved.
 //
+//  语音管理类
+//
 
 #import <UIKit/UIKit.h>
 
@@ -16,9 +18,27 @@
 //    EHIVoiceManagerPlayStatusFinish     /// 播放完成
 //};
 
-@interface EHIVoiceManager : NSObject
+@interface EHINewCustomerServiceVoiceManager : NSObject
 
-/** 播放音频，播放完会返回finish回调*/
+/** 单例 */
++ (instancetype)sharedInstance;
+
+#pragma mark - 录音相关
+/** 取消语音录制 */
+@property (nonatomic, assign) BOOL isCancelSendAudioMessage;
+
+/** 开始录音 */
+- (void)audioStart;
+
+/** 结束录音 */
+- (void)audioStop;
+
+/** 结束录音回调 */
+@property (nonatomic, copy) void (^finishRecord)(NSData *amrdData, NSString *wavFilePath);
+#pragma mark - 录音相关
+
+#pragma mark - 播放录音相关
+/** 播放音频，播放完会返回finish回调 */
 - (void)playVoiceWithUrl:(NSURL *)url finish:(void (^)(void))finish;
 
 /** 暂停播放，回调返回暂停在第几毫秒，单位是毫秒 */
@@ -31,10 +51,11 @@
 - (void)stopPlayWithUrl:(NSURL *)url;
 
 /** 结束播放回调 */
-@property (nonatomic, copy) void (^finish)(NSURL *url);
+@property (nonatomic, copy) void (^finishPlay)(NSURL *url);
 
 /** 暂停播放回调 */
 @property (nonatomic, copy) void (^pause)(NSURL *url, CGFloat milliseconds);
+#pragma mark - 播放录音相关
 
 @end
 

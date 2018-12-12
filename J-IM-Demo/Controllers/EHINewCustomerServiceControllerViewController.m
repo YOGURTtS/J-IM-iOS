@@ -12,7 +12,7 @@
 #import "EHINewCustomerSeerviceTools.h"
 #import "EHISocketManager.h"
 #import "EHICustomerServiceModel.h"
-#import "EHIVoiceManager.h"
+#import "EHINewCustomerServiceVoiceManager.h"
 #import <TZImagePickerController.h>
 #import "EHINewCustomerServiceCacheManager.h"
 
@@ -32,7 +32,7 @@
 @property (nonatomic, strong) NSMutableArray<EHICustomerServiceModel *> *messageArrayM;
 
 /** 语音管理器 */
-@property (nonatomic, strong) EHIVoiceManager *voiceManager;
+@property (nonatomic, strong) EHINewCustomerServiceVoiceManager *voiceManager;
 
 /** 语音缓存管理器 */
 @property (nonatomic, strong) EHINewCustomerServiceCacheManager *voiceCacheManager;
@@ -166,10 +166,17 @@
     model.messageStatus = EHIMessageStatusSuccess;
     model.messageType = EHIMessageTypeVoice;
     model.voiceUrl = @"https://raw.githubusercontent.com/YOGURTtS/YGRecorder/master/myRecord.amr";
-    model.voiceFileUrl = filePath;
     model.time = [self currentDateStr];
-    [self.messageArrayM addObject:model];
-    [self.tableView reloadData];
+    
+    __weak typeof(self) weakSelf = self;
+    [self.voiceCacheManager cacheVoiceWithUrl:model.voiceUrl completion:^(NSString *filePath) {
+        __strong typeof(weakSelf) self = weakSelf;
+        NSLog(@"voice cache file path = %@", filePath);
+        model.voiceFileUrl = filePath;
+        [self.messageArrayM addObject:model];
+        [self.tableView reloadData];
+    }];
+    
     
     //    [self.socketManager sendVoice:nil success:^{
     //
@@ -199,11 +206,13 @@
         model.fromType = EHIMessageFromTypeSender;
         model.messageStatus = EHIMessageStatusSuccess;
         model.messageType = EHIMessageTypePicture;
-        model.pictureUrl = 
+        model.picture = image;
+        model.ratio = image.size.width / image.size.height;
         model.time = [self currentDateStr];
         [self.messageArrayM addObject:model];
-        [self.tableView reloadData];
+        
     }
+    [self.tableView reloadData];
 }
 
 /** 获取当前时间 */
@@ -275,7 +284,7 @@
     }
 }
 
-#pragma mark - lazy laod
+#pragma mark - lazy load
 
 - (EHICustomServiceBottomView *)bottomView {
     if (!_bottomView) {
@@ -333,13 +342,13 @@
     return _messageArrayM;
 }
 
-- (EHIVoiceManager *)voiceManager {
+- (EHINewCustomerServiceVoiceManager *)voiceManager {
     if (!_voiceManager) {
-        _voiceManager = [[EHIVoiceManager alloc] init];
+        _voiceManager = [EHINewCustomerServiceVoiceManager sharedInstance];
         
         __weak typeof(self) weakSelf = self;
         // 播放完成回调
-        _voiceManager.finish = ^(NSURL *url) {
+        _voiceManager.finishPlay = ^(NSURL *url) {
             __strong typeof(weakSelf) self = weakSelf;
             [self voiceFinishWithUrl:url];
         };
@@ -355,7 +364,7 @@
 
 - (EHINewCustomerServiceCacheManager *)voiceCacheManager {
     if (!_voiceCacheManager) {
-        _voiceCacheManager = [[EHINewCustomerServiceCacheManager alloc] init];
+        _voiceCacheManager = [EHINewCustomerServiceCacheManager sharedInstance];
     }
     return _voiceCacheManager;
 }
