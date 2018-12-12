@@ -73,7 +73,7 @@ static EHINewCustomerServiceVoiceManager *instance;
 /** 开始录音 */
 - (void)audioStart {
     if (!self.audioRecorder.isRecording) {
-        [self.audioSession setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];
+        [self.audioSession setCategory:AVAudioSessionCategoryRecord error:nil];
         [self.audioSession setActive:YES error:nil];
         [self.audioRecorder prepareToRecord];
         [self.audioRecorder peakPowerForChannel:0.0];
@@ -92,9 +92,11 @@ static EHINewCustomerServiceVoiceManager *instance;
 #pragma mark - sudio recorder delegate
 
 - (void)audioRecorderDidFinishRecording:(AVAudioRecorder *)recorder successfully:(BOOL)flag {
+    
     // 暂存录音文件路径
-    NSString *wavRecordFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"new_cs/send_voice/myRecord.wav"];
-    NSString *amrRecordFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"new_cs/send_voice/%@.amr", [NSUUID UUID].UUIDString]];
+    NSString *cachepath = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES).lastObject;
+    NSString *wavRecordFilePath = [cachepath stringByAppendingString:@"/new_cs/send_voice/myRecord.wav"];
+    NSString *amrRecordFilePath = [cachepath stringByAppendingString:[NSString stringWithFormat:@"/new_cs/send_voice/%@.amr", [NSUUID UUID].UUIDString]];
     
     // 重点:把wav录音文件转换成amr文件,用于网络传输.amr文件大小是wav文件的十分之一左右
     wave_file_to_amr_file([wavRecordFilePath cStringUsingEncoding:NSUTF8StringEncoding],[amrRecordFilePath cStringUsingEncoding:NSUTF8StringEncoding], 1, 16);
@@ -241,7 +243,6 @@ static EHINewCustomerServiceVoiceManager *instance;
 - (AVAudioSession *)audioSession {
     if (!_audioSession) {
         _audioSession = [AVAudioSession sharedInstance];
-        [_audioSession setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];
     }
     return _audioSession;
 }
@@ -258,11 +259,13 @@ static EHINewCustomerServiceVoiceManager *instance;
                                         nil];
         
         // 录音存放的地址文件
-        NSString *recordingUrl = [NSTemporaryDirectory() stringByAppendingString:@"new_cs/send_voice/myRecord.wav"];
+        NSString *cachepath = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES).lastObject;
+        NSString *recordingUrl = [cachepath stringByAppendingString:@"/new_cs/send_voice/myRecord.wav"];
         // 先创建子目录
         NSFileManager *fileManager = [NSFileManager defaultManager];
         if (![fileManager fileExistsAtPath:recordingUrl]) {
-            [fileManager createDirectoryAtPath:recordingUrl withIntermediateDirectories:YES attributes:nil error:nil];
+            NSString *recordPath = [[cachepath stringByAppendingPathComponent:@"new_cs"] stringByAppendingPathComponent:@"send_voice"];
+            [fileManager createDirectoryAtPath:recordPath withIntermediateDirectories:YES attributes:nil error:nil];
         }
         _audioRecorder = [[AVAudioRecorder alloc] initWithURL:[NSURL fileURLWithPath:recordingUrl] settings:recordSettings error:nil];
         // 对录音开启音量检测

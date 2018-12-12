@@ -61,6 +61,9 @@
 /** 更新UI布局 */
 - (void)updateUIWithModel:(EHICustomerServiceModel *)model {
     
+    // 重置UI
+    [self resetUI];
+    
     // 头像宽高
     CGFloat avatarWidth = 30;
     CGFloat screenWidth = [UIScreen mainScreen].bounds.size.width;
@@ -98,18 +101,13 @@
         // 状态按钮
         self.statusButton.frame = CGRectMake(CGRectGetMaxX(self.contentButton.frame) + 7, 22, 30, 18);
     }
-    
     [self setupChatContentWithModel:model];
     [self setupStatusButtonWithModel:model];
 }
 
 /** 设置聊天内容 */
 - (void)setupChatContentWithModel:(EHICustomerServiceModel *)model {
-    // 重置聊天内容按钮样式
-    self.contentButton.layer.cornerRadius = 0;
-    self.contentButton.clipsToBounds = NO;
-    self.contentButton.layer.borderColor = nil;
-    self.contentButton.layer.borderWidth = 0;
+    
     switch (model.messageType) {
         case EHIMessageTypeText:
         {
@@ -149,6 +147,7 @@
             self.contentButton.layer.borderColor = model.fromType == EHIMessageFromTypeSender ? [UIColor colorWithRed:41 / 255.0 green:183 / 255.0 blue:183 / 255.0 alpha:1.0].CGColor : [UIColor whiteColor].CGColor;
             self.contentButton.layer.borderWidth = 1;
             
+            [self.contentButton setBackgroundImage:nil forState:UIControlStateNormal];
             [self.contentButton setImage:model.picture forState:UIControlStateNormal];
             self.contentButton.imageView.contentMode = UIViewContentModeScaleAspectFill;
         }
@@ -168,6 +167,19 @@
         self.statusButton.hidden = YES;
         [self.statusButton setTitle:@"" forState:UIControlStateNormal];
     }
+}
+
+/** 重置UI */
+- (void)resetUI {
+    // 重置聊天内容按钮样式
+    self.contentButton.layer.cornerRadius = 0;
+    self.contentButton.clipsToBounds = NO;
+    self.contentButton.layer.borderColor = nil;
+    self.contentButton.layer.borderWidth = 0;
+    [self.contentButton setTitle:@"" forState:UIControlStateNormal];
+    [self.contentButton setImage:nil forState:UIControlStateNormal];
+    [self.contentButton setBackgroundImage:nil forState:UIControlStateNormal];
+    self.contentButton.imageEdgeInsets = UIEdgeInsetsZero;
 }
 
 #pragma mark - button click action

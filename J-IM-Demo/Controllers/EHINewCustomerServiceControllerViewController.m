@@ -149,7 +149,7 @@
     model.time = [self currentDateStr];
     [self.messageArrayM addObject:model];
     [self.tableView reloadData];
-    
+    [self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:self.messageArrayM.count - 1 inSection:0] atScrollPosition:UITableViewScrollPositionBottom animated:YES];
     //    [self.socketManager sendText:text success:^{
     //
     //    } failure:^(NSError *error) {
@@ -175,6 +175,7 @@
         model.voiceFileUrl = filePath;
         [self.messageArrayM addObject:model];
         [self.tableView reloadData];
+        [self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:self.messageArrayM.count - 1 inSection:0] atScrollPosition:UITableViewScrollPositionBottom animated:YES];
     }];
     
     
@@ -213,6 +214,7 @@
         
     }
     [self.tableView reloadData];
+    [self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:self.messageArrayM.count - 1 inSection:0] atScrollPosition:UITableViewScrollPositionBottom animated:YES];
 }
 
 /** 获取当前时间 */
