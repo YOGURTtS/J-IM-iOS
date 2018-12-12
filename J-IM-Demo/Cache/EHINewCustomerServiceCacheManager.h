@@ -16,10 +16,20 @@
 /** 单例 */
 + (instancetype)sharedInstance;
 
-/** 缓存在线语音，返回本地缓存路径 */
-- (void)cacheOnlineVoiceWithUrl:(NSString *)url completion:(void (^)(NSString *filePath))completion;
+/**
+ 缓存 <*自己录制*> 的语音，返回本地语音路径
 
-/** 缓存语音，返回语音路径 */
+ @param url 上传语音文件后返回的lurl
+ @param completion 返回缓存的本地语音路径
+ */
+- (void)cacheSendVoiceWithUrl:(NSString *)url completion:(void (^)(NSString *filePath))completion;
+
+/**
+ 缓存语音，返回语音路径
+
+ @param url 上传语音文件后返回的lurl
+ @param completion 返回缓存的本地语音路径
+ */
 - (void)cacheVoiceWithUrl:(NSString *)url completion:(void (^)(NSString *filePath))completion;
 
 /** 缓存图片，返回图片 */

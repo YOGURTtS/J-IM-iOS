@@ -169,7 +169,7 @@
     model.time = [self currentDateStr];
     
     __weak typeof(self) weakSelf = self;
-    [self.voiceCacheManager cacheVoiceWithUrl:model.voiceUrl completion:^(NSString *filePath) {
+    [self.voiceCacheManager cacheSendVoiceWithUrl:model.voiceUrl completion:^(NSString *filePath) {
         __strong typeof(weakSelf) self = weakSelf;
         NSLog(@"voice cache file path = %@", filePath);
         model.voiceFileUrl = filePath;
@@ -259,7 +259,7 @@
         if (model.messageType == EHIMessageTypeVoice && model.voiceFileUrl.length == 0 &&
             [model.voiceUrl hasPrefix:@"http"]) {
             __weak typeof(self) weakSelf = self;
-            [self.voiceCacheManager cacheOnlineVoiceWithUrl:model.voiceUrl completion:^(NSString *filePath) {
+            [self.voiceCacheManager cacheVoiceWithUrl:model.voiceUrl completion:^(NSString *filePath) {
                 __strong typeof(weakSelf) self = weakSelf;
                 model.voiceFileUrl = filePath;
                 // TODO: 更新数据库

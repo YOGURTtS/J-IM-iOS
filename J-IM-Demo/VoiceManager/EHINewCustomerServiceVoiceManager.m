@@ -151,7 +151,7 @@ static EHINewCustomerServiceVoiceManager *instance;
     
 #pragma mark - 在线音频
     __weak typeof(self) weakSelf = self;
-    [self.cacheManager cacheOnlineVoiceWithUrl:[url absoluteString] completion:^(NSString *filePath) {
+    [self.cacheManager cacheVoiceWithUrl:[url absoluteString] completion:^(NSString *filePath) {
         __strong typeof(weakSelf) self = weakSelf;
         
         AVPlayerItem *playerItem = [AVPlayerItem playerItemWithURL:[NSURL fileURLWithPath:filePath]];

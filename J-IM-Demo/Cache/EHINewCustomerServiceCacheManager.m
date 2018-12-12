@@ -27,38 +27,17 @@ static dispatch_once_t onceToken;
 
 #pragma mark - about voice cache
 
-///** 缓存在线语音，返回本地缓存路径 */
-//- (void)cacheOnlineVoiceWithUrl:(NSString *)url completion:(void (^)(NSString *filePath))completion {
-//
-//    if ([url hasPrefix:@"http"]) {
-//        __block NSString *filePath;
-//        [[[NSURLSession sharedSession] dataTaskWithURL:[NSURL URLWithString:url] completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-//            // amr文件需要转码成wav文件才能正常播放
-//            if ([url hasSuffix:@"amr"]) {
-//                NSString *wavRecordFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.wav", [NSUUID UUID].UUIDString]];
-//                NSString *amrRecordFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.amr", [NSUUID UUID].UUIDString]];
-//                if ([data writeToFile:amrRecordFilePath atomically:YES]) {
-//                    // amr文件转成wav文件
-//                    amr_file_to_wave_file([amrRecordFilePath cStringUsingEncoding:NSUTF8StringEncoding],
-//                                          [wavRecordFilePath cStringUsingEncoding:NSUTF8StringEncoding]);
-//                }
-//                filePath = wavRecordFilePath;
-//
-//            } else { // 不需要转码，直接缓存
-//                NSURL *voiceUrl = [NSURL URLWithString:url];
-//                NSString *recordFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"%@/%@.%@", voiceUrl.pathExtension, [NSUUID UUID].UUIDString, voiceUrl.pathExtension]];
-//                [data writeToFile:recordFilePath atomically:YES];
-//                filePath = recordFilePath;
-//            }
-//
-//            // TODO: 更新数据库
-//
-//        }] resume];
-//        completion(filePath);
-//    } else {
-//        completion(url);
-//    }
-//}
+/** 缓存自己发送的语音，返回本地语音路径 */
+- (void)cacheSendVoiceWithUrl:(NSString *)url completion:(void (^)(NSString *filePath))completion {
+    NSString *cachepath = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES).lastObject;
+    NSString *wavRecordFilePath = [cachepath stringByAppendingString:@"/new_cs/send_voice/myRecord.wav"];
+    NSData *data = [NSData dataWithContentsOfFile:wavRecordFilePath];
+    NSString *wavUrl = [url stringByReplacingOccurrencesOfString:@".amr" withString:@".wav"];
+    NSString *wavFilePath = [self voiceFilePath:wavUrl];
+    if ([data writeToFile:wavFilePath atomically:YES]) {
+        completion(wavFilePath);
+    }
+}
 
 /** 缓存语音，返回语音路径 */
 - (void)cacheVoiceWithUrl:(NSString *)url completion:(void (^)(NSString *filePath))completion {
@@ -75,7 +54,7 @@ static dispatch_once_t onceToken;
             __strong typeof(weakSelf) self = weakSelf;
             // amr文件需要转码成wav文件才能正常播放
             if ([url hasSuffix:@"amr"]) {
-//                NSString *wavRecordFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"wav/%@.wav", [NSUUID UUID].UUIDString]];
+                
                 NSString *wavUrl = [url stringByReplacingOccurrencesOfString:@".amr" withString:@".wav"];
                 NSString *wavRecordFilePath = [self voiceFilePath:wavUrl];
                 
@@ -87,6 +66,8 @@ static dispatch_once_t onceToken;
                     amr_file_to_wave_file([amrRecordFilePath cStringUsingEncoding:NSUTF8StringEncoding],
                                           [wavRecordFilePath cStringUsingEncoding:NSUTF8StringEncoding]);
                 }
+                
+                // 删除临时缓存的amr文件
                 [[NSFileManager defaultManager] removeItemAtPath:amrRecordFilePath error:nil];
                 filePath = wavRecordFilePath;
                 
