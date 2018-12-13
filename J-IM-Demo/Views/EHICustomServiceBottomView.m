@@ -105,8 +105,8 @@
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
     if ([text isEqualToString:@"\n"]) {
         // TODO: 发送文字
-        if (self.sendTextCallBack) {
-            self.sendTextCallBack(textView.text);
+        if (self.sendTextCallback) {
+            self.sendTextCallback(textView.text);
         }
        
         textView.text = @"";
@@ -134,8 +134,8 @@
 }
 
 - (void)sendPicture {
-    if (self.sendPictureCallBack) {
-        self.sendPictureCallBack(nil);
+    if (self.sendPictureCallback) {
+        self.sendPictureCallback(nil);
     }
 }
 
@@ -150,27 +150,46 @@
         self.voiceButton.backgroundColor = [UIColor colorWithRed:204.0 / 255.0 green:204.0 / 255.0 blue:204.0 / 255.0 alpha:1.0];
         // TODO: 开始录音
         [self.voiceManager audioStart];
+        if (self.recordStatusChangedCallback) {
+            self.recordStatusChangedCallback(EHIAudioRecordStatusStart);
+        }
     } else if (gestureRecognizer.state == UIGestureRecognizerStateEnded) {  // 结束长按
         [self.voiceButton setTitle:@"按住说话" forState:UIControlStateNormal];
         self.voiceButton.backgroundColor = [UIColor whiteColor];
-        // TODO: 结束录音
+        
         if (!self.voiceManager.isCancelSendAudioMessage) { // 未取消录音
+            // 停止录音
             [self.voiceManager audioStop];
+            //
         } else { // 取消录音
             // 加震动
             
         }
+        
+        if (self.recordStatusChangedCallback) {
+            self.recordStatusChangedCallback(EHIAudioRecordStatusFinish);
+        }
+        
     } else if (gestureRecognizer.state == UIGestureRecognizerStateChanged) { // 状态切换
         CGPoint aPoint = [self convertPoint:point toView:self.voiceButton];
         if ([self.voiceButton.layer containsPoint:aPoint]) { // 手指在按钮上
             [self.voiceButton setTitle:@"松开结束" forState:UIControlStateNormal];
             self.voiceButton.backgroundColor = [UIColor colorWithRed:204.0 / 255.0 green:204.0 / 255.0 blue:204.0 / 255.0 alpha:1.0];
-            // TODO:
             self.voiceManager.isCancelSendAudioMessage = NO;
+            // TODO: 恢复显示录音弹窗
+            if (self.recordStatusChangedCallback) {
+                self.recordStatusChangedCallback(EHIAudioRecordStatusRecording);
+            }
         } else {
             [self.voiceButton setTitle:@"松开取消" forState:UIControlStateNormal]; // 手指在按钮外
             self.voiceButton.backgroundColor = [UIColor colorWithRed:204.0 / 255.0 green:204.0 / 255.0 blue:204.0 / 255.0 alpha:1.0];
             self.voiceManager.isCancelSendAudioMessage = YES;
+            
+            // TODO: 显示取消录音弹窗
+            if (self.recordStatusChangedCallback) {
+                self.recordStatusChangedCallback(EHIAudioRecordStatusRecordingButMayCancel);
+            }
+            NSLog(@"这里显示取消录音弹窗");
         }
     } else if (gestureRecognizer.state == UIGestureRecognizerStateFailed) { // 长按手势失败
         NSLog(@"失败");
@@ -271,8 +290,8 @@
         __weak typeof(self) weakSelf = self;
         _voiceManager.finishRecord = ^(NSData *amrdData, NSString *wavFilePath) {
             __strong typeof(weakSelf) self = weakSelf;
-            if (self.sendVoiceCallBack) {
-                self.sendVoiceCallBack(amrdData, wavFilePath);
+            if (self.sendVoiceCallback) {
+                self.sendVoiceCallback(amrdData, wavFilePath);
             }
         };
     }

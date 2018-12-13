@@ -19,11 +19,17 @@
 
 @interface EHINewCustomerServiceControllerViewController () <UITableViewDelegate, UITableViewDataSource, EHISocketManagerProcotol>
 
+/** 顶部提示视图 */
+@property (nonatomic, strong) UILabel *topLabel;
+
 /** tableView */
 @property (nonatomic, strong) UITableView *tableView;
 
 /** 底部视图，包括快捷入口和输入部分 */
 @property (nonatomic, strong) EHICustomServiceBottomView *bottomView;
+
+/** 录音提示弹窗 */
+@property (nonatomic, strong) UIImageView *recordTipImgView;
 
 /** socket管理器 */
 @property (nonatomic, strong) EHISocketManager *socketManager;
@@ -54,6 +60,7 @@
 - (void)setupUI {
     [self.view addSubview:self.bottomView];
     [self.view addSubview:self.tableView];
+    [self.view addSubview:self.recordTipImgView];
     
     CGFloat bottomViewHeight = 87.f;
     self.bottomView.frame = CGRectMake(0, [UIScreen mainScreen].bounds.size.height - bottomViewHeight - [EHINewCustomerSeerviceTools getBottomDistance], [UIScreen mainScreen].bounds.size.width, bottomViewHeight + [EHINewCustomerSeerviceTools getBottomDistance]);
@@ -108,7 +115,29 @@
     [tableView deselectRowAtIndexPath:indexPath animated:true];
 }
 
+
 #pragma mark - about voice
+
+/** 调整录音提示视图 */
+- (void)recordTipImgViewChangedWithStatus:(EHIAudioRecordStatus)status {
+    switch (status) {
+        case EHIAudioRecordStatusStart:
+            self.recordTipImgView.hidden = NO;
+            break;
+        case EHIAudioRecordStatusFinish:
+            self.recordTipImgView.hidden = YES;
+            break;
+        case EHIAudioRecordStatusRecording:
+            self.recordTipImgView.image = [UIImage imageNamed:@"new_customer_service_record"];
+            break;
+        case EHIAudioRecordStatusRecordingButMayCancel:
+            self.recordTipImgView.image = [UIImage imageNamed:@"new_customer_service_cancel_record"];
+            break;
+            
+        default:
+            break;
+    }
+}
 
 /** 播放、暂停音频 */
 - (void)voicePlayWithIndex:(NSInteger)index {
@@ -302,6 +331,18 @@
 
 #pragma mark - lazy load
 
+- (UILabel *)topLabel {
+    if (!_topLabel) {
+        _topLabel = [[UILabel alloc] init];
+        
+        _topLabel.backgroundColor = [UIColor colorWithRed:234.0 / 255.0 green:234.0 / 255.0 blue:234.0 / 255.0 alpha:1];
+        _topLabel.font = [UIFont systemFontOfSize:12.f weight:UIFontWeightRegular];
+        _topLabel.textColor = [UIColor colorWithRed:123/255.0 green:123/255.0 blue:123/255.0 alpha:1.0];
+        _topLabel.textAlignment = NSTextAlignmentCenter;
+    }
+    return _topLabel;
+}
+
 - (EHICustomServiceBottomView *)bottomView {
     if (!_bottomView) {
         _bottomView = [[EHICustomServiceBottomView alloc] initWithFrame:CGRectZero];
@@ -313,14 +354,14 @@
         };
         
         // 发送文字消息
-        _bottomView.sendTextCallBack = ^(NSString *text) {
+        _bottomView.sendTextCallback = ^(NSString *text) {
             __strong typeof(weakSelf)self = weakSelf;
             NSLog(@"text = %@", text);
             [self sendtextMessage:text];
         };
         
         // 发送语音消息
-        _bottomView.sendVoiceCallBack = ^(NSData *amrdData, NSString *wavFilePath) {
+        _bottomView.sendVoiceCallback = ^(NSData *amrdData, NSString *wavFilePath) {
             __strong typeof(weakSelf)self = weakSelf;
             NSLog(@"voice wavFilePath = %@", wavFilePath);
             [self sendVoiceMessage:amrdData wavFilePath:wavFilePath];
@@ -328,9 +369,15 @@
         
         
         // 发送图片消息
-        _bottomView.sendPictureCallBack = ^(UIImage *image) {
+        _bottomView.sendPictureCallback = ^(UIImage *image) {
             __strong typeof(weakSelf)self = weakSelf;
             [self getPictures];
+        };
+        
+        // 调整录音弹窗效果
+        _bottomView.recordStatusChangedCallback = ^(EHIAudioRecordStatus status) {
+            __strong typeof(weakSelf) self = weakSelf;
+            [self recordTipImgViewChangedWithStatus:status];
         };
         
     }
@@ -349,6 +396,18 @@
         [_tableView registerClass:[EHICustomerServiceCell class] forCellReuseIdentifier:@"EHICustomerServiceCell"];
     }
     return _tableView;
+}
+
+- (UIImageView *)recordTipImgView {
+    if (!_recordTipImgView) {
+        _recordTipImgView = [[UIImageView alloc] init];
+        
+        _recordTipImgView.image = [UIImage imageNamed:@"new_customer_service_record"];
+        _recordTipImgView.center = self.view.center;
+        _recordTipImgView.bounds = CGRectMake(0, 0, _recordTipImgView.image.size.width, _recordTipImgView.image.size.height);
+        _recordTipImgView.hidden = YES;
+    }
+    return _recordTipImgView;
 }
 
 - (EHISocketManager *)socketManager {
