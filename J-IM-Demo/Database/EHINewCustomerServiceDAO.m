@@ -38,7 +38,6 @@
                         @(message.messageType),
                         message.text,
                         message.voiceUrl,
-                        message.voiceFileUrl,
                         @(message.playStatus),
                         @(message.millisecondsPlayed),
                         message.pictureUrl,
@@ -134,18 +133,6 @@
     return ok;
 }
 
-/** 更新语音的本地缓存路径 */
-- (BOOL)updateVoiceFileUrlWithMessage:(EHICustomerServiceModel *)message {
-    BOOL ok;
-    NSString *sqlStr = [NSString stringWithFormat:
-                        SQL_UPDATE_VOICE_FILE_URL,
-                        NEWCUSTOMERSERVICE_TABLE_NAME,
-                        message.voiceFileUrl,
-                        message.time,
-                        message.userId];
-    ok = [self excuteSQL:sqlStr];
-    return ok;
-}
 
 #pragma mark - private methods
 
@@ -173,7 +160,6 @@
     message.messageType = [retSet intForColumn:@"message_type"];
     message.text = [retSet stringForColumn:@"text_content"];
     message.voiceUrl = [retSet stringForColumn:@"voice_url"];
-    message.voiceFileUrl = [retSet stringForColumn:@"voice_file_url"];
     message.playStatus = [retSet intForColumn:@"play_status"];
     message.millisecondsPlayed = [retSet doubleForColumn:@"milliseconds_played"];
     message.pictureUrl = [retSet stringForColumn:@"picture_url"];

@@ -30,6 +30,7 @@
 		7847E8FE21AE2C0F006B947C /* EHINewCustomerServiceControllerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7847E8FD21AE2C0F006B947C /* EHINewCustomerServiceControllerViewController.m */; };
 		784CCBBA21B50AC4009EF863 /* LabelTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 784CCBB821B50AC4009EF863 /* LabelTool.m */; };
 		784CCBBD21B7CF41009EF863 /* EHISocketStatusManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 784CCBBC21B7CF41009EF863 /* EHISocketStatusManager.m */; };
+		78573FA921C258F30030C52D /* EHINewCustomerServiceCommentView.m in Sources */ = {isa = PBXBuildFile; fileRef = 78573FA821C258F30030C52D /* EHINewCustomerServiceCommentView.m */; };
 		78617A9B21BA66200079B0D4 /* libopencore-amrnb.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 78617A9921BA66200079B0D4 /* libopencore-amrnb.a */; };
 		78617A9C21BA66200079B0D4 /* amr_wav_converter.c in Sources */ = {isa = PBXBuildFile; fileRef = 78617A9A21BA66200079B0D4 /* amr_wav_converter.c */; };
 		78617A9F21BDF41A0079B0D4 /* EHINewCustomerSeerviceTools.m in Sources */ = {isa = PBXBuildFile; fileRef = 78617A9E21BDF41A0079B0D4 /* EHINewCustomerSeerviceTools.m */; };
@@ -96,6 +97,8 @@
 		784CCBB921B50AC4009EF863 /* LabelTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LabelTool.h; sourceTree = "<group>"; };
 		784CCBBB21B7CF41009EF863 /* EHISocketStatusManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EHISocketStatusManager.h; sourceTree = "<group>"; };
 		784CCBBC21B7CF41009EF863 /* EHISocketStatusManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EHISocketStatusManager.m; sourceTree = "<group>"; };
+		78573FA721C258F30030C52D /* EHINewCustomerServiceCommentView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EHINewCustomerServiceCommentView.h; sourceTree = "<group>"; };
+		78573FA821C258F30030C52D /* EHINewCustomerServiceCommentView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EHINewCustomerServiceCommentView.m; sourceTree = "<group>"; };
 		78617A9821BA66200079B0D4 /* amr_wav_converter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = amr_wav_converter.h; sourceTree = "<group>"; };
 		78617A9921BA66200079B0D4 /* libopencore-amrnb.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = "libopencore-amrnb.a"; sourceTree = "<group>"; };
 		78617A9A21BA66200079B0D4 /* amr_wav_converter.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; fileEncoding = 4; path = amr_wav_converter.c; sourceTree = "<group>"; };
@@ -266,6 +269,8 @@
 				78CE0F1321B128DD00A23C43 /* EHICustomerServiceCell.m */,
 				78CE0F1821B13A7000A23C43 /* EHICustomServiceBottomView.h */,
 				78CE0F1921B13A7000A23C43 /* EHICustomServiceBottomView.m */,
+				78573FA721C258F30030C52D /* EHINewCustomerServiceCommentView.h */,
+				78573FA821C258F30030C52D /* EHINewCustomerServiceCommentView.m */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -450,6 +455,7 @@
 				78617A9F21BDF41A0079B0D4 /* EHINewCustomerSeerviceTools.m in Sources */,
 				78CE0F1721B1290100A23C43 /* EHICustomerServiceModel.m in Sources */,
 				7847E8F821ACD609006B947C /* EHISocketMessageFactory.m in Sources */,
+				78573FA921C258F30030C52D /* EHINewCustomerServiceCommentView.m in Sources */,
 				7847E8EE21AB9E03006B947C /* EHIMessage.m in Sources */,
 				784CCBBD21B7CF41009EF863 /* EHISocketStatusManager.m in Sources */,
 				7847E8E921AB9883006B947C /* NSFileManager+Paths.m in Sources */,

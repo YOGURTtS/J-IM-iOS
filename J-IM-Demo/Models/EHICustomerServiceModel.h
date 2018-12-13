@@ -55,9 +55,6 @@ typedef NS_ENUM(NSInteger, EHIVoiceMessagePlayStatus) {
 /** 语音链接 */
 @property (nonatomic, copy) NSString *voiceUrl;
 
-/** 语音本地缓存路径 */
-@property (nonatomic, copy) NSString *voiceFileUrl;
-
 /** 语音播放状态 */
 @property (nonatomic, assign) EHIVoiceMessagePlayStatus playStatus;
 

@@ -20,7 +20,6 @@ message_status INTEGER,\
 message_type INTEGER,\
 text_content TEXT,\
 voice_url TEXT,\
-voice_file_url TEXT,\
 play_status INTEGER,\
 milliseconds_played REAL,\
 picture_url TEXT,\
@@ -42,7 +41,6 @@ message_status,\
 message_type,\
 text_content,\
 voice_url,\
-voice_file_url,\
 play_status,\
 milliseconds_played,\
 picture_url,\
@@ -50,7 +48,7 @@ create_time,\
 chat_content_height,\
 chat_content_width,\
 ext1, ext2, ext3, ext4, ext5)\
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
 
 
 /** 查询 指定时间和用户ID 消息 */
@@ -73,9 +71,6 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
 
 /** 更新 转换匿名信息为某一用户ID下的信息 */
 #define SQL_UPDATE_ANONYMOUS_MESSAGE @"UPDATE %@ SET is_anonymous_message = '%d', user_id = '%@' WHERE create_time = %@"
-
-/** 更新 语音的本地缓存路径 */
-#define SQL_UPDATE_VOICE_FILE_URL @"UPDATE %@ SET voice_file_url = '%@' WHERE create_time = %@ AND user_id = %@"
 
 
 #endif /* EHINewCustomerServiceSQL_h */

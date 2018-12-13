@@ -17,7 +17,7 @@
 #import "EHINewCustomerServiceCacheManager.h"
 
 
-@interface EHINewCustomerServiceControllerViewController () <UITableViewDelegate, UITableViewDataSource>
+@interface EHINewCustomerServiceControllerViewController () <UITableViewDelegate, UITableViewDataSource, EHISocketManagerProcotol>
 
 /** tableView */
 @property (nonatomic, strong) UITableView *tableView;
@@ -45,6 +45,8 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     self.navigationItem.title = @"在线客服";
+    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"连接" style:UIBarButtonItemStylePlain target:self action:@selector(connectSocket)];
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"断开" style:UIBarButtonItemStylePlain target:self action:@selector(disconnectSocket)];
     
     [self setupUI];
 }
@@ -56,6 +58,18 @@
     CGFloat bottomViewHeight = 87.f;
     self.bottomView.frame = CGRectMake(0, [UIScreen mainScreen].bounds.size.height - bottomViewHeight - [EHINewCustomerSeerviceTools getBottomDistance], [UIScreen mainScreen].bounds.size.width, bottomViewHeight + [EHINewCustomerSeerviceTools getBottomDistance]);
     self.tableView.frame = CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height - CGRectGetHeight(self.bottomView.frame));
+}
+
+#pragma mark - about socket
+
+/** 连接socket */
+- (void)connectSocket {
+    [self.socketManager connect];
+}
+
+/** 断开连接socket */
+- (void)disconnectSocket {
+    [self.socketManager disconnect];
 }
 
 #pragma mark - UITableViewDataSource
@@ -92,7 +106,6 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     [tableView deselectRowAtIndexPath:indexPath animated:true];
-    
 }
 
 #pragma mark - about voice
@@ -104,13 +117,13 @@
     if (model.playStatus == EHIVoiceMessagePlayStatusUnplay ||
         model.playStatus == EHIVoiceMessagePlayStatusFinish) {
         model.playStatus = EHIVoiceMessagePlayStatusIsplaying;
-        [self.voiceManager playVoiceWithUrl:[NSURL fileURLWithPath:model.voiceFileUrl] finish:nil];
+        [self.voiceManager playVoiceWithUrl:[NSURL URLWithString:model.voiceUrl] finish:nil];
     } else if (model.playStatus == EHIVoiceMessagePlayStatusPause) { // 暂停播放
         model.playStatus = EHIVoiceMessagePlayStatusIsplaying;
-        [self.voiceManager resumePlayWithUrl:[NSURL fileURLWithPath:model.voiceFileUrl] time:model.millisecondsPlayed];
+        [self.voiceManager resumePlayWithUrl:[NSURL URLWithString:model.voiceUrl] time:model.millisecondsPlayed];
     } else { // 正在播放
         model.playStatus = EHIVoiceMessagePlayStatusPause;
-        [self.voiceManager pausePlayWithUrl:[NSURL fileURLWithPath:model.voiceFileUrl] completion:^(CGFloat seconds) {
+        [self.voiceManager pausePlayWithUrl:[NSURL URLWithString:model.voiceUrl] completion:^(CGFloat seconds) {
             model.millisecondsPlayed = seconds;
         }];
     }
@@ -120,21 +133,24 @@
 /** 修改播放状态为暂停 */
 - (void)voicePauseWithUrl:(NSURL *)url milliseconds:(CGFloat)milliseconds {
     for (EHICustomerServiceModel *model in self.messageArrayM) {
-        if ([model.voiceUrl isEqual:url]) {
+        if ([model.voiceUrl isEqualToString:[url absoluteString]]) {
             model.millisecondsPlayed = milliseconds;
             model.playStatus = EHIVoiceMessagePlayStatusPause;
         }
     }
+    [self.tableView reloadData];
 }
 
 /** 修改播放状态为播放完 */
 - (void)voiceFinishWithUrl:(NSURL *)url {
     for (EHICustomerServiceModel *model in self.messageArrayM) {
-        if ([model.voiceUrl isEqual:url]) {
+        NSLog(@"model.voiceUrl = %@, url = %@", model.voiceUrl, url);
+        if ([model.voiceUrl isEqualToString:[url absoluteString]]) {
             model.millisecondsPlayed = 0.0f;
             model.playStatus = EHIVoiceMessagePlayStatusFinish;
         }
     }
+    [self.tableView reloadData];
 }
 
 #pragma mark - send message
@@ -150,11 +166,11 @@
     [self.messageArrayM addObject:model];
     [self.tableView reloadData];
     [self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:self.messageArrayM.count - 1 inSection:0] atScrollPosition:UITableViewScrollPositionBottom animated:YES];
-    //    [self.socketManager sendText:text success:^{
-    //
-    //    } failure:^(NSError *error) {
-    //
-    //    }];
+    [self.socketManager sendText:text success:^{
+        
+    } failure:^(NSError *error) {
+        
+    }];
 }
 
 - (void)sendVoiceMessage:(NSData *)data wavFilePath:(NSString *)filePath {
@@ -169,21 +185,21 @@
     model.time = [self currentDateStr];
     
     __weak typeof(self) weakSelf = self;
-    [self.voiceCacheManager cacheSendVoiceWithUrl:model.voiceUrl completion:^(NSString *filePath) {
+    [self.voiceCacheManager cacheSendVoiceWithUrl:model.voiceUrl completion:^(NSString *filePath, NSInteger duration) {
         __strong typeof(weakSelf) self = weakSelf;
         NSLog(@"voice cache file path = %@", filePath);
-        model.voiceFileUrl = filePath;
+        model.voiceDuration = duration;
         [self.messageArrayM addObject:model];
         [self.tableView reloadData];
         [self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:self.messageArrayM.count - 1 inSection:0] atScrollPosition:UITableViewScrollPositionBottom animated:YES];
     }];
     
     
-    //    [self.socketManager sendVoice:nil success:^{
-    //
-    //    } failure:^(NSError * error) {
-    //
-    //    }];
+//    [self.socketManager sendVoice:nil success:^{
+//        
+//    } failure:^(NSError * error) {
+//        
+//    }];
 }
 
 /** 获取图片并发送 */
@@ -255,15 +271,13 @@
 - (void)cacheVoiceMessages {
     
     for (EHICustomerServiceModel *model in self.messageArrayM) {
-        // 如果是在线语音就缓存下来
-        if (model.messageType == EHIMessageTypeVoice && model.voiceFileUrl.length == 0 &&
-            [model.voiceUrl hasPrefix:@"http"]) {
+        // 语音类型
+        if (model.messageType == EHIMessageTypeVoice) {
             __weak typeof(self) weakSelf = self;
-            [self.voiceCacheManager cacheVoiceWithUrl:model.voiceUrl completion:^(NSString *filePath) {
+            [self.voiceCacheManager cacheVoiceWithUrl:model.voiceUrl completion:^(NSString *filePath, NSInteger duration) {
                 __strong typeof(weakSelf) self = weakSelf;
-                model.voiceFileUrl = filePath;
                 // TODO: 更新数据库
-                
+                model.voiceDuration = duration;
                 // 更新tableView当前行
                 NSInteger index = [self.messageArrayM indexOfObject:model];
                 NSIndexPath *indexPath = [NSIndexPath indexPathForRow:index inSection:0];
@@ -335,6 +349,14 @@
         [_tableView registerClass:[EHICustomerServiceCell class] forCellReuseIdentifier:@"EHICustomerServiceCell"];
     }
     return _tableView;
+}
+
+- (EHISocketManager *)socketManager {
+    if (!_socketManager) {
+        _socketManager = [EHISocketManager sharedInstance];
+        _socketManager.delegate = self;
+    }
+    return _socketManager;
 }
 
 - (NSMutableArray<EHICustomerServiceModel *> *)messageArrayM {

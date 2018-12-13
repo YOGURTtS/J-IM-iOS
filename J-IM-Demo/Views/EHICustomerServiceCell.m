@@ -124,15 +124,22 @@
             switch (model.playStatus) {
                 case EHIVoiceMessagePlayStatusIsplaying:
 //                    [self.contentButton setTitle:@"播放中" forState:UIControlStateNormal];
+                    self.contentButton.imageView.animationImages = @[[UIImage imageNamed:@"new_customer_service_voice_one_dot"], [UIImage imageNamed:@"new_customer_service_voice_two_dot"], [UIImage imageNamed:@"new_customer_service_voice"]];
+                    self.contentButton.imageView.animationRepeatCount = 0;
+                    self.contentButton.imageView.animationDuration = 1;
+                    [self.contentButton.imageView startAnimating];
                     break;
                 case EHIVoiceMessagePlayStatusPause:
+                    [self.contentButton.imageView stopAnimating];
 //                    [self.contentButton setTitle:@"播放暂停" forState:UIControlStateNormal];
                     break;
                 case EHIVoiceMessagePlayStatusFinish:
+                    [self.contentButton.imageView stopAnimating];
 //                    [self.contentButton setTitle:@"播放完成" forState:UIControlStateNormal];
                     break;
                     
                 default:
+                    [self.contentButton.imageView stopAnimating];
 //                    [self.contentButton setTitle:@"录音" forState:UIControlStateNormal];
                     [self.contentButton setImage:[UIImage imageNamed:@"new_customer_service_voice"] forState:UIControlStateNormal];
                     break;

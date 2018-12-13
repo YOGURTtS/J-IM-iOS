@@ -28,19 +28,20 @@ static dispatch_once_t onceToken;
 #pragma mark - about voice cache
 
 /** 缓存自己发送的语音，返回本地语音路径 */
-- (void)cacheSendVoiceWithUrl:(NSString *)url completion:(void (^)(NSString *filePath))completion {
+- (void)cacheSendVoiceWithUrl:(NSString *)url completion:(void (^)(NSString *filePath, NSInteger duration))completion {
     NSString *cachepath = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES).lastObject;
     NSString *wavRecordFilePath = [cachepath stringByAppendingString:@"/new_cs/send_voice/myRecord.wav"];
     NSData *data = [NSData dataWithContentsOfFile:wavRecordFilePath];
     NSString *wavUrl = [url stringByReplacingOccurrencesOfString:@".amr" withString:@".wav"];
     NSString *wavFilePath = [self voiceFilePath:wavUrl];
     if ([data writeToFile:wavFilePath atomically:YES]) {
-        completion(wavFilePath);
+        NSInteger seconds = [self getVoiceDurationWithFilePath:wavFilePath];
+        completion(wavFilePath, seconds);
     }
 }
 
 /** 缓存语音，返回语音路径 */
-- (void)cacheVoiceWithUrl:(NSString *)url completion:(void (^)(NSString *filePath))completion {
+- (void)cacheVoiceWithUrl:(NSString *)url completion:(void (^)(NSString *filePath, NSInteger duration))completion {
     // 先判断本地沙盒是否已经存在图像，存在直接获取，不存在再下载，下载后保存
     // 存在沙盒的Caches的子文件夹DownloadImages中
     NSString *voiceFilePath = [self loadLocalVoiceFilePath:url];
@@ -82,15 +83,25 @@ static dispatch_once_t onceToken;
             [[NSOperationQueue mainQueue] addOperationWithBlock:^{
                 // UI更新代码
                 NSLog(@"current thread = %@", [NSThread currentThread]);
+                NSInteger seconds = [self getVoiceDurationWithFilePath:filePath];
                 // TODO: 更新数据库
-                completion(filePath);
+                completion(filePath, seconds);
             }];
 
             
         }] resume];
     } else {
-        completion(voiceFilePath);
+        NSInteger seconds = [self getVoiceDurationWithFilePath:voiceFilePath];
+        completion(voiceFilePath, seconds);
     }
+}
+
+/** 获取录音文件时长 */
+- (NSInteger )getVoiceDurationWithFilePath:(NSString *)filePath {
+    AVURLAsset *audioAsset = [AVURLAsset URLAssetWithURL:[NSURL fileURLWithPath:filePath] options:nil];
+    CMTime audioDuration = audioAsset.duration;
+    float audioDurationSeconds = CMTimeGetSeconds(audioDuration);
+    return audioDurationSeconds;
 }
 
 /** 加载本地语音路径 */

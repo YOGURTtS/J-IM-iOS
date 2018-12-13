@@ -59,12 +59,37 @@
 
 /** 连接 */
 - (void)connect {
-    NSError *error;
     
-    BOOL connectSuccess = [self.socket connectToHost:@"demob.1hai.cn" onPort:56789 error:&error];
-    if (connectSuccess == NO) {
-        NSLog(@"error = %@", error);
-    }
+    NSDictionary *dict = @{
+                           @"carNo": @"111",
+                           @"customerEntrance": @"111",
+                           @"customerId": @"113",
+                           @"customerName": @"111",
+                           @"customerPhone": @"111",
+                           @"lastCustomerServiceId": @"10100",
+                           @"orderNo": @"111"
+                           };
+    
+    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+    manager.requestSerializer = [AFJSONRequestSerializer serializer];
+    manager.responseSerializer = [AFHTTPResponseSerializer serializer];
+    manager.responseSerializer.acceptableContentTypes = [NSSet setWithObjects:@"text/plain",@"application/json", @"text/json", @"text/javascript",nil];
+    
+    [[manager POST:@"http://devb.1hai.cn/online-service/customer/inline" parameters:dict progress:^(NSProgress * _Nonnull uploadProgress) {
+        
+    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        NSLog(@"success, responseObject = %@", [[NSString alloc] initWithData:responseObject encoding:NSUTF8StringEncoding]);
+        
+        // 连接socket
+        NSError *error;
+        BOOL connectSuccess = [self.socket connectToHost:@"devb.1hai.cn" onPort:56789 error:&error];
+        if (connectSuccess == NO) {
+            NSLog(@"error = %@", error);
+        }
+        
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        NSLog(@"failure, error = %@", [error description]);
+    }] resume];
 }
 
 /** 连接socket */
@@ -81,14 +106,9 @@
     }
 }
 
-
 /** 断开连接 */
 - (void)disconnect {
-    dispatch_cancel(self.timer);
     [self.socket disconnect];
-    
-    // 重置socket状态
-    [self resetSocketStatus];
 }
 
 
@@ -151,6 +171,8 @@
     
     // 解码
     EHISocketPacket *packet = [self.decoder decode:completeData];
+    // 根据消息体中的"command"字段生产message对象
+    
     self.statusManager.readDataStatus = EHISocketReadDataStatusUnGetHeader;
     self.statusManager.headerData = nil;
     self.statusManager.bodyLength = 0;
@@ -173,18 +195,17 @@
 
 /** 发生错误，socket关闭，可以在call- back过程调用"unreadData"去取得socket的最后的数据字节 */
 - (void)socketDidDisconnect:(GCDAsyncSocket *)sock withError:(NSError *)err {
-    dispatch_cancel(self.timer);
     NSLog(@"SocketDidDisconnectWithError:%@", err);
     [self resetSocketStatus];
+    [self suspendTimer];
 }
-
 
 #pragma mark - 发送各种包
 
 - (void)sendText:(NSString *)text success:(void (^)(void))success failure:(void (^)(NSError *))failure {
     EHISocketNormalMessage *message = [[EHISocketNormalMessage alloc] init];
     message.cmd = COMMAND_CHAT_REQ;
-    message.from = @"111";
+    message.from = @"113";
     message.to = @"10100";
     long timeStamp = 0;
     timeStamp = (long)[[NSDate dateWithTimeIntervalSinceNow:0] timeIntervalSince1970] * 1000;
@@ -233,7 +254,7 @@
 - (void)sendMessage {
     EHISocketNormalMessage *message = [[EHISocketNormalMessage alloc] init];
     message.cmd = 11;
-    message.from = @"114";
+    message.from = @"111";
     message.to = @"10100";
     long timeStamp = 0;
     timeStamp = (long)[[NSDate dateWithTimeIntervalSinceNow:0] timeIntervalSince1970] * 1000;
@@ -249,29 +270,14 @@
 }
 
 - (void)login {
-    
-    NSDictionary *dict = @{
-                           @"carNo": @"111",
-                           @"customerEntrance": @"111",
-                           @"customerId": @"114",
-                           @"customerName": @"111",
-                           @"customerPhone": @"111",
-                           @"lastCustomerServiceId": @"10100",
-                           @"orderNo": @"111"
-                           };
-    
-    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
-    manager.requestSerializer = [AFJSONRequestSerializer serializer];
-    [[manager POST:@"http://demob.1hai.cn/online-service/customer/inline" parameters:dict progress:^(NSProgress * _Nonnull uploadProgress) {
-        
-    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        NSLog(@"task = %@", task.currentRequest.allHTTPHeaderFields);
-        NSLog(@"success, message = %@", [responseObject objectForKey:@"message"]);
-//        [self.socket readDataToLength:self.statusManager.bodyLength withTimeout:kSocketTimeout tag:EHISocketTagDefault];
-//        self.decoder.decodeStatus = EHIDecodeStatusGetHeader;
-    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-         NSLog(@"failure, error = %@", [error description]);
-    }] resume];
+    EHISocketLoginMessage *message = [[EHISocketLoginMessage alloc] init];
+    message.cmd = 5;
+    message.loginname = @"111";
+    message.password = @"111";
+    message.token = @"111";
+    EHISocketPacket *packet = [[EHISocketPacket alloc] initWithMessage:message command:COMMAND_LOGIN_REQ];
+    NSData *data = [self.encoder encode:packet];
+    [self.socket writeData:data withTimeout:kSocketTimeout tag:EHISocketTagDefault];
 }
 
 /** 发送心跳包 */
@@ -284,7 +290,9 @@
     
     // 每5秒发送一次心跳包
     dispatch_source_set_timer(self.timer,dispatch_walltime(NULL, 0),kHeartbeatTimeInterval * NSEC_PER_SEC, 0);
+    __weak typeof(self) weakSelf = self;
     dispatch_source_set_event_handler(_timer, ^{
+        __strong typeof(weakSelf) self = weakSelf;
         NSLog(@"发送心跳包");
         [self.socket writeData:data withTimeout:kSocketTimeout tag:EHISocketTagDefault];
 
@@ -336,6 +344,13 @@
     
 }
 
+#pragma mark - about timer
+
+/** 停止计时器 */
+- (void)suspendTimer {
+    dispatch_suspend(self.timer);
+}
+
 #pragma mark - lazy load
 
 - (GCDAsyncSocket *)socket {
@@ -374,6 +389,12 @@
         _timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue);
     }
     return _timer;
+}
+
+#pragma mark - deinit
+
+- (void)dealloc {
+    dispatch_source_cancel(self.timer);
 }
 
 @end

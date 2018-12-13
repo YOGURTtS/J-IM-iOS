@@ -141,42 +141,50 @@
 
 #pragma mark - gesture
 
+/** 录音按钮长按手势 */
 - (void)longPress:(UILongPressGestureRecognizer *)gestureRecognizer {
     CGPoint point = [gestureRecognizer locationInView:self];
     
-    if (gestureRecognizer.state == UIGestureRecognizerStateBegan) {
+    if (gestureRecognizer.state == UIGestureRecognizerStateBegan) { // 开始长按
         [self.voiceButton setTitle:@"松开结束" forState:UIControlStateNormal];
         self.voiceButton.backgroundColor = [UIColor colorWithRed:204.0 / 255.0 green:204.0 / 255.0 blue:204.0 / 255.0 alpha:1.0];
         // TODO: 开始录音
         [self.voiceManager audioStart];
-    } else if (gestureRecognizer.state == UIGestureRecognizerStateEnded) {
+    } else if (gestureRecognizer.state == UIGestureRecognizerStateEnded) {  // 结束长按
         [self.voiceButton setTitle:@"按住说话" forState:UIControlStateNormal];
         self.voiceButton.backgroundColor = [UIColor whiteColor];
         // TODO: 结束录音
-        if (!self.voiceManager.isCancelSendAudioMessage) {
+        if (!self.voiceManager.isCancelSendAudioMessage) { // 未取消录音
             [self.voiceManager audioStop];
+        } else { // 取消录音
+            // 加震动
+            
         }
-    } else if (gestureRecognizer.state == UIGestureRecognizerStateChanged) {
+    } else if (gestureRecognizer.state == UIGestureRecognizerStateChanged) { // 状态切换
         CGPoint aPoint = [self convertPoint:point toView:self.voiceButton];
-        if ([self.voiceButton.layer containsPoint:aPoint]) {
+        if ([self.voiceButton.layer containsPoint:aPoint]) { // 手指在按钮上
             [self.voiceButton setTitle:@"松开结束" forState:UIControlStateNormal];
             self.voiceButton.backgroundColor = [UIColor colorWithRed:204.0 / 255.0 green:204.0 / 255.0 blue:204.0 / 255.0 alpha:1.0];
             // TODO:
             self.voiceManager.isCancelSendAudioMessage = NO;
         } else {
-            [self.voiceButton setTitle:@"松开取消" forState:UIControlStateNormal];
+            [self.voiceButton setTitle:@"松开取消" forState:UIControlStateNormal]; // 手指在按钮外
             self.voiceButton.backgroundColor = [UIColor colorWithRed:204.0 / 255.0 green:204.0 / 255.0 blue:204.0 / 255.0 alpha:1.0];
             self.voiceManager.isCancelSendAudioMessage = YES;
         }
-    } else if (gestureRecognizer.state == UIGestureRecognizerStateFailed) {
+    } else if (gestureRecognizer.state == UIGestureRecognizerStateFailed) { // 长按手势失败
         NSLog(@"失败");
-    } else if (gestureRecognizer.state == UIGestureRecognizerStateCancelled) {
+    } else if (gestureRecognizer.state == UIGestureRecognizerStateCancelled) { // 长按手势取消
         NSLog(@"取消");
     }
 }
 
 #pragma mark - setter
 
+/**
+ *  输入类型setter方法
+ *  用来切换语音按钮与文本框
+ */
 - (void)setInputType:(EHICustomServiceInputType)inputType {
     _inputType = inputType;
     if (inputType == EHICustomServiceInputTypeText) {

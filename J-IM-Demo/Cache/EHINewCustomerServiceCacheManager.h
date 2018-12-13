@@ -10,6 +10,7 @@
 
 #import <UIKit/UIKit.h>
 #import "amr_wav_converter.h"
+#import <AVFoundation/AVFoundation.h>
 
 @interface EHINewCustomerServiceCacheManager : NSObject
 
@@ -17,20 +18,20 @@
 + (instancetype)sharedInstance;
 
 /**
- 缓存 <*自己录制*> 的语音，返回本地语音路径
+ 缓存 <*自己录制*> 的语音，返回本地语音路径和录音时长
 
  @param url 上传语音文件后返回的lurl
- @param completion 返回缓存的本地语音路径
+ @param completion 返回缓存的本地语音路径和录音时长
  */
-- (void)cacheSendVoiceWithUrl:(NSString *)url completion:(void (^)(NSString *filePath))completion;
+- (void)cacheSendVoiceWithUrl:(NSString *)url completion:(void (^)(NSString *filePath, NSInteger duration))completion;
 
 /**
- 缓存语音，返回语音路径
+ 缓存语音，返回语音路径和录音时长
 
  @param url 上传语音文件后返回的lurl
- @param completion 返回缓存的本地语音路径
+ @param completion 返回缓存的本地语音路径和录音时长
  */
-- (void)cacheVoiceWithUrl:(NSString *)url completion:(void (^)(NSString *filePath))completion;
+- (void)cacheVoiceWithUrl:(NSString *)url completion:(void (^)(NSString *filePath, NSInteger duration))completion;
 
 /** 缓存图片，返回图片 */
 - (void)cachePictureWithUrl:(NSString *)url completion:(void (^)(UIImage *image))completion;

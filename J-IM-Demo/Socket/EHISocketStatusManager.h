@@ -13,7 +13,7 @@
 /** 超时时间 */
 static const NSInteger kSocketTimeout = -1;
 /** 心跳包发送间隔 */
-static const NSInteger kHeartbeatTimeInterval = 5;
+static const NSInteger kHeartbeatTimeInterval = 10;
 
 /** socket读数据的状态 */
 typedef NS_ENUM(NSInteger, EHISocketReadDataStatus) {
