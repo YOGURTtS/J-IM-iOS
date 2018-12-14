@@ -73,6 +73,9 @@ typedef NS_ENUM(int, EHIChatType) {
 /** 内容 */
 @property (nonatomic, copy) NSString *content;
 
+/** 扩展字段,JSON对象格式如：{'扩展字段名称':'扩展字段value'} */
+@property (nonatomic, copy) NSDictionary *extras;
+
 @end
 
 

@@ -40,6 +40,10 @@
 - (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
+        
+        // 添加检测app进入后台的观察者
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationEnterBackground) name: UIApplicationDidEnterBackgroundNotification object:nil];
+        
         self.voiceManager.isCancelSendAudioMessage = NO;
         [self setupSubviews];
     }
@@ -100,12 +104,33 @@
     }
 }
 
+#pragma mark - notification
+
+/** 应用进入后台 */
+- (void)applicationEnterBackground {
+    // 如果正在录音
+    if ([self.voiceManager isRecording]) {
+        // 恢复录音按钮样式
+        [self.voiceButton setTitle:@"按住说话" forState:UIControlStateNormal];
+        self.voiceButton.backgroundColor = [UIColor whiteColor];
+        // 未取消录音就保存录音
+        if (!self.voiceManager.isCancelSendAudioMessage) {
+            // 停止录音
+            [self.voiceManager audioRecordStop];
+        }
+        // 回调通知移除录音弹窗
+        if (self.recordStatusChangedCallback) {
+            self.recordStatusChangedCallback(EHIAudioRecordStatusFinish);
+        }
+    }
+}
+
 #pragma mark - text view delegate
 
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
     if ([text isEqualToString:@"\n"]) {
         // TODO: 发送文字
-        if (self.sendTextCallback) {
+        if (self.sendTextCallback && [textView hasText]) {
             self.sendTextCallback(textView.text);
         }
        
@@ -149,7 +174,7 @@
         [self.voiceButton setTitle:@"松开结束" forState:UIControlStateNormal];
         self.voiceButton.backgroundColor = [UIColor colorWithRed:204.0 / 255.0 green:204.0 / 255.0 blue:204.0 / 255.0 alpha:1.0];
         // TODO: 开始录音
-        [self.voiceManager audioStart];
+        [self.voiceManager audioRecordStart];
         if (self.recordStatusChangedCallback) {
             self.recordStatusChangedCallback(EHIAudioRecordStatusStart);
         }
@@ -159,7 +184,7 @@
         
         if (!self.voiceManager.isCancelSendAudioMessage) { // 未取消录音
             // 停止录音
-            [self.voiceManager audioStop];
+            [self.voiceManager audioRecordStop];
             //
         } else { // 取消录音
             // 加震动
@@ -189,7 +214,6 @@
             if (self.recordStatusChangedCallback) {
                 self.recordStatusChangedCallback(EHIAudioRecordStatusRecordingButMayCancel);
             }
-            NSLog(@"这里显示取消录音弹窗");
         }
     } else if (gestureRecognizer.state == UIGestureRecognizerStateFailed) { // 长按手势失败
         NSLog(@"失败");
@@ -223,6 +247,7 @@
 - (UIView *)textOrSendVoiceView {
     if (!_textOrSendVoiceView) {
         _textOrSendVoiceView = [[UIView alloc] init];
+        
         _textOrSendVoiceView.layer.cornerRadius = 4.0;
         _textOrSendVoiceView.clipsToBounds = YES;
     }
@@ -232,6 +257,7 @@
 - (UIButton *)sendPictureButton {
     if (!_sendPictureButton) {
         _sendPictureButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        
         [_sendPictureButton setImage:[UIImage imageNamed:@"new_customer_service_picture"] forState:UIControlStateNormal];
         [_sendPictureButton addTarget:self action:@selector(sendPicture) forControlEvents:UIControlEventTouchUpInside];
     }
@@ -252,6 +278,7 @@
         _textView = [[UITextView alloc] init];
         
         _textView.backgroundColor = [UIColor whiteColor];
+        _textView.font = [UIFont systemFontOfSize:12 weight:UIFontWeightRegular];
         _textView.returnKeyType = UIReturnKeySend;
         _textView.delegate = self;
     }
@@ -296,6 +323,12 @@
         };
     }
     return _voiceManager;
+}
+
+#pragma mark - deinit
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 

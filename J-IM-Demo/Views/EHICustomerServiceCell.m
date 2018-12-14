@@ -123,25 +123,20 @@
             }
             switch (model.playStatus) {
                 case EHIVoiceMessagePlayStatusIsplaying:
-//                    [self.contentButton setTitle:@"播放中" forState:UIControlStateNormal];
-                    self.contentButton.imageView.animationImages = @[[UIImage imageNamed:@"new_customer_service_voice_one_dot"], [UIImage imageNamed:@"new_customer_service_voice_two_dot"], [UIImage imageNamed:@"new_customer_service_voice"]];
-                    self.contentButton.imageView.animationRepeatCount = 0;
-                    self.contentButton.imageView.animationDuration = 1;
-                    [self.contentButton.imageView startAnimating];
+                    // 开始动画
+                    [self startAudioPlayAnimation];
                     break;
                 case EHIVoiceMessagePlayStatusPause:
-                    [self.contentButton.imageView stopAnimating];
-//                    [self.contentButton setTitle:@"播放暂停" forState:UIControlStateNormal];
+                    // 停止动画
+                    [self stopAudioPlayAnimation];
                     break;
                 case EHIVoiceMessagePlayStatusFinish:
-                    [self.contentButton.imageView stopAnimating];
-//                    [self.contentButton setTitle:@"播放完成" forState:UIControlStateNormal];
+                    // 停止动画
+                    [self stopAudioPlayAnimation];
                     break;
                     
                 default:
-                    [self.contentButton.imageView stopAnimating];
-//                    [self.contentButton setTitle:@"录音" forState:UIControlStateNormal];
-                    [self.contentButton setImage:[UIImage imageNamed:@"new_customer_service_voice"] forState:UIControlStateNormal];
+                    
                     break;
             }
             
@@ -174,6 +169,19 @@
         self.statusButton.hidden = YES;
         [self.statusButton setTitle:@"" forState:UIControlStateNormal];
     }
+}
+
+/** 开始语音播放动画 */
+- (void)startAudioPlayAnimation {
+    self.contentButton.imageView.animationImages = @[[UIImage imageNamed:@"new_customer_service_voice_one_dot"], [UIImage imageNamed:@"new_customer_service_voice_two_dot"], [UIImage imageNamed:@"new_customer_service_voice"]];
+    self.contentButton.imageView.animationRepeatCount = 0;
+    self.contentButton.imageView.animationDuration = 1;
+    [self.contentButton.imageView startAnimating];
+}
+
+/** 开始语音播放动画 */
+- (void)stopAudioPlayAnimation {
+    [self.contentButton.imageView stopAnimating];
 }
 
 /** 重置UI */

@@ -61,18 +61,10 @@ static EHINewCustomerServiceVoiceManager *instance;
     return self;
 }
 
-// 播放完成回调
-- (void)playbackFinished:(NSNotification *)noti {
-    if (self.finishPlay) {
-        self.finishPlay(self.currentUrl);
-    }
-}
-
-
 #pragma mark - about audio record
 
 /** 开始录音 */
-- (void)audioStart {
+- (void)audioRecordStart {
     if (!self.audioRecorder.isRecording) {
         [self.audioSession setCategory:AVAudioSessionCategoryRecord error:nil];
         [self.audioSession setActive:YES error:nil];
@@ -83,11 +75,15 @@ static EHINewCustomerServiceVoiceManager *instance;
 }
 
 /** 结束录音 */
-- (void)audioStop {
+- (void)audioRecordStop {
     if (self.audioRecorder.isRecording) {
         [self.audioRecorder stop];
         [self.audioSession setActive:NO error:nil];
     }
+}
+
+- (BOOL)isRecording {
+    return self.audioRecorder.isRecording;
 }
 
 #pragma mark - sudio recorder delegate
@@ -155,6 +151,7 @@ static EHINewCustomerServiceVoiceManager *instance;
 //        }
 //    }
     
+    // 播放前重置播放器相关状态
     [self resetAudioPlayerStatus];
     
     if (url == nil) {
@@ -189,6 +186,7 @@ static EHINewCustomerServiceVoiceManager *instance;
 //    [self startTimer];
 }
 
+/** 暂停播放 */
 - (void)pausePlayWithUrl:(NSURL *)url completion:(void (^)(CGFloat seconds))completion {
     [self.audioPlayer pause];
 //    [self suspendTimer];
@@ -196,6 +194,7 @@ static EHINewCustomerServiceVoiceManager *instance;
     completion(current);
 }
 
+/** 继续播放 */
 - (void)resumePlayWithUrl:(NSURL *)url time:(CGFloat)milliseconds {
     
 //    if (self.currentUrl) {
@@ -247,9 +246,17 @@ static EHINewCustomerServiceVoiceManager *instance;
 //    [self startTimer];
 }
 
+/** 停止播放 */
 - (void)stopPlayWithUrl:(NSURL *)url {
 //    [self suspendTimer];
     [self.audioPlayer pause];
+}
+
+/** 播放完成回调 */
+- (void)playbackFinished:(NSNotification *)noti {
+    if (self.finishPlay) {
+        self.finishPlay(self.currentUrl);
+    }
 }
 
 /** 重置语音播放器状态 */

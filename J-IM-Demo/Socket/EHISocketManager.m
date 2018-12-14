@@ -18,6 +18,7 @@
 #import <YYModel.h>
 #import <netinet/in.h>
 #import <AFNetworking.h>
+#import "EHISocketMessageFactory.h"
 
 
 @interface EHISocketManager ()
@@ -58,12 +59,12 @@
 }
 
 /** 连接 */
-- (void)connect {
+- (void)connectWithCustomerId:(NSString *)customerId {
     
     NSDictionary *dict = @{
                            @"carNo": @"111",
                            @"customerEntrance": @"111",
-                           @"customerId": @"113",
+                           @"customerId": customerId,
                            @"customerName": @"111",
                            @"customerPhone": @"111",
                            @"lastCustomerServiceId": @"10100",
@@ -96,7 +97,7 @@
 - (void)connectSocketWithHost:(NSString *)host
                          port:(uint16_t)port
                       success:(void(^)(void))success
-                      failure:(void(^)(NSError *))failure {
+                      failure:(void(^)(NSError *error))failure {
     NSError *error;
     BOOL connectSuccess = [self.socket connectToHost:host onPort:port error:&error];
     if (connectSuccess == NO) {
@@ -120,9 +121,6 @@
     // 重置读取数据状态
     self.statusManager.readDataStatus = EHISocketReadDataStatusUnGetHeader;
     NSLog(@"Socket连接成功");
-    // TODO:登录
-    [self login];
-    
 }
 
 - (void)socket:(GCDAsyncSocket *)sock didConnectToHost:(NSString *)host port:(uint16_t)port {
@@ -132,9 +130,10 @@
     [self resetSocketStatus];
     [self sendHeartbeatMessage];
     
-    // TODO:登录
-    [self login];
-    
+    // 代理方法
+    if ([self.delegate respondsToSelector:@selector(socketManeger:didConnectToHost:port:)]) {
+        [self.delegate socketManeger:self didConnectToHost:host port:port];
+    }
 }
 
 /** 重置socket状态 */
@@ -172,13 +171,15 @@
     // 解码
     EHISocketPacket *packet = [self.decoder decode:completeData];
     // 根据消息体中的"command"字段生产message对象
+    [self getVarietyOfMessagesWithPacket:packet];
     
+    // 更改读取数据状态
     self.statusManager.readDataStatus = EHISocketReadDataStatusUnGetHeader;
     self.statusManager.headerData = nil;
     self.statusManager.bodyLength = 0;
     
+    // 读数据
     [self.socket readDataToLength:HEADER_LENGHT withTimeout:kSocketTimeout tag:tag];
-//    [self sendACKMessageWithPacket:packet];
 }
 
 /** 当一个socket已完成请求数据的写入时候调用 */
@@ -195,50 +196,90 @@
 
 /** 发生错误，socket关闭，可以在call- back过程调用"unreadData"去取得socket的最后的数据字节 */
 - (void)socketDidDisconnect:(GCDAsyncSocket *)sock withError:(NSError *)err {
-    NSLog(@"SocketDidDisconnectWithError:%@", err);
     [self resetSocketStatus];
     [self suspendTimer];
+    if ([self.delegate respondsToSelector:@selector(socketManeger:socketDidDisconnectWithError:)]) {
+        [self.delegate socketManeger:self socketDidDisconnectWithError:err];
+    }
 }
 
 #pragma mark - 发送各种包
 
-- (void)sendText:(NSString *)text success:(void (^)(void))success failure:(void (^)(NSError *))failure {
+- (void)sendText:(NSString *)text
+            from:(NSString *)from
+              to:(NSString *)to
+          extras:(NSDictionary *)extras
+         success:(void (^)(void))success
+         failure:(void (^)(NSError *error))failure {
     EHISocketNormalMessage *message = [[EHISocketNormalMessage alloc] init];
     message.cmd = COMMAND_CHAT_REQ;
-    message.from = @"113";
-    message.to = @"10100";
+    message.from = from;
+    message.to = to;
     long timeStamp = 0;
     timeStamp = (long)[[NSDate dateWithTimeIntervalSinceNow:0] timeIntervalSince1970] * 1000;
     message.createTime = timeStamp;
     message.msgType = EHIMessageTypeText;
     message.chatType = EHIChatTypePrivate;
     message.content = text;
+    message.extras = extras;
     EHISocketPacket *packet = [[EHISocketPacket alloc] initWithMessage:message command:COMMAND_CHAT_REQ];
     NSData *data = [self.encoder encode:packet];
     [self.socket writeData:data withTimeout:kSocketTimeout tag:EHISocketTagDefault];
 }
 
-- (void)sendVoice:(NSString *)voice success:(void (^)(void))success failure:(void (^)(NSError *))failure {
+- (void)sendVoice:(NSString *)voice
+             from:(NSString *)from
+               to:(NSString *)to
+           extras:(NSDictionary *)extras
+          success:(void (^)(void))success
+          failure:(void (^)(NSError *error))failure {
     EHISocketNormalMessage *message = [[EHISocketNormalMessage alloc] init];
     message.cmd = COMMAND_CHAT_REQ;
-    message.from = @"111";
-    message.to = @"2";
+    message.from = from;
+    message.to = to;
     long timeStamp = 0;
     timeStamp = (long)[[NSDate dateWithTimeIntervalSinceNow:0] timeIntervalSince1970] * 1000;
     message.createTime = timeStamp;
     message.msgType = EHIMessageTypeVoice;
     message.chatType = EHIChatTypePrivate;
     message.content = voice;
+    message.extras = extras;
     EHISocketPacket *packet = [[EHISocketPacket alloc] initWithMessage:message command:COMMAND_CHAT_REQ];
     NSData *data = [self.encoder encode:packet];
     [self.socket writeData:data withTimeout:kSocketTimeout tag:EHISocketTagDefault];
 }
 
-- (void)sendVideo:(NSString *)video success:(void (^)(void))success failure:(void (^)(NSError *))failure {
+- (void)sendPicture:(NSString *)picture
+               from:(NSString *)from
+                 to:(NSString *)to
+             extras:(NSDictionary *)extras
+            success:(void (^)(void))success
+            failure:(void (^)(NSError *error))failure {
     EHISocketNormalMessage *message = [[EHISocketNormalMessage alloc] init];
     message.cmd = COMMAND_CHAT_REQ;
-    message.from = @"111";
-    message.to = @"2";
+    message.from = from;
+    message.to = to;
+    long timeStamp = 0;
+    timeStamp = (long)[[NSDate dateWithTimeIntervalSinceNow:0] timeIntervalSince1970] * 1000;
+    message.createTime = timeStamp;
+    message.msgType = EHIMessageTypePicture;
+    message.chatType = EHIChatTypePrivate;
+    message.content = picture;
+    message.extras = extras;
+    EHISocketPacket *packet = [[EHISocketPacket alloc] initWithMessage:message command:COMMAND_CHAT_REQ];
+    NSData *data = [self.encoder encode:packet];
+    [self.socket writeData:data withTimeout:kSocketTimeout tag:EHISocketTagDefault];
+}
+
+- (void)sendVideo:(NSString *)video
+             from:(NSString *)from
+               to:(NSString *)to
+          success:(void (^)(void))success
+          failure:(void (^)(NSError *error))failure {
+    EHISocketNormalMessage *message = [[EHISocketNormalMessage alloc] init];
+    message.cmd = COMMAND_CHAT_REQ;
+    message.from = from;
+    message.to = to;
     long timeStamp = 0;
     timeStamp = (long)[[NSDate dateWithTimeIntervalSinceNow:0] timeIntervalSince1970] * 1000;
     message.createTime = timeStamp;
@@ -250,31 +291,16 @@
     [self.socket writeData:data withTimeout:kSocketTimeout tag:EHISocketTagDefault];
 }
 
-/** 发送消息 */
-- (void)sendMessage {
-    EHISocketNormalMessage *message = [[EHISocketNormalMessage alloc] init];
-    message.cmd = 11;
-    message.from = @"111";
-    message.to = @"10100";
-    long timeStamp = 0;
-    timeStamp = (long)[[NSDate dateWithTimeIntervalSinceNow:0] timeIntervalSince1970] * 1000;
-    message.createTime = timeStamp;
-    message.msgType = 1;
-    message.chatType = 2;
-    message.content = @"测试";
-    EHISocketPacket *packet = [[EHISocketPacket alloc] initWithMessage:message command:COMMAND_CHAT_REQ];
-    NSData *data = [self.encoder encode:packet];
-    
-//    [self.socket writeData:data withTimeout:kSocketTimeout tag:EHISocketTagDefault];
-//    [self.socket readDataToLength:self.statusManager.bodyLength withTimeout:kSocketTimeout tag:EHISocketTagDefault];
-}
-
-- (void)login {
+/** 登录 */
+- (void)sendLoginMessagaWithLoginName:(NSString *)loginName
+                             password:(NSString *)password
+                                token:(NSString *)token success:(void(^)(void))success
+                              failure:(void(^)(NSError *error))failure {
     EHISocketLoginMessage *message = [[EHISocketLoginMessage alloc] init];
     message.cmd = 5;
-    message.loginname = @"111";
-    message.password = @"111";
-    message.token = @"111";
+    message.loginname = loginName;
+    message.password = password;
+    message.token = token;
     EHISocketPacket *packet = [[EHISocketPacket alloc] initWithMessage:message command:COMMAND_LOGIN_REQ];
     NSData *data = [self.encoder encode:packet];
     [self.socket writeData:data withTimeout:kSocketTimeout tag:EHISocketTagDefault];
@@ -288,7 +314,7 @@
     EHISocketPacket *packet = [[EHISocketPacket alloc] initWithMessage:message command:COMMAND_HEARTBEAT_REQ];
     NSData *data = [self.encoder encode:packet];
     
-    // 每5秒发送一次心跳包
+    // 每10秒发送一次心跳包
     dispatch_source_set_timer(self.timer,dispatch_walltime(NULL, 0),kHeartbeatTimeInterval * NSEC_PER_SEC, 0);
     __weak typeof(self) weakSelf = self;
     dispatch_source_set_event_handler(_timer, ^{
@@ -342,6 +368,22 @@
     NSData *data = [self.encoder encode:packet];
     [self.socket writeData:data withTimeout:kSocketTimeout tag:EHISocketTagDefault];
     
+}
+
+#pragma mark - 获取各种包
+
+/** 获取各种消息 */
+- (void)getVarietyOfMessagesWithPacket:(EHISocketPacket *)packet {
+    switch ([EHISocketMessageFactory getPacketTypeWithPacket:packet]) {
+        case EHIPacketTypeNormalMessage:
+            if ([self.delegate respondsToSelector:@selector(socketManeger:didReceiveMessage:)]) {
+                [self.delegate socketManeger:self didReceiveMessage:[EHISocketMessageFactory getMessageWithPacket:packet]];
+            }
+            break;
+            
+        default:
+            break;
+    }
 }
 
 #pragma mark - about timer

@@ -8,8 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		7828C104219A78100058A76D /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 7828C103219A78100058A76D /* AppDelegate.m */; };
-		7828C107219A78100058A76D /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7828C106219A78100058A76D /* ViewController.m */; };
-		7828C10A219A78100058A76D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7828C108219A78100058A76D /* Main.storyboard */; };
 		7828C10C219A78110058A76D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7828C10B219A78110058A76D /* Assets.xcassets */; };
 		7828C10F219A78110058A76D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7828C10D219A78110058A76D /* LaunchScreen.storyboard */; };
 		7828C112219A78110058A76D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 7828C111219A78110058A76D /* main.m */; };
@@ -53,9 +51,6 @@
 		7828C0FF219A78100058A76D /* J-IM-Demo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "J-IM-Demo.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		7828C102219A78100058A76D /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		7828C103219A78100058A76D /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		7828C105219A78100058A76D /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
-		7828C106219A78100058A76D /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
-		7828C109219A78100058A76D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		7828C10B219A78110058A76D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		7828C10E219A78110058A76D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		7828C110219A78110058A76D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -171,9 +166,6 @@
 				7828C103219A78100058A76D /* AppDelegate.m */,
 				784CCBB921B50AC4009EF863 /* LabelTool.h */,
 				784CCBB821B50AC4009EF863 /* LabelTool.m */,
-				7828C105219A78100058A76D /* ViewController.h */,
-				7828C106219A78100058A76D /* ViewController.m */,
-				7828C108219A78100058A76D /* Main.storyboard */,
 				7828C10B219A78110058A76D /* Assets.xcassets */,
 				7828C10D219A78110058A76D /* LaunchScreen.storyboard */,
 				7828C110219A78110058A76D /* Info.plist */,
@@ -393,7 +385,6 @@
 			files = (
 				7828C10F219A78110058A76D /* LaunchScreen.storyboard in Resources */,
 				7828C10C219A78110058A76D /* Assets.xcassets in Resources */,
-				7828C10A219A78100058A76D /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -468,7 +459,6 @@
 				7847E8F221ABBFE1006B947C /* EHIChatListModel.m in Sources */,
 				7847E8DA21AB9852006B947C /* EHIDBManager.m in Sources */,
 				7847E8EF21AB9E03006B947C /* EHIMessageFrame.m in Sources */,
-				7828C107219A78100058A76D /* ViewController.m in Sources */,
 				78A5FA0F219B107E00802C1E /* EHISocketEncoder.m in Sources */,
 				784CCBBA21B50AC4009EF863 /* LabelTool.m in Sources */,
 				7847E8E821AB9883006B947C /* NSFileManager+EHIChat.m in Sources */,
@@ -487,14 +477,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
-		7828C108219A78100058A76D /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				7828C109219A78100058A76D /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
 		7828C10D219A78110058A76D /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (

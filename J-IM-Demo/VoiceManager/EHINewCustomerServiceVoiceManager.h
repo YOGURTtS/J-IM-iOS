@@ -28,13 +28,16 @@
 @property (nonatomic, assign) BOOL isCancelSendAudioMessage;
 
 /** 开始录音 */
-- (void)audioStart;
+- (void)audioRecordStart;
 
 /** 结束录音 */
-- (void)audioStop;
+- (void)audioRecordStop;
 
 /** 结束录音回调 */
 @property (nonatomic, copy) void (^finishRecord)(NSData *amrdData, NSString *wavFilePath);
+
+/** 判断是否正在录音 */
+- (BOOL)isRecording;
 #pragma mark - 录音相关
 
 #pragma mark - 播放录音相关

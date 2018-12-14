@@ -21,11 +21,10 @@
             return EHIPacketTypeNormalMessage;
         case COMMAND_HEARTBEAT_REQ: // 心跳
             return EHIPacketTypeHeartbeatMessage;
-        case COMMAND_LOGIN_REQ: // 登录
-            return EHIPacketTypeLoginMessage;
-            //        case COMMAND_HEARTBEAT_REQ: // 客服接受、拒绝、设置状态、最大接入人数、连接方式
-            //            ACKCmd = COMMAND_HEARTBEAT_REQ; // 心跳
-            //            break;
+            // TODO: ACK确认
+//        case COMMAND_CHAT_RESP:  // 信息ACK
+//        case COMMAND_LOGIN_RESP: // 登录ACK
+         
             
         default:
             return 0;

@@ -13,8 +13,9 @@
 #import "EHISocketManager.h"
 #import "EHICustomerServiceModel.h"
 #import "EHINewCustomerServiceVoiceManager.h"
-#import <TZImagePickerController.h>
 #import "EHINewCustomerServiceCacheManager.h"
+#import <TZImagePickerController.h>
+#import <IQKeyboardManager.h>
 
 
 @interface EHINewCustomerServiceControllerViewController () <UITableViewDelegate, UITableViewDataSource, EHISocketManagerProcotol>
@@ -45,11 +46,13 @@
 
 @end
 
+
 @implementation EHINewCustomerServiceControllerViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    
     self.navigationItem.title = @"在线客服";
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"连接" style:UIBarButtonItemStylePlain target:self action:@selector(connectSocket)];
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"断开" style:UIBarButtonItemStylePlain target:self action:@selector(disconnectSocket)];
@@ -57,26 +60,80 @@
     [self setupUI];
 }
 
+- (void)viewWillAppear:(BOOL)animated {
+    //TODO: 页面appear 禁用
+    [[IQKeyboardManager sharedManager] setEnableAutoToolbar:NO];
+    [[IQKeyboardManager sharedManager] setEnable:NO];
+    //启用监听
+    [self registerForKeyboardNotifications];
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+    //TODO: 页面Disappear 启用
+    [[IQKeyboardManager sharedManager] setEnableAutoToolbar:YES];
+    //TODO: 页面Disappear 启用
+    [[IQKeyboardManager sharedManager] setEnable:YES];
+    //关闭监听
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+/** 注册键盘监听的通知 */
+- (void)registerForKeyboardNotifications {
+    // 使用NSNotificationCenter 键盘出现时
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillChangeFrameNotification object:nil];
+    // 使用NSNotificationCenter 键盘隐藏时
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
+}
+
+/** 键盘显示的时候 */
+- (void)keyboardWillShow:(NSNotification*)aNotification {
+    NSDictionary *info = [aNotification userInfo];
+    CGFloat duration = [[info objectForKey:UIKeyboardAnimationDurationUserInfoKey] floatValue];
+    NSValue *value = [info objectForKey:UIKeyboardFrameEndUserInfoKey];
+    CGSize keyboardSize = [value CGRectValue].size;
+    // 输入框位置动画加载
+    [UIView animateWithDuration:duration animations:^{
+        // 将输入框位置提高
+        self.tableView.transform = CGAffineTransformMakeTranslation(0, -keyboardSize.height);
+        self.bottomView.transform = CGAffineTransformMakeTranslation(0, -keyboardSize.height);
+    }];
+}
+
+/** 当键盘隐藏的时候 */
+- (void)keyboardWillHide:(NSNotification*)aNotification {
+    // 将输入框位置还原
+    self.tableView.transform = CGAffineTransformIdentity;
+    self.bottomView.transform = CGAffineTransformIdentity;
+}
+
 - (void)setupUI {
+    
+    self.view.backgroundColor = [UIColor whiteColor];
+    [self.view addSubview:self.topLabel];
     [self.view addSubview:self.bottomView];
     [self.view addSubview:self.tableView];
     [self.view addSubview:self.recordTipImgView];
+    [self.view bringSubviewToFront:self.topLabel];
+    
+    self.topLabel.frame = CGRectMake(0, CGRectGetHeight(self.navigationController.navigationBar.frame) + CGRectGetHeight([UIApplication sharedApplication].statusBarFrame), [UIScreen mainScreen].bounds.size.width, 25);
     
     CGFloat bottomViewHeight = 87.f;
     self.bottomView.frame = CGRectMake(0, [UIScreen mainScreen].bounds.size.height - bottomViewHeight - [EHINewCustomerSeerviceTools getBottomDistance], [UIScreen mainScreen].bounds.size.width, bottomViewHeight + [EHINewCustomerSeerviceTools getBottomDistance]);
-    self.tableView.frame = CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height - CGRectGetHeight(self.bottomView.frame));
+    self.tableView.frame = CGRectMake(0, CGRectGetMaxY(self.topLabel.frame), [UIScreen mainScreen].bounds.size.width, CGRectGetHeight(self.view.frame) - CGRectGetHeight(self.navigationController.navigationBar.frame) - CGRectGetHeight([UIApplication sharedApplication].statusBarFrame) - CGRectGetHeight(self.topLabel.frame) - CGRectGetHeight(self.bottomView.frame));
 }
 
 #pragma mark - about socket
 
 /** 连接socket */
 - (void)connectSocket {
-    [self.socketManager connect];
+    [self.socketManager connectWithCustomerId:@"114"];
 }
 
 /** 断开连接socket */
 - (void)disconnectSocket {
     [self.socketManager disconnect];
+    [self.messageArrayM removeAllObjects];
+    [self.tableView reloadData];
 }
 
 #pragma mark - UITableViewDataSource
@@ -113,6 +170,25 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     [tableView deselectRowAtIndexPath:indexPath animated:true];
+}
+
+#pragma mark - socket manager delegate
+
+- (void)socketManeger:(EHISocketManager *)socketManager didReceiveMessage:(EHISocketNormalMessage *)message {
+    NSLog(@"message content = %@", message.content);
+}
+
+- (void)socketManeger:(EHISocketManager *)socketManager didConnectToHost:(NSString *)host port:(uint16_t)port {
+    NSString *loginName = @"111";
+    [self.socketManager sendLoginMessagaWithLoginName:loginName password:loginName token:loginName success:^{
+        
+    } failure:^(NSError *error) {
+        
+    }];
+}
+
+- (void)socketManeger:(EHISocketManager *)socketManager socketDidDisconnectWithError:(NSError *)error {
+    NSLog(@"socketDidDisconnectWithError, error = %@", error);
 }
 
 
@@ -195,7 +271,7 @@
     [self.messageArrayM addObject:model];
     [self.tableView reloadData];
     [self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:self.messageArrayM.count - 1 inSection:0] atScrollPosition:UITableViewScrollPositionBottom animated:YES];
-    [self.socketManager sendText:text success:^{
+    [self.socketManager sendText:text from:@"114" to:@"10100" extras:nil success:^{
         
     } failure:^(NSError *error) {
         
@@ -233,7 +309,7 @@
 
 /** 获取图片并发送 */
 - (void)getPictures {
-    TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:9 delegate:nil];
+    TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:6 delegate:nil];
     imagePickerVc.allowPickingGif = NO;
     imagePickerVc.allowPickingVideo = NO;
     __weak typeof(self) weakSelf = self;
@@ -335,6 +411,7 @@
     if (!_topLabel) {
         _topLabel = [[UILabel alloc] init];
         
+        _topLabel.text = @"交谈中...";
         _topLabel.backgroundColor = [UIColor colorWithRed:234.0 / 255.0 green:234.0 / 255.0 blue:234.0 / 255.0 alpha:1];
         _topLabel.font = [UIFont systemFontOfSize:12.f weight:UIFontWeightRegular];
         _topLabel.textColor = [UIColor colorWithRed:123/255.0 green:123/255.0 blue:123/255.0 alpha:1.0];
@@ -367,7 +444,6 @@
             [self sendVoiceMessage:amrdData wavFilePath:wavFilePath];
         };
         
-        
         // 发送图片消息
         _bottomView.sendPictureCallback = ^(UIImage *image) {
             __strong typeof(weakSelf)self = weakSelf;
@@ -394,6 +470,9 @@
         _tableView.dataSource = self;
         _tableView.delegate = self;
         [_tableView registerClass:[EHICustomerServiceCell class] forCellReuseIdentifier:@"EHICustomerServiceCell"];
+        
+        UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self.view action:@selector(endEditing:)];
+        [_tableView addGestureRecognizer:tap];
     }
     return _tableView;
 }
