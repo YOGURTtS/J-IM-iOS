@@ -105,6 +105,7 @@
 - (BOOL)deleteAllMessages {
     NSString *sqlStr = [NSString stringWithFormat:
                         SQL_DELETE_ALL_MESSAGES,
+                        NEWCUSTOMERSERVICE_TABLE_NAME,
                         NEWCUSTOMERSERVICE_TABLE_NAME];
     BOOL ok = [self excuteSQL:sqlStr];
     return ok;
@@ -119,13 +120,13 @@
                            YES];
     [self excuteQuerySQL:sqlString resultBlock:^(FMResultSet *retSet) {
         while ([retSet next]) {
-            NSString *time = [retSet stringForColumn:@"create_time"];
+            int msg_id = [retSet intForColumn:@"msg_id"];
             NSString *sqlStr = [NSString stringWithFormat:
                                 SQL_UPDATE_ANONYMOUS_MESSAGE,
                                 NEWCUSTOMERSERVICE_TABLE_NAME,
                                 NO,
                                 userId,
-                                time];
+                                msg_id];
             ok = [self excuteSQL:sqlStr];
         }
         [retSet close];

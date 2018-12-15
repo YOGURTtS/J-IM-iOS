@@ -13,8 +13,9 @@
 #define     NEWCUSTOMERSERVICE_TABLE_NAME                @"customer_service_message"
 
 #define     SQL_CREATE_NEWCUSTOMERSERVICE_TABLE        @"CREATE TABLE IF NOT EXISTS %@(\
+msg_id INTEGER PRIMARY KEY NOT NULL AUTOINCREMENT,\
 is_anonymous_message INTEGER,\
-user_id TEXT,\
+user_id VARCHAR(255),\
 from_type INTEGER,\
 message_status INTEGER,\
 message_type INTEGER,\
@@ -30,8 +31,7 @@ ext1 TEXT,\
 ext2 TEXT,\
 ext3 TEXT,\
 ext4 TEXT,\
-ext5 TEXT,\
-PRIMARY KEY(user_id,create_time))"
+ext5 TEXT);"
 
 #define     NEWCUSTOMERSERVICE_ADD_MESSAGE             @"REPLACE INTO %@ ( \
 is_anonymous_message,\
@@ -61,16 +61,17 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
 #define SQL_SELECT_USERID_MESSAGE @"SELECT * FROM %@ WHERE user_id = %@"
 
 /** 查询 指定用户ID最后一条记录 */
-#define SQL_SELECT_USERID_LAST_MESSAGE @"SELECT TOP 1 * from %@ WHERE user_id = %@ ORDER BY create_time DESC"
+#define SQL_SELECT_USERID_LAST_MESSAGE @"SELECT * from %@ WHERE user_id = %@ ORDER BY msg_id DESC LIMIT 1"
 
 /** 删除 匿名 消息 */
 #define SQL_DELETE_ANONYMOUS_MESSAGE @"DELETE * FROM %@ WHERE is_anonymous_message = %d"
 
 /** 删除 所有消息 */
-#define SQL_DELETE_ALL_MESSAGES @"TRUNCATE TABLE %@"
+#define SQL_DELETE_ALL_MESSAGES @"UPDATE sqlite_sequence SET seq = 0 WHERE name = %@;\
+DELETE FROM %@;"
 
 /** 更新 转换匿名信息为某一用户ID下的信息 */
-#define SQL_UPDATE_ANONYMOUS_MESSAGE @"UPDATE %@ SET is_anonymous_message = '%d', user_id = '%@' WHERE create_time = %@"
+#define SQL_UPDATE_ANONYMOUS_MESSAGE @"UPDATE %@ SET is_anonymous_message = '%d', user_id = '%@' WHERE msg_id = %d"
 
 
 #endif /* EHINewCustomerServiceSQL_h */
