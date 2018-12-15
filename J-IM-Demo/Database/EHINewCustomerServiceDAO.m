@@ -32,22 +32,26 @@
     NSString *sqlString = [NSString stringWithFormat:NEWCUSTOMERSERVICE_ADD_MESSAGE, NEWCUSTOMERSERVICE_TABLE_NAME];
     NSArray *arrPara = [NSArray arrayWithObjects:
                         @(message.isAnonymousMessage),
-                        message.userId,
+                        [NSString stringWithFormat:@"%@", message.userId  ?: @""],
                         @(message.fromType),
                         @(message.messageStatus),
                         @(message.messageType),
-                        message.text,
-                        message.voiceUrl,
+                        [NSString stringWithFormat:@"%@", message.text ?: @""],
+                        [NSString stringWithFormat:@"%@", message.voiceUrl ?: @""],
                         @(message.playStatus),
                         @(message.millisecondsPlayed),
-                        message.pictureUrl,
-                        message.time,
+                        [NSString stringWithFormat:@"%@", message.picture ?: @""],
+                        [NSString stringWithFormat:@"%@", message.time ?: @""],
                         @(message.chatContentSize.height),
                         @(message.chatContentSize.width),
                         @"", @"", @"",
                         @"", @"", nil];
     BOOL ok = [self excuteSQL:sqlString withArrParameter:arrPara];
-    NSLog(@"插入聊天记录到数据库");
+    if (ok) {
+        NSLog(@"插入聊天记录到数据库成功");
+    } else {
+        NSLog(@"插入聊天记录到数据库失败");
+    }
     return ok;
 }
 

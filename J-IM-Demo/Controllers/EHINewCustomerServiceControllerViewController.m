@@ -11,6 +11,7 @@
 #import "EHICustomerServiceCell.h"
 #import "EHINewCustomerSeerviceTools.h"
 #import "EHISocketManager.h"
+#import "EHINewCustomerServiceDAO.h"
 #import "EHICustomerServiceModel.h"
 #import "EHINewCustomerServiceVoiceManager.h"
 #import "EHINewCustomerServiceCacheManager.h"
@@ -35,6 +36,9 @@
 /** socket管理器 */
 @property (nonatomic, strong) EHISocketManager *socketManager;
 
+/** 数据库对象 */
+@property (nonatomic, strong) EHINewCustomerServiceDAO *dao;
+
 /** 消息数组 */
 @property (nonatomic, strong) NSMutableArray<EHICustomerServiceModel *> *messageArrayM;
 
@@ -58,6 +62,7 @@
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"断开" style:UIBarButtonItemStylePlain target:self action:@selector(disconnectSocket)];
     
     [self setupUI];
+    [self loadHistoryMessages];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -276,6 +281,9 @@
     } failure:^(NSError *error) {
         
     }];
+    
+    // TODO: 插入数据表
+    [self.dao addMessage:model];
 }
 
 - (void)sendVoiceMessage:(NSData *)data wavFilePath:(NSString *)filePath {
@@ -297,6 +305,7 @@
         [self.messageArrayM addObject:model];
         [self.tableView reloadData];
         [self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:self.messageArrayM.count - 1 inSection:0] atScrollPosition:UITableViewScrollPositionBottom animated:YES];
+        [self.dao addMessage:model];
     }];
     
     
@@ -332,7 +341,7 @@
         model.ratio = image.size.width / image.size.height;
         model.time = [self currentDateStr];
         [self.messageArrayM addObject:model];
-        
+        [self.dao addMessage:model];
     }
     [self.tableView reloadData];
     [self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:self.messageArrayM.count - 1 inSection:0] atScrollPosition:UITableViewScrollPositionBottom animated:YES];
@@ -369,6 +378,17 @@
         
     }
 }
+
+#pragma mark - about database
+
+/** 加载历史信息 */
+- (void)loadHistoryMessages {
+    [self.dao getAnonymousMessageWithCompletion:^(NSArray * _Nonnull array) {
+        [self.messageArrayM addObjectsFromArray:array];
+        [self.tableView reloadData];
+    }];
+}
+
 
 #pragma mark - cache voice and picture
 
@@ -495,6 +515,13 @@
         _socketManager.delegate = self;
     }
     return _socketManager;
+}
+
+- (EHINewCustomerServiceDAO *)dao {
+    if (!_dao) {
+        _dao = [[EHINewCustomerServiceDAO alloc] init];
+    }
+    return _dao;
 }
 
 - (NSMutableArray<EHICustomerServiceModel *> *)messageArrayM {

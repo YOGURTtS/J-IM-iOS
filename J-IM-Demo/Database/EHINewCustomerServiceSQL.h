@@ -10,10 +10,10 @@
 #define EHINewCustomerServiceSQL_h
 
 /** 创建框架总表(聊天分类) */
-#define     NEWCUSTOMERSERVICE_TABLE_NAME                @"customer_service_message"
+#define     NEWCUSTOMERSERVICE_TABLE_NAME              @"customer_service_message"
 
 #define     SQL_CREATE_NEWCUSTOMERSERVICE_TABLE        @"CREATE TABLE IF NOT EXISTS %@(\
-msg_id INTEGER PRIMARY KEY NOT NULL AUTOINCREMENT,\
+msg_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\
 is_anonymous_message INTEGER,\
 user_id VARCHAR(255),\
 from_type INTEGER,\
