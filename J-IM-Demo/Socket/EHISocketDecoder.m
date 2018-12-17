@@ -62,7 +62,7 @@
     // 获取消息体
     NSData *bodyData = [data subdataWithRange:NSMakeRange(7, packet.bodyLength)];
     packet.body = bodyData;
-    NSLog(@"bodyJson = %@", [[NSString alloc] initWithData:packet.body encoding:NSUTF8StringEncoding]);
+    NSLog(@"收到消息 bodyJson = %@", [[NSString alloc] initWithData:packet.body encoding:NSUTF8StringEncoding]);
     
     return packet;
 }

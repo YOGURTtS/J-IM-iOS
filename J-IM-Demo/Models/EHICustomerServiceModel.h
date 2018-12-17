@@ -18,9 +18,10 @@ typedef NS_ENUM(NSInteger, EHIMessageFromType) {
 
 /** 消息状态 */
 typedef NS_ENUM(NSInteger, EHIMessageStatus) {
-    EHIMessageStatusSending = 0, /// 发送中
-    EHIMessageStatusFailed  = 1, /// 发送失败
-    EHIMessageStatusSuccess = 2  /// 发送成功
+    EHIMessageStatusSending = 0,    /// 发送中
+    EHIMessageStatusFailed  = 1,    /// 发送失败
+    EHIMessageStatusSuccess = 2,    /// 发送成功
+    EHIMessageStatusReceived = 3    /// 接收成功
 };
 
 /** 语音播放状态 */

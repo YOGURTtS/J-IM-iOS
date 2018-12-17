@@ -79,8 +79,9 @@ static dispatch_once_t onceToken;
                 [data writeToFile:recordFilePath atomically:YES];
                 filePath = recordFilePath;
             }
-            
+            __weak typeof(self) weakSelf = self;
             [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                __strong typeof(weakSelf) self = weakSelf;
                 // UI更新代码
                 NSLog(@"current thread = %@", [NSThread currentThread]);
                 NSInteger seconds = [self getVoiceDurationWithFilePath:filePath];

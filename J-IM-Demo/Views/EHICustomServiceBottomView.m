@@ -59,8 +59,6 @@
     [self.textOrSendVoiceView addSubview:self.voiceButton];
     
     [self setupQuickEntrancesView];
-    
-    self.inputType = EHICustomServiceInputTypeText;
 }
 
 - (void)layoutSubviews {
@@ -182,9 +180,11 @@
         [self.voiceButton setTitle:@"按住说话" forState:UIControlStateNormal];
         self.voiceButton.backgroundColor = [UIColor whiteColor];
         
+        // 停止录音
+        [self.voiceManager audioRecordStop];
+        
         if (!self.voiceManager.isCancelSendAudioMessage) { // 未取消录音
-            // 停止录音
-            [self.voiceManager audioRecordStop];
+           
             //
         } else { // 取消录音
             // 加震动
@@ -234,6 +234,7 @@
         self.textView.hidden = NO;
         self.voiceButton.hidden = YES;
         [self.switchToVoiceOrTextButton setImage:[UIImage imageNamed:@"new_customer_service_send_voice"] forState:UIControlStateNormal];
+        [self.textView becomeFirstResponder];
     } else {
         self.textView.hidden = YES;
         self.voiceButton.hidden = NO;
@@ -268,6 +269,8 @@
     if (!_switchToVoiceOrTextButton) {
         _switchToVoiceOrTextButton = [UIButton buttonWithType:UIButtonTypeCustom];
         
+        // 默认为文字输入形式，所以显示切换录音按钮图片
+         [_switchToVoiceOrTextButton setImage:[UIImage imageNamed:@"new_customer_service_send_voice"] forState:UIControlStateNormal];
         [_switchToVoiceOrTextButton addTarget:self action:@selector(switchToVoiceOrText) forControlEvents:UIControlEventTouchUpInside];
     }
     return _switchToVoiceOrTextButton;
@@ -293,6 +296,8 @@
         _voiceButton.titleLabel.font = [UIFont systemFontOfSize:16.f weight:UIFontWeightSemibold];
         [_voiceButton setTitle:@"按住说话" forState:UIControlStateNormal];
         [_voiceButton setTitleColor:[UIColor colorWithRed:123/255.0 green:123/255.0 blue:123/255.0 alpha:1.0] forState:UIControlStateNormal];
+        // 默认显示文本框，录音按钮隐藏
+        _voiceButton.hidden = YES;
         
         // 增加长按手势
         UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longPress:)];

@@ -21,6 +21,8 @@
             return EHIPacketTypeNormalMessage;
         case COMMAND_HEARTBEAT_REQ: // 心跳
             return EHIPacketTypeHeartbeatMessage;
+            case COMMAND_CLOSE_REQ: // 关闭请求
+            return EHIPacketTypeCloseChatMessage;
             // TODO: ACK确认
 //        case COMMAND_CHAT_RESP:  // 信息ACK
 //        case COMMAND_LOGIN_RESP: // 登录ACK
@@ -43,7 +45,7 @@
     switch (type) {
         case EHIPacketTypeNormalMessage: // 普通聊天
         {
-            EHISocketNormalMessage *message = [EHISocketNormalMessage yy_modelWithJSON:packet.body];
+            EHISocketServiceMessage *message = [EHISocketServiceMessage yy_modelWithJSON:packet.body];
             
             return message;
         }
@@ -58,6 +60,13 @@
         case EHIPacketTypeLoginMessage: // 登录
         {
             EHISocketLoginMessage *message = [EHISocketLoginMessage yy_modelWithJSON:packet.body];
+            
+            return message;
+        }
+            break;
+        case EHIPacketTypeCloseChatMessage: // 请求关闭
+        {
+            EHISocketCloseChatMessage *message = [EHISocketCloseChatMessage yy_modelWithJSON:packet.body];
             
             return message;
         }

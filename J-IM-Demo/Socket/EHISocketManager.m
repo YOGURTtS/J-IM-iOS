@@ -150,11 +150,11 @@
     
     if (self.statusManager.readDataStatus == EHISocketReadDataStatusUnGetHeader) {
         
-        // 获取消息头出错
-        if (![self.decoder isHeaderLengthValid:data]) {
-            [self.socket readDataToLength:HEADER_LENGHT withTimeout:kSocketTimeout tag:tag];
-            return;
-        }
+//        // 获取消息头出错
+//        if (![self.decoder isHeaderLengthValid:data]) {
+//            [self.socket readDataToLength:HEADER_LENGHT withTimeout:kSocketTimeout tag:tag];
+//            return;
+//        }
         self.statusManager.readDataStatus = EHISocketReadDataStatusGetHeader;
         self.statusManager.headerData = data;
         // 获取消息头
@@ -170,8 +170,12 @@
     
     // 解码
     EHISocketPacket *packet = [self.decoder decode:completeData];
-    // 根据消息体中的"command"字段生产message对象
-    [self getVarietyOfMessagesWithPacket:packet];
+    __weak typeof(self) weakSelf = self;
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        __strong typeof(weakSelf) self = weakSelf;
+        // 根据消息体中的"command"字段生产message对象
+        [self getVarietyOfMessagesWithPacket:packet];
+    }];
     
     // 更改读取数据状态
     self.statusManager.readDataStatus = EHISocketReadDataStatusUnGetHeader;
@@ -185,12 +189,15 @@
 /** 当一个socket已完成请求数据的写入时候调用 */
 - (void)socket:(GCDAsyncSocket *)sock didWriteDataWithTag:(long)tag {
    
-    NSLog(@"写消息成功");
+    NSLog(@"写消息成功 线程 = %@", [NSThread currentThread]);
     
-    // 读取头部长度的数据
-    if (self.statusManager.isFirstSend) {
-        [self.socket readDataToLength:HEADER_LENGHT withTimeout:kSocketTimeout tag:tag];
-        self.statusManager.isFirstSend = false;
+    @synchronized (self.socket) {
+        // 读取头部长度的数据
+        if (self.statusManager.isFirstSend) {
+            NSLog(@"第一次读socket数据");
+            [self.socket readDataToLength:HEADER_LENGHT withTimeout:kSocketTimeout tag:tag];
+            self.statusManager.isFirstSend = false;
+        }
     }
 }
 
@@ -375,11 +382,15 @@
 /** 获取各种消息 */
 - (void)getVarietyOfMessagesWithPacket:(EHISocketPacket *)packet {
     switch ([EHISocketMessageFactory getPacketTypeWithPacket:packet]) {
-        case EHIPacketTypeNormalMessage:
+        case EHIPacketTypeNormalMessage: // 聊天消息
             if ([self.delegate respondsToSelector:@selector(socketManeger:didReceiveMessage:)]) {
                 [self.delegate socketManeger:self didReceiveMessage:[EHISocketMessageFactory getMessageWithPacket:packet]];
             }
             break;
+            case EHIPacketTypeCloseChatMessage: // 关闭请求
+            if ([self.delegate respondsToSelector:@selector(socketManeger:didReceiveCloseChatMessage:)]) {
+                [self.delegate socketManeger:self didReceiveCloseChatMessage:[EHISocketMessageFactory getMessageWithPacket:packet]];
+            }
             
         default:
             break;

@@ -39,6 +39,7 @@
                         [NSString stringWithFormat:@"%@", message.text ?: @""],
                         [NSString stringWithFormat:@"%@", message.voiceUrl ?: @""],
                         @(message.playStatus),
+                        @(message.voiceDuration),
                         @(message.millisecondsPlayed),
                         [NSString stringWithFormat:@"%@", message.picture ?: @""],
                         [NSString stringWithFormat:@"%@", message.time ?: @""],
@@ -166,6 +167,7 @@
     message.text = [retSet stringForColumn:@"text_content"];
     message.voiceUrl = [retSet stringForColumn:@"voice_url"];
     message.playStatus = [retSet intForColumn:@"play_status"];
+    message.voiceDuration = [retSet intForColumn:@"voice_duration"];
     message.millisecondsPlayed = [retSet doubleForColumn:@"milliseconds_played"];
     message.pictureUrl = [retSet stringForColumn:@"picture_url"];
     message.time = [retSet stringForColumn:@"create_time"];

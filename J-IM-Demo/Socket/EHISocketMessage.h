@@ -78,7 +78,49 @@ typedef NS_ENUM(int, EHIChatType) {
 
 @end
 
+/** 客服返回的聊天消息 */
 
+@class EHISocketServiceMessageData;
+@class EHISocketServiceMessageExtras;
+@interface EHISocketServiceMessage : NSObject <EHISocketMessage>
+
+/** 命令码 */
+@property (nonatomic, assign) EHISocketMessageCommand command;
+
+@property (nonatomic, strong) EHISocketServiceMessageData *data;
+
+@property (nonatomic, strong) NSDictionary *extras;
+
+@end
+
+@interface EHISocketServiceMessageData : NSObject
+
+/** 聊天类型 */
+@property (nonatomic, assign) EHIChatType chatType;
+
+@property (nonatomic, assign) EHISocketMessageCommand cmd;
+
+/** 内容 */
+@property (nonatomic, copy) NSString *content;
+
+/** 消息创建时间 */
+@property (nonatomic, assign) long createTime;
+
+@property (nonatomic, copy) NSString *from;
+
+@property (nonatomic, copy) NSString *id;
+
+@property (nonatomic, assign) EHIMessageType msgType;
+
+@property (nonatomic, copy) NSString *to;
+
+@end
+
+@interface EHISocketServiceMessageExtras : NSObject
+
+@property (nonatomic, copy) NSString *optSequence;
+
+@end
 
 /**
  登录消息

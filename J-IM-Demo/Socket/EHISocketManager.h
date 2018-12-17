@@ -15,7 +15,10 @@
 @protocol EHISocketManagerProcotol <NSObject>
 
 /** 接收到文字、语音、视频信息 */
-- (void)socketManeger:(EHISocketManager *)socketManager didReceiveMessage:(EHISocketNormalMessage *)message;
+- (void)socketManeger:(EHISocketManager *)socketManager didReceiveMessage:(EHISocketServiceMessage *)message;
+
+/** 接收关闭socket请求 */
+- (void)socketManeger:(EHISocketManager *)socketManager didReceiveCloseChatMessage:(EHISocketCloseChatMessage *)message;
 
 /** socket连接 */
 - (void)socketManeger:(EHISocketManager *)socketManager didConnectToHost:(NSString *)host port:(uint16_t)port;

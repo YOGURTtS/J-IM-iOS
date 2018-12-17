@@ -124,6 +124,7 @@
     
     CGFloat bottomViewHeight = 87.f;
     self.bottomView.frame = CGRectMake(0, [UIScreen mainScreen].bounds.size.height - bottomViewHeight - [EHINewCustomerSeerviceTools getBottomDistance], [UIScreen mainScreen].bounds.size.width, bottomViewHeight + [EHINewCustomerSeerviceTools getBottomDistance]);
+    
     self.tableView.frame = CGRectMake(0, CGRectGetMaxY(self.topLabel.frame), [UIScreen mainScreen].bounds.size.width, CGRectGetHeight(self.view.frame) - CGRectGetHeight(self.navigationController.navigationBar.frame) - CGRectGetHeight([UIApplication sharedApplication].statusBarFrame) - CGRectGetHeight(self.topLabel.frame) - CGRectGetHeight(self.bottomView.frame));
 }
 
@@ -131,7 +132,7 @@
 
 /** 连接socket */
 - (void)connectSocket {
-    [self.socketManager connectWithCustomerId:@"114"];
+    [self.socketManager connectWithCustomerId:@"101"];
 }
 
 /** 断开连接socket */
@@ -177,14 +178,77 @@
     [tableView deselectRowAtIndexPath:indexPath animated:true];
 }
 
-#pragma mark - socket manager delegate
-
-- (void)socketManeger:(EHISocketManager *)socketManager didReceiveMessage:(EHISocketNormalMessage *)message {
-    NSLog(@"message content = %@", message.content);
+/** 滚动到最后一行 */
+- (void)scrollToLastCell {
+    [self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:self.messageArrayM.count - 1 inSection:0] atScrollPosition:UITableViewScrollPositionBottom animated:YES];
 }
 
+#pragma mark - socket manager delegate
+
+/** 接收到聊天消息 */
+- (void)socketManeger:(EHISocketManager *)socketManager didReceiveMessage:(EHISocketServiceMessage *)message {
+    NSLog(@"message content = %@", message.data.content);
+    
+    // 切换到主线程
+    __weak typeof(self) weakSelf = self;
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        __strong typeof(weakSelf) self = weakSelf;
+        [self handleMessageFromService:message];
+    }];
+    
+}
+
+/** 接收关闭socket请求 */
+- (void)socketManeger:(EHISocketManager *)socketManager didReceiveCloseChatMessage:(EHISocketCloseChatMessage *)message {
+    NSLog(@"message command = %d", message.cmd);
+}
+
+/** 处理收到的客服消息 */
+- (void)handleMessageFromService:(EHISocketServiceMessage *)message {
+    EHICustomerServiceModel *model = [[EHICustomerServiceModel alloc] init];
+    model.isAnonymousMessage = YES;
+    model.time = [NSString stringWithFormat:@"%zd", message.data.createTime];
+    model.fromType = EHIMessageFromTypeReceiver;
+    model.messageType = message.data.msgType;
+    model.messageStatus = EHIMessageStatusReceived;
+    switch (message.data.msgType) {
+        case EHIMessageTypeText:
+            model.text = message.data.content;
+            [self.messageArrayM addObject:model];
+            [self.tableView reloadData];
+            [self scrollToLastCell];
+            [self.dao addMessage:model];
+            break;
+        case EHIMessageTypePicture:
+        {
+            model.pictureUrl = message.data.content;
+        }
+            break;
+        case EHIMessageTypeVoice:
+        {
+            model.voiceUrl = message.data.content;
+            // 缓存
+            __weak typeof(self) weakSelf = self;
+            [self.voiceCacheManager cacheVoiceWithUrl:model.pictureUrl completion:^(NSString *filePath, NSInteger duration) {
+                __strong typeof(weakSelf) self = weakSelf;
+                model.voiceDuration = duration;
+                [self.messageArrayM addObject:model];
+                [self.tableView reloadData];
+                [self scrollToLastCell];
+                [self.dao addMessage:model];
+            }];
+        }
+            break;
+            
+        default:
+            break;
+    }
+}
+
+/** socket连接成功 */
 - (void)socketManeger:(EHISocketManager *)socketManager didConnectToHost:(NSString *)host port:(uint16_t)port {
-    NSString *loginName = @"111";
+    // 发送登录消息
+    NSString *loginName = @"101";
     [self.socketManager sendLoginMessagaWithLoginName:loginName password:loginName token:loginName success:^{
         
     } failure:^(NSError *error) {
@@ -192,10 +256,10 @@
     }];
 }
 
+/** 和socket断开连接 */
 - (void)socketManeger:(EHISocketManager *)socketManager socketDidDisconnectWithError:(NSError *)error {
     NSLog(@"socketDidDisconnectWithError, error = %@", error);
 }
-
 
 #pragma mark - about voice
 
@@ -265,6 +329,7 @@
 
 #pragma mark - send message
 
+/** 发送文字 */
 - (void)sendtextMessage:(NSString *)text {
     EHICustomerServiceModel *model = [[EHICustomerServiceModel alloc] init];
     model.isAnonymousMessage = YES;
@@ -275,8 +340,8 @@
     model.time = [self currentDateStr];
     [self.messageArrayM addObject:model];
     [self.tableView reloadData];
-    [self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:self.messageArrayM.count - 1 inSection:0] atScrollPosition:UITableViewScrollPositionBottom animated:YES];
-    [self.socketManager sendText:text from:@"114" to:@"10100" extras:nil success:^{
+    [self scrollToLastCell];
+    [self.socketManager sendText:text from:@"101" to:@"10100" extras:nil success:^{
         
     } failure:^(NSError *error) {
         
@@ -286,6 +351,7 @@
     [self.dao addMessage:model];
 }
 
+/** 发送录音 */
 - (void)sendVoiceMessage:(NSData *)data wavFilePath:(NSString *)filePath {
     // TODO: 上传音频
     
@@ -304,7 +370,7 @@
         model.voiceDuration = duration;
         [self.messageArrayM addObject:model];
         [self.tableView reloadData];
-        [self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:self.messageArrayM.count - 1 inSection:0] atScrollPosition:UITableViewScrollPositionBottom animated:YES];
+        [self scrollToLastCell];
         [self.dao addMessage:model];
     }];
     
@@ -344,7 +410,7 @@
         [self.dao addMessage:model];
     }
     [self.tableView reloadData];
-    [self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:self.messageArrayM.count - 1 inSection:0] atScrollPosition:UITableViewScrollPositionBottom animated:YES];
+    [self scrollToLastCell];
 }
 
 /** 获取当前时间 */
@@ -368,14 +434,15 @@
     
     // TODO: 调接口获取消息列表
     
-    // TODO: 数据添加到数据库中
+    // TODO: 在接口回调中将数据添加到数据库中
+    [self addMessagesToDatabase:nil];
 }
 
 /** 消息插入数据表 */
-- (void)addMessagesToDatabase {
-    for (EHICustomerServiceModel *model in self.messageArrayM) {
+- (void)addMessagesToDatabase:(NSArray<EHICustomerServiceModel *> *)messages {
+    for (EHICustomerServiceModel *model in messages) {
         // TODO: 将消息逐条插入数据表
-        
+        [self.dao addMessage:model];
     }
 }
 
@@ -386,6 +453,7 @@
     [self.dao getAnonymousMessageWithCompletion:^(NSArray * _Nonnull array) {
         [self.messageArrayM addObjectsFromArray:array];
         [self.tableView reloadData];
+        [self scrollToLastCell];
     }];
 }
 

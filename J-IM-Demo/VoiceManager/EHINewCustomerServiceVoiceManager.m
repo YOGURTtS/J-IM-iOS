@@ -111,7 +111,8 @@ static EHINewCustomerServiceVoiceManager *instance;
         return;
     }
     
-    if (self.finishRecord) {
+    /** 录制完成并且用户没有取消发送 */
+    if (self.finishRecord && !self.isCancelSendAudioMessage) {
         self.finishRecord(cacheAudioData, wavRecordFilePath);
     }
 }

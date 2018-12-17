@@ -22,6 +22,7 @@ message_type INTEGER,\
 text_content TEXT,\
 voice_url TEXT,\
 play_status INTEGER,\
+voice_duration INTEGER,\
 milliseconds_played REAL,\
 picture_url TEXT,\
 create_time TEXT,\
@@ -42,13 +43,14 @@ message_type,\
 text_content,\
 voice_url,\
 play_status,\
+voice_duration,\
 milliseconds_played,\
 picture_url,\
 create_time,\
 chat_content_height,\
 chat_content_width,\
 ext1, ext2, ext3, ext4, ext5)\
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
 
 
 /** 查询 指定时间和用户ID 消息 */

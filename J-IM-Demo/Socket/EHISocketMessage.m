@@ -12,6 +12,25 @@
 
 @end
 
+@implementation EHISocketServiceMessage
+
++ (NSDictionary *)modelContainerPropertyGenericClass {
+    return @{
+             @"data" : [EHISocketServiceMessageData class],
+//             @"extras" : [EHISocketServiceMessageExtras class]
+             };
+}
+
+@end
+
+@implementation EHISocketServiceMessageData
+
+@end
+
+@implementation EHISocketServiceMessageExtras
+
+@end
+
 @implementation EHISocketLoginMessage
 
 @end
