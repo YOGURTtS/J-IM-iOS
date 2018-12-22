@@ -21,15 +21,6 @@
 /** 播放器 */
 @property (nonatomic, strong) AVPlayer *audioPlayer;
 
-///** 进度计时器 */
-//@property (nonatomic, strong) dispatch_source_t timer;
-
-///** 播放进度 单位：毫秒 */
-//@property (nonatomic, assign) CGFloat milliseconds;
-
-///** 上一个url */
-//@property (nonatomic, strong) NSURL *lastUrl;
-
 /** 正在播放语音的url */
 @property (nonatomic, strong) NSURL *currentUrl;
 
@@ -139,19 +130,6 @@ static EHINewCustomerServiceVoiceManager *instance;
     NSError *error = nil;
     [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error:&error];
     
-//    if (self.currentUrl) {
-//        self.lastUrl = self.currentUrl;
-//    }
-//    self.currentUrl = url;
-    
-//    if (self.lastUrl) {
-//        AVPlayerItem *playerItem = [AVPlayerItem playerItemWithURL:self.lastUrl];
-//        [self.audioPlayer replaceCurrentItemWithPlayerItem:playerItem];
-//        if (self.pause) {
-//            self.pause(self.lastUrl, self.milliseconds);
-//        }
-//    }
-    
     // 播放前重置播放器相关状态
     [self resetAudioPlayerStatus];
     
@@ -161,48 +139,24 @@ static EHINewCustomerServiceVoiceManager *instance;
     
     self.currentUrl = url;
     
-#pragma mark - 本地音频
     
-    NSLog(@"播放音频url = %@", url);
+    AVPlayerItem *playerItem = [AVPlayerItem playerItemWithURL:url];
+    [self.audioPlayer replaceCurrentItemWithPlayerItem:playerItem];
+    [self.audioPlayer play];
     
-//    if ([url.scheme hasPrefix:@"file"]) {
-        AVPlayerItem *playerItem = [AVPlayerItem playerItemWithURL:url];
-        [self.audioPlayer replaceCurrentItemWithPlayerItem:playerItem];
-        [self.audioPlayer play];
-
-        self.currentUrl = url;
-        return;
-//    }
-    
-//#pragma mark - 在线音频
-//    __weak typeof(self) weakSelf = self;
-//    [self.cacheManager cacheVoiceWithUrl:[url absoluteString] completion:^(NSString *filePath, NSInteger duration) {
-//        __strong typeof(weakSelf) self = weakSelf;
-//
-//        AVPlayerItem *playerItem = [AVPlayerItem playerItemWithURL:[NSURL fileURLWithPath:filePath]];
-//        [self.audioPlayer replaceCurrentItemWithPlayerItem:playerItem];
-//        [self.audioPlayer play];
-//
-//        self.currentUrl = url;
-//    }];
-    
-//    [self startTimer];
+    self.currentUrl = url;
+    return;
 }
 
 /** 暂停播放 */
 - (void)pausePlayWithUrl:(NSURL *)url completion:(void (^)(CGFloat seconds))completion {
     [self.audioPlayer pause];
-//    [self suspendTimer];
     CGFloat current = CMTimeGetSeconds(self.audioPlayer.currentTime) / 1000.0;
     completion(current);
 }
 
 /** 继续播放 */
 - (void)resumePlayWithUrl:(NSURL *)url time:(CGFloat)milliseconds {
-    
-//    if (self.currentUrl) {
-//        self.lastUrl = self.currentUrl;
-//    }
     
     // 当前播放器正在播放其他语音
     if (self.audioPlayer.rate && self.audioPlayer.error == nil) {
@@ -226,18 +180,6 @@ static EHINewCustomerServiceVoiceManager *instance;
     
     self.currentUrl = url;
     
-//    if (self.lastUrl) {
-//        AVPlayerItem *playerItem = [AVPlayerItem playerItemWithURL:self.lastUrl];
-//        [self.audioPlayer replaceCurrentItemWithPlayerItem:playerItem];
-//        if (self.pause) {
-//            self.pause(self.lastUrl, self.milliseconds);
-//        }
-//    }
-    
-
-
-    
-//    self.milliseconds = milliseconds;
     // 获取model的播放进度
     CMTime time = CMTimeMakeWithSeconds(milliseconds, 600);
     __weak typeof(self) weakSelf = self;
@@ -246,12 +188,10 @@ static EHINewCustomerServiceVoiceManager *instance;
         [self.audioPlayer play];
     }];
     
-//    [self startTimer];
 }
 
 /** 停止播放 */
 - (void)stopPlayWithUrl:(NSURL *)url {
-//    [self suspendTimer];
     [self.audioPlayer pause];
 }
 
@@ -265,31 +205,10 @@ static EHINewCustomerServiceVoiceManager *instance;
 /** 重置语音播放器状态 */
 - (void)resetAudioPlayerStatus {
     if (self.audioPlayer) {
-//        [self suspendTimer];
         [self.audioPlayer pause];
-//        self.audioPlayer = nil;
-//        self.milliseconds = .0f;
     }
 }
 
-#pragma mark - about timer 用来记录播放进度
-
-///** 开始计时器 */
-//- (void)startTimer {
-//    __weak typeof(self) weakSelf = self;
-//    dispatch_source_set_timer(self.timer, dispatch_walltime(NULL, 0), 0.001 * NSEC_PER_SEC, 0); // 每毫秒执行
-//        dispatch_source_set_event_handler(_timer, ^{
-//            __strong typeof(weakSelf) self = weakSelf;
-//            self.milliseconds += 0.001;
-//        });
-//
-//        dispatch_resume(self.timer);
-//}
-
-///** 停止计时器 */
-//- (void)suspendTimer {
-//    dispatch_suspend(self.timer);
-//}
 
 #pragma mark - lazy load
 
@@ -337,14 +256,6 @@ static EHINewCustomerServiceVoiceManager *instance;
     return _audioPlayer;
 }
 
-//- (dispatch_source_t)timer {
-//    if (!_timer) {
-//        dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-//        _timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue);
-//    }
-//    return _timer;
-//}
-
 - (EHINewCustomerServiceCacheManager *)cacheManager {
     if (!_cacheManager) {
         _cacheManager = [EHINewCustomerServiceCacheManager sharedInstance];
@@ -356,7 +267,6 @@ static EHINewCustomerServiceVoiceManager *instance;
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-//    dispatch_source_cancel(self.timer);
 }
 
 

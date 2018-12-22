@@ -10,13 +10,6 @@
 
 #import <UIKit/UIKit.h>
 
-///** 语音管理器播放状态 */
-//typedef NS_ENUM(NSInteger, EHIVoiceManagerPlayStatus) {
-//    EHIVoiceManagerPlayStatusUnplay,    /// 未播放
-//    EHIVoiceManagerPlayStatusIsPlaying, /// 正在播放
-//    EHIVoiceManagerPlayStatusPause,     /// 暂停
-//    EHIVoiceManagerPlayStatusFinish     /// 播放完成
-//};
 
 @interface EHINewCustomerServiceVoiceManager : NSObject
 

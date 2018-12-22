@@ -42,7 +42,7 @@ static dispatch_once_t onceToken;
 
 /** 缓存语音，返回语音路径 */
 - (void)cacheVoiceWithUrl:(NSString *)url completion:(void (^)(NSString *filePath, NSInteger duration))completion {
-    // 先判断本地沙盒是否已经存在图像，存在直接获取，不存在再下载，下载后保存
+    // 先判断本地沙盒是否已经存在语音，存在直接获取，不存在再下载，下载后保存
     // 存在沙盒的Caches的子文件夹DownloadImages中
     NSString *voiceFilePath = [self loadLocalVoiceFilePath:url];
     NSData *voiceData = [NSData dataWithContentsOfFile:voiceFilePath];
@@ -117,7 +117,7 @@ static dispatch_once_t onceToken;
 }
 
 
-#pragma mark - about picture cache
+#pragma mark - picture cache
 
 /** 缓存图片，返回图片 */
 - (void)cachePictureWithUrl:(NSString *)url completion:(void (^)(UIImage *image))completion {
