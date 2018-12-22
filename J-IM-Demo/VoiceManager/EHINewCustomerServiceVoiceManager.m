@@ -113,7 +113,7 @@ static EHINewCustomerServiceVoiceManager *instance;
     
     /** 录制完成并且用户没有取消发送 */
     if (self.finishRecord && !self.isCancelSendAudioMessage) {
-        self.finishRecord(cacheAudioData, wavRecordFilePath);
+        self.finishRecord(cacheAudioData, [NSURL fileURLWithPath:amrRecordFilePath].absoluteString, (NSInteger)audioDurationSeconds);
     }
 }
 
@@ -163,26 +163,28 @@ static EHINewCustomerServiceVoiceManager *instance;
     
 #pragma mark - 本地音频
     
-    if ([url.scheme hasPrefix:@"file"]) {
+    NSLog(@"播放音频url = %@", url);
+    
+//    if ([url.scheme hasPrefix:@"file"]) {
         AVPlayerItem *playerItem = [AVPlayerItem playerItemWithURL:url];
         [self.audioPlayer replaceCurrentItemWithPlayerItem:playerItem];
         [self.audioPlayer play];
 
         self.currentUrl = url;
         return;
-    }
+//    }
     
-#pragma mark - 在线音频
-    __weak typeof(self) weakSelf = self;
-    [self.cacheManager cacheVoiceWithUrl:[url absoluteString] completion:^(NSString *filePath, NSInteger duration) {
-        __strong typeof(weakSelf) self = weakSelf;
-        
-        AVPlayerItem *playerItem = [AVPlayerItem playerItemWithURL:[NSURL fileURLWithPath:filePath]];
-        [self.audioPlayer replaceCurrentItemWithPlayerItem:playerItem];
-        [self.audioPlayer play];
-        
-        self.currentUrl = url;
-    }];
+//#pragma mark - 在线音频
+//    __weak typeof(self) weakSelf = self;
+//    [self.cacheManager cacheVoiceWithUrl:[url absoluteString] completion:^(NSString *filePath, NSInteger duration) {
+//        __strong typeof(weakSelf) self = weakSelf;
+//
+//        AVPlayerItem *playerItem = [AVPlayerItem playerItemWithURL:[NSURL fileURLWithPath:filePath]];
+//        [self.audioPlayer replaceCurrentItemWithPlayerItem:playerItem];
+//        [self.audioPlayer play];
+//
+//        self.currentUrl = url;
+//    }];
     
 //    [self startTimer];
 }

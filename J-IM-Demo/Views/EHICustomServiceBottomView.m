@@ -320,10 +320,10 @@
         _voiceManager = [EHINewCustomerServiceVoiceManager sharedInstance];
         
         __weak typeof(self) weakSelf = self;
-        _voiceManager.finishRecord = ^(NSData *amrdData, NSString *wavFilePath) {
+        _voiceManager.finishRecord = ^(NSData *amrdData, NSString *amrFilePath, NSInteger duration) {
             __strong typeof(weakSelf) self = weakSelf;
             if (self.sendVoiceCallback) {
-                self.sendVoiceCallback(amrdData, wavFilePath);
+                self.sendVoiceCallback(amrdData, amrFilePath, duration);
             }
         };
     }

@@ -39,7 +39,7 @@ typedef NS_ENUM(NSInteger, EHIAudioRecordStatus) {
 @property (nonatomic, copy) void (^sendTextCallback)(NSString *text);
 
 /** 发送语音消息回调 */
-@property (nonatomic, copy) void (^sendVoiceCallback)(NSData *amrdData, NSString *wavFilePath);
+@property (nonatomic, copy) void (^sendVoiceCallback)(NSData *amrdData, NSString *amrFilePath, NSInteger duration);
 
 /** 发送图片消息回调 */
 @property (nonatomic, copy) void (^sendPictureCallback)(UIImage *image);

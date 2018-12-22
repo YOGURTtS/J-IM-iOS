@@ -354,7 +354,7 @@
 }
 
 /** 发送录音 */
-- (void)sendVoiceMessage:(NSData *)data wavFilePath:(NSString *)filePath {
+- (void)sendVoiceMessage:(NSData *)data wavFilePath:(NSString *)filePath duration:(NSInteger)duration {
     // TODO: 上传音频
     
     EHICustomerServiceModel *model = [[EHICustomerServiceModel alloc] init];
@@ -362,19 +362,20 @@
     model.fromType = EHIMessageFromTypeSender;
     model.messageStatus = EHIMessageStatusSuccess;
     model.messageType = EHIMessageTypeVoice;
-    model.voiceUrl = @"https://raw.githubusercontent.com/YOGURTtS/YGRecorder/master/myRecord.amr";
+    model.voiceUrl = filePath;
     model.time = [self currentDateStr];
     
-    __weak typeof(self) weakSelf = self;
-    [self.voiceCacheManager cacheSendVoiceWithUrl:model.voiceUrl completion:^(NSString *filePath, NSInteger duration) {
-        __strong typeof(weakSelf) self = weakSelf;
-        NSLog(@"voice cache file path = %@", filePath);
+//    __weak typeof(self) weakSelf = self;
+//    [self.voiceCacheManager cacheSendVoiceWithUrl:model.voiceUrl completion:^(NSString *filePath, NSInteger duration) {
+//        __strong typeof(weakSelf) self = weakSelf;
+//        NSLog(@"voice cache file path = %@", filePath);
+//        model.voiceUrl = filePath;
         model.voiceDuration = duration;
         [self.messageArrayM addObject:model];
         [self.tableView reloadData];
         [self scrollToLastCell];
         [self.dao addMessage:model];
-    }];
+//    }];
     
     
 //    [self.socketManager sendVoice:nil success:^{
@@ -528,10 +529,10 @@
         };
         
         // 发送语音消息
-        _bottomView.sendVoiceCallback = ^(NSData *amrdData, NSString *wavFilePath) {
+        _bottomView.sendVoiceCallback = ^(NSData *amrdData, NSString *amrFilePath, NSInteger duration) {
             __strong typeof(weakSelf)self = weakSelf;
-            NSLog(@"voice wavFilePath = %@", wavFilePath);
-            [self sendVoiceMessage:amrdData wavFilePath:wavFilePath];
+            NSLog(@"voice amrFilePath = %@", amrFilePath);
+            [self sendVoiceMessage:amrdData wavFilePath:amrFilePath duration:duration];
         };
         
         // 发送图片消息

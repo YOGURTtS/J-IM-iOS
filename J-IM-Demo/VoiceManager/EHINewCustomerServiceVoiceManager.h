@@ -34,7 +34,7 @@
 - (void)audioRecordStop;
 
 /** 结束录音回调 */
-@property (nonatomic, copy) void (^finishRecord)(NSData *amrdData, NSString *wavFilePath);
+@property (nonatomic, copy) void (^finishRecord)(NSData *amrdData, NSString *amrFilePath, NSInteger duration);
 
 /** 判断是否正在录音 */
 - (BOOL)isRecording;
