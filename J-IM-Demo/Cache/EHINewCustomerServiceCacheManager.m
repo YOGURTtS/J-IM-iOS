@@ -73,8 +73,8 @@ static dispatch_once_t onceToken;
                 filePath = wavRecordFilePath;
                 
             } else { // 不需要转码，直接缓存
-//                NSURL *voiceUrl = [NSURL URLWithString:url];
-//                NSString *recordFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"%@/%@.%@", voiceUrl.pathExtension, [NSUUID UUID].UUIDString, voiceUrl.pathExtension]];
+                //                NSURL *voiceUrl = [NSURL URLWithString:url];
+                //                NSString *recordFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"%@/%@.%@", voiceUrl.pathExtension, [NSUUID UUID].UUIDString, voiceUrl.pathExtension]];
                 NSString *recordFilePath = [self voiceFilePath:url];
                 [data writeToFile:recordFilePath atomically:YES];
                 filePath = recordFilePath;
@@ -88,7 +88,7 @@ static dispatch_once_t onceToken;
                 // TODO: 更新数据库
                 completion(filePath, seconds);
             }];
-
+            
             
         }] resume];
     } else {

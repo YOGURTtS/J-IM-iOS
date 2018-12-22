@@ -180,7 +180,9 @@
 
 /** 滚动到最后一行 */
 - (void)scrollToLastCell {
-    [self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:self.messageArrayM.count - 1 inSection:0] atScrollPosition:UITableViewScrollPositionBottom animated:YES];
+    if (self.messageArrayM.count) {
+        [self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:self.messageArrayM.count - 1 inSection:0] atScrollPosition:UITableViewScrollPositionBottom animated:YES];
+    }
 }
 
 #pragma mark - socket manager delegate
